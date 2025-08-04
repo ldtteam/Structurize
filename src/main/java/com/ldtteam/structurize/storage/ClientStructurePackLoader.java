@@ -25,10 +25,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -152,7 +149,7 @@ public class ClientStructurePackLoader
                 StructurePacks.setFinishedLoading();
                 if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
                 {
-                    StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
+                        StructurePacks.selectedPack = getRandomPack();
                 }
                 return;
             }
@@ -186,7 +183,7 @@ public class ClientStructurePackLoader
             StructurePacks.setFinishedLoading();
             if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
             {
-                StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
+                StructurePacks.selectedPack = getRandomPack();
             }
             return;
         }
@@ -234,7 +231,7 @@ public class ClientStructurePackLoader
             loadingState = ClientLoadingState.FINISHED_SYNCING;
             if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
             {
-                StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
+                StructurePacks.selectedPack = getRandomPack();
             }
             StructurePacks.setFinishedLoading();
         }
@@ -310,7 +307,7 @@ public class ClientStructurePackLoader
             {
                 loadingState = ClientLoadingState.FINISHED_SYNCING;
                 StructurePacks.setFinishedLoading();
-                StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
+                StructurePacks.selectedPack = getRandomPack();
             }
         });
     }
@@ -344,5 +341,23 @@ public class ClientStructurePackLoader
             .resolve(SCANS_FOLDER).resolve(fileName), provider));
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setPos(null);
         Minecraft.getInstance().player.displayClientMessage(Component.translatable("Scan successfully saved as %s", fileName), false);
+    }
+
+    /**
+     * Get a random pack from the pack metas.
+     * @return the random pack.
+     */
+    public static StructurePackMeta getRandomPack()
+    {
+        final Collection<StructurePackMeta> coll = StructurePacks.getPackMetas();
+        int num = (int) (Math.random() * coll.size());
+        for (StructurePackMeta packMeta : coll)
+        {
+            if (--num < 0)
+            {
+                return packMeta;
+            }
+        }
+        return null;
     }
 }
