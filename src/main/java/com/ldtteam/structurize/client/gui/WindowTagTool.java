@@ -7,10 +7,12 @@ import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
+import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
 import com.ldtteam.structurize.network.messages.SetTagInTool;
 import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.TagManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -20,20 +22,8 @@ import net.minecraft.world.level.Level;
 
 import java.util.*;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.GROUNDLEVEL_TAG;
-
 public class WindowTagTool extends AbstractWindowSkeleton
 {
-    /**
-     * List of tag options. Mods can just insert on this in mod constructor.
-     */
-    public static List<String> TAG_OPTIONS = new ArrayList<>();
-
-    static
-    {
-        TAG_OPTIONS.add(GROUNDLEVEL_TAG);
-    }
-
     private static final String WINDOW_TAG_TOOL    = ":gui/windowtagtool.xml";
     private static final String INPUT_FIELD        = "currentTag";
     private static final String LIST_TAG_POS       = "tagposlist";
@@ -75,11 +65,15 @@ public class WindowTagTool extends AbstractWindowSkeleton
      */
     private List<BlockPos> positionsList = Collections.emptyList();
 
-
     /**
      * The tags list
      */
     private ScrollingList tagOptionList;
+
+    /**
+     * Tag options.
+     */
+    private List<String> tagOptions = new ArrayList<>();
 
     /**
      * Constructor for the skeleton class of the windows.
@@ -92,13 +86,23 @@ public class WindowTagTool extends AbstractWindowSkeleton
         this.anchorPos = anchorPos;
         this.stack = stack;
 
+        tagOptions.addAll(TagManager.getGlobalTagOptions());
+
+        if (anchorPos != null)
+        {
+            final BlockEntity blockEntity = world.getBlockEntity(anchorPos);
+            if (blockEntity instanceof IAnchorBlock anchorBlock)
+            {
+                tagOptions.addAll(TagManager.getMatchingTagOptions(anchorBlock));
+            }
+        }
         registerButton(TAG_SELECT, this::tagOptionSelected);
     }
 
     private void tagOptionSelected(final Button button)
     {
         final int row = tagOptionList.getListElementIndexByPane(button);
-        this.currentTag = TAG_OPTIONS.get(row);
+        this.currentTag = tagOptions.get(row);
         findPaneOfTypeByID(INPUT_FIELD, TextField.class).setText(currentTag);
     }
 
@@ -238,19 +242,19 @@ public class WindowTagTool extends AbstractWindowSkeleton
             @Override
             public int getElementCount()
             {
-                return TAG_OPTIONS.size();
+                return tagOptions.size();
             }
 
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
                 final Text tagsText = rowPane.findPaneOfTypeByID(TAG_TEXT, Text.class);
-                tagsText.setText(Component.literal(TAG_OPTIONS.get(index)));
+                tagsText.setText(Component.literal(tagOptions.get(index)));
                 PaneBuilders.tooltipBuilder().hoverPane(tagsText).build()
-                    .setText(Component.translatable("com.ldtteam.tag.tooltip." + TAG_OPTIONS.get(index)));
+                    .setText(Component.translatable("com.ldtteam.tag.tooltip." + tagOptions.get(index)));
 
                 final Button button = rowPane.findPaneOfTypeByID(TAG_SELECT, Button.class);
-                button.setEnabled(!TAG_OPTIONS.get(index).equals(currentTag));
+                button.setEnabled(!tagOptions.get(index).equals(currentTag));
             }
         });
     }
