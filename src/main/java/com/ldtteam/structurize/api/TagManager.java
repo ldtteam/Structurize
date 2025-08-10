@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.api;
 
-import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
+import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -22,7 +22,7 @@ public class TagManager
     /**
      * Block specific tag options.
      */
-    private static Map<String, Predicate<IBlueprintDataProviderBE>> BLOCK_SPECIFIC_TAG_OPTIONS = new HashMap<>();
+    private static Map<String, Predicate<IAnchorBlock>> BLOCK_SPECIFIC_TAG_OPTIONS = new HashMap<>();
 
     static
     {
@@ -43,7 +43,7 @@ public class TagManager
      * @param tag the tag to register.
      * @param predicate the predicate that has to apply.
      */
-    public static void registerSpecificTagOption(final String tag, final Predicate<IBlueprintDataProviderBE> predicate)
+    public static void registerSpecificTagOption(final String tag, final Predicate<IAnchorBlock> predicate)
     {
         BLOCK_SPECIFIC_TAG_OPTIONS.put(tag, predicate);
     }
@@ -53,7 +53,7 @@ public class TagManager
      * @param block the block to match.
      * @return collection of options.
      */
-    public static Collection<String> getMatchingTagOptions(final IBlueprintDataProviderBE block)
+    public static Collection<String> getMatchingTagOptions(final IAnchorBlock block)
     {
         return BLOCK_SPECIFIC_TAG_OPTIONS.entrySet().stream().filter(entry -> entry.getValue().test(block)).map(Map.Entry::getKey).collect(Collectors.toSet());
     }

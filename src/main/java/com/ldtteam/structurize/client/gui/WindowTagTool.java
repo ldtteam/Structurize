@@ -7,6 +7,7 @@ import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.structurize.api.TagManager;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
+import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.items.ItemTagTool.TagData;
 import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
 import com.ldtteam.structurize.network.messages.SetTagInTool;
@@ -89,10 +90,10 @@ public class WindowTagTool extends AbstractWindowSkeleton
 
         if (anchorPos != null)
         {
-            final Block block = world.getBlockState(anchorPos).getBlock();
-            if (block instanceof IBlueprintDataProviderBE iblueprintTagProvider )
+            final BlockEntity blockEntity = world.getBlockEntity(anchorPos);
+            if (blockEntity instanceof IAnchorBlock anchorBlock)
             {
-                tagOptions.addAll(TagManager.getMatchingTagOptions(iblueprintTagProvider));
+                tagOptions.addAll(TagManager.getMatchingTagOptions(anchorBlock));
             }
         }
         registerButton(TAG_SELECT, this::tagOptionSelected);
