@@ -16,6 +16,7 @@ import com.ldtteam.structurize.util.TagManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -90,8 +91,8 @@ public class WindowTagTool extends AbstractWindowSkeleton
 
         if (anchorPos != null)
         {
-            final BlockEntity blockEntity = world.getBlockEntity(anchorPos);
-            if (blockEntity instanceof IAnchorBlock anchorBlock)
+            final Block block = world.getBlockState(anchorPos).getBlock();
+            if (block instanceof IAnchorBlock anchorBlock)
             {
                 tagOptions.addAll(TagManager.getMatchingTagOptions(anchorBlock));
             }
