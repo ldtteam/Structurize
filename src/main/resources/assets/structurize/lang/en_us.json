@@ -227,5 +227,8 @@
   "structurize.gui.content.blocks": "Blocks",
   "structurize.gui.content.blocks_content": "Block contents",
   "structurize.gui.content.entities": "Entities",
-  "structurize.gui.content.entities_content": "Entity contents"
+  "structurize.gui.content.entities_content": "Entity contents",
+  "com.ldtteam.structurize.gui.taglist.title": "Existing tags in schematic:",
+  "com.ldtteam.structurize.gui.tagoptions.title": "Tag Suggestions:"
+
 }
