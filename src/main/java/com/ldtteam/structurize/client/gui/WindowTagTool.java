@@ -14,6 +14,7 @@ import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -88,7 +89,11 @@ public class WindowTagTool extends AbstractWindowSkeleton
 
         if (anchorPos != null)
         {
-            tagOptions.addAll(TagManager.getMatchingTagOptions(world.getBlockState(anchorPos).getBlock()));
+            final Block block = world.getBlockState(anchorPos).getBlock();
+            if (block instanceof IBlueprintDataProviderBE iblueprintTagProvider )
+            {
+                tagOptions.addAll(TagManager.getMatchingTagOptions(iblueprintTagProvider));
+            }
         }
         registerButton(TAG_SELECT, this::tagOptionSelected);
     }
