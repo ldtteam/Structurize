@@ -90,8 +90,8 @@ public class WindowTagTool extends AbstractWindowSkeleton
 
         if (anchorPos != null)
         {
-            final BlockEntity blockEntity = world.getBlockEntity(anchorPos);
-            if (blockEntity instanceof IAnchorBlock anchorBlock)
+            final Block block = world.getBlockState(anchorPos).getBlock();
+            if (block instanceof IAnchorBlock anchorBlock)
             {
                 tagOptions.addAll(TagManager.getMatchingTagOptions(anchorBlock));
             }
