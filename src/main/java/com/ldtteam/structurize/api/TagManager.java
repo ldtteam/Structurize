@@ -17,7 +17,7 @@ public class TagManager
     /**
      * List of tag options. Mods can just insert on this in mod constructor.
      */
-    private static List<String> GLOBAL_TAG_OPTIONS = new ArrayList<>();
+    private static Set<String> GLOBAL_TAG_OPTIONS = new HashSet<>();
 
     /**
      * Block specific tag options.
@@ -35,10 +35,7 @@ public class TagManager
      */
     public static void registerGlobalTagOption(final String tag)
     {
-        if (!GLOBAL_TAG_OPTIONS.contains(tag))
-        {
-            GLOBAL_TAG_OPTIONS.add(tag);
-        }
+        GLOBAL_TAG_OPTIONS.add(tag);
     }
 
     /**
