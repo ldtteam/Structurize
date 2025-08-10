@@ -229,6 +229,7 @@
   "structurize.gui.content.entities": "Entities",
   "structurize.gui.content.entities_content": "Entity contents",
   "com.ldtteam.structurize.gui.taglist.title": "Existing tags in schematic:",
-  "com.ldtteam.structurize.gui.tagoptions.title": "Tag Suggestions:"
+  "com.ldtteam.structurize.gui.tagoptions.title": "Tag Suggestions:",
+  "com.ldtteam.tag.tooltip.groundlevel": "Buildtool aligns the blueprint with the floor with the help of this tag"
 
 }
