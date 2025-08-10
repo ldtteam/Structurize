@@ -229,7 +229,8 @@
   "structurize.gui.content.entities": "Entities",
   "structurize.gui.content.entities_content": "Entity contents",
   "com.ldtteam.structurize.gui.taglist.title": "Existing tags in schematic:",
-  "com.ldtteam.structurize.gui.tagoptions.title": "Tag Suggestions:",
-  "com.ldtteam.tag.tooltip.groundlevel": "Used by the Buildtool to position the blueprint on the floor"
+  "com.ldtteam.structurize.gui.tagoptions.title": "Registered Tags:",
+  "com.ldtteam.tag.tooltip.groundlevel": "Used by the Buildtool to position the blueprint on the floor",
+  "com.ldtteam.tag.tooltip.invisible": "Hide Blueprint in Buildtool like Integrated Buildings or Mineshafts"
 
 }
