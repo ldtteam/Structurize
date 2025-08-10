@@ -1007,7 +1007,7 @@ public abstract class WorldRenderMacros
             poseStack.mulPose(erm.cameraOrientation());
             poseStack.scale(0.014f, -0.014f, 0.014f);
 
-            final float backgroundTextOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
+            final float backgroundTextOpacity = 0f;
             final int alphaMask = (int) (backgroundTextOpacity * 255.0F) << 24;
 
             final Matrix4f rawPosMatrix = poseStack.last().pose();
@@ -1124,7 +1124,7 @@ public abstract class WorldRenderMacros
                 .setTextureState(NO_TEXTURE)
                 .setShaderState(POSITION_COLOR_SHADER)
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setDepthTestState(LEQUAL_DEPTH_TEST)
+                .setDepthTestState(AlwaysDepthTestStateShard.ALWAYS_DEPTH_TEST)
                 .setCullState(CULL)
                 .setLightmapState(NO_LIGHTMAP)
                 .setOverlayState(NO_OVERLAY)
