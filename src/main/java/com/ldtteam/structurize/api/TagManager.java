@@ -48,13 +48,14 @@ public class TagManager
      */
     public static void registerSpecificTagOption(final String tag, final Predicate<IAnchorBlock> predicate)
     {
-        if (BLOCK_SPECIFIC_TAG_OPTIONS.containsKey(tag))
+        final Predicate<IAnchorBlock> storedPredicate = BLOCK_SPECIFIC_TAG_OPTIONS.getOrDefault(tag, null);
+        if (storedPredicate == null)
         {
-            BLOCK_SPECIFIC_TAG_OPTIONS.put(tag, BLOCK_SPECIFIC_TAG_OPTIONS.get(tag).or(predicate));
+            BLOCK_SPECIFIC_TAG_OPTIONS.put(tag, predicate);
         }
         else
         {
-            BLOCK_SPECIFIC_TAG_OPTIONS.put(tag, predicate);
+            BLOCK_SPECIFIC_TAG_OPTIONS.put(tag, storedPredicate.or(predicate));
         }
     }
 
