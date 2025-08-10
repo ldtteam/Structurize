@@ -35,7 +35,10 @@ public class TagManager
      */
     public static void registerGlobalTagOption(final String tag)
     {
-        GLOBAL_TAG_OPTIONS.add(tag);
+        if (!GLOBAL_TAG_OPTIONS.contains(tag))
+        {
+            GLOBAL_TAG_OPTIONS.add(tag);
+        }
     }
 
     /**
@@ -45,7 +48,14 @@ public class TagManager
      */
     public static void registerSpecificTagOption(final String tag, final Predicate<IAnchorBlock> predicate)
     {
-        BLOCK_SPECIFIC_TAG_OPTIONS.put(tag, predicate);
+        if (BLOCK_SPECIFIC_TAG_OPTIONS.containsKey(tag))
+        {
+            BLOCK_SPECIFIC_TAG_OPTIONS.put(tag, BLOCK_SPECIFIC_TAG_OPTIONS.get(tag).or(predicate));
+        }
+        else
+        {
+            BLOCK_SPECIFIC_TAG_OPTIONS.put(tag, predicate);
+        }
     }
 
     /**
