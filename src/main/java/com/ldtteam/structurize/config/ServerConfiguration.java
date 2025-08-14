@@ -68,7 +68,7 @@ public class ServerConfiguration extends AbstractConfiguration
         createCategory(builder, "gameplay");
 
         ignoreSchematicsFromJar = defineBoolean(builder, "ignoreSchematicsFromJar", false);
-        allowPlayerSchematics = defineBoolean(builder, "allowPlayerSchematics", true);
+        allowPlayerSchematics = defineBoolean(builder, "allowPlayerSchematics", false);
         maxOperationsPerTick = defineInteger(builder, "maxOperationsPerTick", 1000, 0, 100000);
         maxCachedChanges = defineInteger(builder, "maxCachedChanges", 50, 0, 250);
         maxCachedSchematics = defineInteger(builder, "maxCachedSchematics", 100, 0, 100000);
