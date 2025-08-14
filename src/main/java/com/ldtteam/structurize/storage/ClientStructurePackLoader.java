@@ -179,35 +179,27 @@ public class ClientStructurePackLoader
     public static void onServerSyncAttempt(final Map<String, Double> serverStructurePacks)
     {
         Network.getNetwork().sendToServer(new SyncSettingsToServer());
+
+        if (serverStructurePacks.isEmpty())
+        {
+            checkPackDifferences(serverStructurePacks);
+
+            // Most likely single player. Skip.
+            loadingState = ClientLoadingState.FINISHED_SYNCING;
+            StructurePacks.setFinishedLoading();
+            if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
+            {
+                StructurePacks.selectedPack = getRandomPack();
+            }
+            return;
+        }
         
         if (serverStructurePacks.containsKey(Minecraft.getInstance().player.getGameProfile().getName()))
         {
             Minecraft.getInstance().player.sendSystemMessage(Component.translatable("structurize.pack.equaluser.error"));
         }
 
-        boolean needsChanges = false;
-        for (final StructurePackMeta pack : StructurePacks.getPackMetas())
-        {
-            if (!pack.isImmutable())
-            {
-                final double version = serverStructurePacks.getOrDefault(pack.getName(), -1.0);
-                if (version == -1)
-                {
-                    if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
-                    {
-                        // Don't have this pack on the server, disable.
-                        StructurePacks.disablePack(pack.getName());
-                    }
-                }
-                else if (version != pack.getVersion())
-                {
-                    // Version on the client is outdated. Set that we got pending changes.
-                    StructurePacks.disablePack(pack.getName());
-                    needsChanges = true;
-                }
-            }
-        }
-
+        boolean needsChanges = checkPackDifferences(serverStructurePacks);
         for (final String packKey : serverStructurePacks.keySet())
         {
             if (!StructurePacks.hasPack(packKey))
@@ -227,6 +219,38 @@ public class ClientStructurePackLoader
             }
             StructurePacks.setFinishedLoading();
         }
+    }
+
+    /**
+     * Verify all the incoming server packs against the local ones
+     *
+     * @param serverStructurePacks the server structure packs.
+     */
+    private static boolean checkPackDifferences(final Map<String, Double> serverStructurePacks)
+    {
+        boolean needsChanges = false;
+        for (final StructurePackMeta pack : StructurePacks.getPackMetas())
+        {
+            final double version = serverStructurePacks.getOrDefault(pack.getName(), -1.0);
+            if (version == -1)
+            {
+                if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
+                {
+                    // Don't have this pack on the server, disable.
+                    StructurePacks.disablePack(pack.getName());
+                }
+            }
+            else if (version != pack.getVersion())
+            {
+                // Version on the client is outdated. Set that we got pending changes.
+                StructurePacks.disablePack(pack.getName());
+                if (!pack.isImmutable())
+                {
+                    needsChanges = true;
+                }
+            }
+        }
+        return needsChanges;
     }
 
     /**
