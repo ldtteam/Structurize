@@ -33,4 +33,5 @@
 /logs/
 
 gradle/local.gradle
+gradle/local.configuration.gradle
 /repo/

@@ -175,18 +175,6 @@ public class ClientStructurePackLoader
     public static void onServerSyncAttempt(final Map<String, Double> serverStructurePacks)
     {
         new SyncSettingsToServer().sendToServer();
-
-        if (serverStructurePacks.isEmpty())
-        {
-            // Most likely single player. Skip.
-            loadingState = ClientLoadingState.FINISHED_SYNCING;
-            StructurePacks.setFinishedLoading();
-            if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
-            {
-                StructurePacks.selectedPack = getRandomPack();
-            }
-            return;
-        }
         
         if (serverStructurePacks.containsKey(Minecraft.getInstance().player.getGameProfile().getName()))
         {

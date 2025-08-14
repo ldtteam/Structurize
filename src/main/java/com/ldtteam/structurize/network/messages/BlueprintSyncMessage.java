@@ -2,6 +2,7 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.BlueprintPlacementHandling;
 import com.ldtteam.structurize.api.RotationMirror;
@@ -88,6 +89,9 @@ public class BlueprintSyncMessage extends AbstractServerPlayMessage
     @Override
     protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
-        BlueprintPlacementHandling.handlePlacement(this, player);
+        if (Structurize.getConfig().getServer().allowPlayerSchematics.get())
+        {
+            BlueprintPlacementHandling.handlePlacement(this, player);
+        }
     }
 }
