@@ -1,21 +1,28 @@
 package com.ldtteam.structurize.client.gui;
 
+import com.google.common.collect.Lists;
 import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.controls.TextField;
 import com.ldtteam.blockui.util.resloc.OutOfJarResourceLocation;
 import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.storage.StructurePackMeta;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.IOPool;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -23,14 +30,17 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
+import static com.ldtteam.structurize.api.util.constant.TranslationConstants.GUI_SWITCH_PACK_AUTHORS;
+import static com.ldtteam.structurize.api.util.constant.TranslationConstants.GUI_SWITCH_PACK_DISABLED_TEXT;
 import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.config.ServerConfiguration.CONFIG_OPTION_ALLOW_PLAYER_SCHEMATICS;
 
 /**
  * Window class for the style picker.
  */
 public class WindowSwitchPack extends AbstractWindowSkeleton
 {
-    private static final String WINDOW_TAG_TOOL    = ":gui/windowswitchpack.xml";
+    private static final String WINDOW_TAG_TOOL = ":gui/windowswitchpack.xml";
 
     /**
      * The parent window that opened this one.
@@ -45,7 +55,12 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
     /**
      * Levels scrolling list.
      */
-    private ScrollingList  packList;
+    private final ScrollingList packList;
+
+    /**
+     * The drawable components for the packs list.
+     */
+    private final List<DrawableComponent> drawableComponents = new ArrayList<>();
 
     /**
      * List of packs.
@@ -53,19 +68,9 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
     private List<StructurePackMeta> packMetas;
 
     /**
-     * The packs by category.
-     */
-    private List<Object> sortedPacks = new ArrayList<>();
-
-    /**
      * Future list of packs.
      */
     private Future<List<StructurePackMeta>> packMetasFuture;
-
-    /**
-     * Random with a fixed random seed.
-     */
-    private static int randomSeed = new Random().nextInt();
 
     /**
      * Constructor for this window.
@@ -85,41 +90,34 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
                             final Predicate<StructurePackMeta> packPredicate)
     {
         super(Constants.MOD_ID + WINDOW_TAG_TOOL);
-        registerButton(BUTTON_SELECT1, this::selectClicked);
-        registerButton(BUTTON_SELECT2, this::selectClicked);
-
-        registerButton(BUTTON_CANCEL, this::cancelClicked);
-
         this.prevWindow = prevWindow;
         this.packPredicate = packPredicate;
+        this.packList = findPaneOfTypeByID("packs", ScrollingList.class);
 
-        findPaneOfTypeByID(FILTER_NAME, TextField.class).setHandler(input -> {
-            final String filter = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText().toLowerCase(Locale.US);
-
-            final List<StructurePackMeta> list = new ArrayList<>();
-            final Map<String, List<StructurePackMeta>> categories = new TreeMap<>();
-            for (final StructurePackMeta meta : packMetas)
+        registerButton(BUTTON_CANCEL, this::cancelClicked);
+        findPaneOfTypeByID(FILTER_NAME, TextField.class).setHandler(input -> sortAndFilterPacks(input.getText()));
+        this.packList.setDataProvider(new ScrollingList.DataProvider()
+        {
+            @Override
+            public boolean shouldUpdate()
             {
-                if (meta.getName().toLowerCase(Locale.US).contains(filter))
-                {
-                    list.add(meta);
-                    final List<StructurePackMeta> catList = categories.getOrDefault(meta.getOwner(), new ArrayList<>());
-                    catList.add(meta);
-                    categories.put(meta.getOwner(), catList);
-                }
+                return false;
             }
 
-            sortedPacks.clear();
-            for (final Map.Entry<String, List<StructurePackMeta>> entry : categories.entrySet())
+            @Override
+            public int getElementCount()
             {
-                sortedPacks.add(entry.getKey());
-                sortedPacks.add(entry.getKey());
+                return drawableComponents.size();
+            }
 
-                sortedPacks.addAll(entry.getValue());
-                if (entry.getValue().size() % 2 != 0)
-                {
-                    sortedPacks.add(null);
-                }
+            @Override
+            public void updateElement(final int index, final Pane rowPane)
+            {
+                rowPane.findPaneOfTypeByID("box0", Box.class).hide();
+                rowPane.findPaneOfTypeByID("box1", Box.class).hide();
+                rowPane.findPaneOfTypeByID("box2", Box.class).hide();
+
+                drawableComponents.get(index).render(rowPane);
             }
         });
     }
@@ -137,36 +135,12 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
         prevWindow.get().open();
     }
 
-    /**
-     * On choosing a style.
-     * @param button the clicked button.
-     */
-    public void selectClicked(final Button button)
-    {
-        if (prevWindow == null)
-        {
-            close();
-            return;
-        }
-
-        int index = packList.getListElementIndexByPane(button);
-        if (button.getID().contains("1"))
-        {
-            StructurePacks.selectedPack = (StructurePackMeta) sortedPacks.get(index * 2);
-            prevWindow.get().open();
-        }
-        else
-        {
-            StructurePacks.selectedPack = (StructurePackMeta) sortedPacks.get(index * 2 + 1);
-            prevWindow.get().open();
-        }
-    }
-
     @Override
     public void onOpened()
     {
+        super.onOpened();
         packMetas = Collections.emptyList();
-        sortedPacks.clear();
+        drawableComponents.clear();
 
         packMetasFuture = IOPool.submit(() ->
         {
@@ -179,10 +153,6 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
 
             return new ArrayList<>(StructurePacks.getPackMetas().stream().filter(packPredicate).toList());
         });
-
-        packList = findPaneOfTypeByID("packs", ScrollingList.class);
-
-        super.onOpened();
     }
 
     @Override
@@ -198,114 +168,117 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
             }
             catch (InterruptedException | ExecutionException e)
             {
-                e.printStackTrace();
+                Log.getLogger().error("Error resolving pack metas", e);
             }
             packMetasFuture = null;
 
             if (!packMetas.isEmpty())
             {
-                Collections.shuffle(packMetas, new Random(randomSeed));
+                Collections.shuffle(packMetas, Constants.rand);
             }
 
-            final Map<String, List<StructurePackMeta>> categories = new TreeMap<>();
-            for (final StructurePackMeta meta : packMetas)
-            {
-                final List<StructurePackMeta> catList = categories.getOrDefault(meta.getOwner(), new ArrayList<>());
-                catList.add(meta);
-                categories.put(meta.getOwner(), catList);
-            }
-
-            sortedPacks.clear();
-            for (final Map.Entry<String, List<StructurePackMeta>> entry : categories.entrySet())
-            {
-                sortedPacks.add(entry.getKey());
-                sortedPacks.add(entry.getKey());
-
-                sortedPacks.addAll(entry.getValue());
-                if (entry.getValue().size() % 2 != 0)
-                {
-                    sortedPacks.add(null);
-                }
-            }
-
-            updatePacks();
+            sortAndFilterPacks("");
+            packList.on();
         }
     }
-
 
     /**
-     * Updates the current pack list.
+     * Sort and filter all the packs in the window.
+     *
+     * @param filter the filter string.
      */
-    public void updatePacks()
+    private void sortAndFilterPacks(final String filter)
     {
-        packList.enable();
-        packList.show();
+        final Map<String, List<StructurePackMeta>> categories = new TreeMap<>();
 
-        packList.setDataProvider(new ScrollingList.DataProvider()
+        // First, determine all packs
+        for (final StructurePackMeta meta : packMetas)
         {
-            @Override
-            public int getElementCount()
+            if (StringUtils.isBlank(filter) || StringUtils.containsIgnoreCase(meta.getName(), filter))
             {
-                return sortedPacks.size() / 2;
+                categories.compute(meta.getOwner(), (k, v) -> v == null ? new ArrayList<>() : v).add(meta);
             }
+        }
 
-            @Override
-            public void updateElement(final int index, final Pane rowPane)
+        // Second, iterate again but start creating the drawable components
+        drawableComponents.clear();
+        for (final Map.Entry<String, List<StructurePackMeta>> entry : categories.entrySet())
+        {
+            drawableComponents.add(new CategoryDrawableComponent(entry.getKey()));
+
+            for (final List<StructurePackMeta> meta : Lists.partition(entry.getValue(), 2))
             {
-                int metaStart = index * 2;
-
-                final Object obj1 = sortedPacks.get(metaStart);
-                final Object obj2 = sortedPacks.get(metaStart + 1);
-
-                rowPane.findPaneByID("box0").hide();
-                if (obj1 instanceof StructurePackMeta meta1)
+                if (meta.size() == 2)
                 {
-                    fillForMeta(rowPane, meta1, "1");
-                    rowPane.findPaneByID("box1").show();
+                    drawableComponents.add(new PacksDrawableComponent(prevWindow, meta.get(0), meta.get(1)));
                 }
                 else
                 {
-                    rowPane.findPaneByID("box1").hide();
-                }
-
-                if (obj2 instanceof StructurePackMeta meta2)
-                {
-                    fillForMeta(rowPane, meta2, "2");
-                    rowPane.findPaneByID("box2").show();
-                }
-                else
-                {
-                    rowPane.findPaneByID("box2").hide();
-                }
-
-                if (obj1 instanceof String str)
-                {
-                    rowPane.findPaneByID("box0").show();
-                    rowPane.findPaneOfTypeByID("category", Text.class).setText(Component.literal(StringUtils.capitalize(str)));
+                    drawableComponents.add(new PacksDrawableComponent(prevWindow, meta.get(0), null));
                 }
             }
-        });
+        }
+
+        packList.refreshElementPanes(true);
     }
 
-    private static void fillForMeta(final Pane rowPane, final StructurePackMeta packMeta, final String side)
+    private interface DrawableComponent
     {
-        rowPane.findPaneOfTypeByID("name" + side, Text.class).setText(Component.literal(packMeta.getName()));
-        rowPane.findPaneOfTypeByID("desc" + side, Text.class).setText(Component.literal(packMeta.getDesc()));
-        StringBuilder author = new StringBuilder("Authors: ");
-        for (int i = 0; i < packMeta.getAuthors().size(); i++)
+        void render(final Pane rowPane);
+    }
+
+    private record CategoryDrawableComponent(String category) implements DrawableComponent
+    {
+        @Override
+        public void render(final Pane rowPane)
         {
-            author.append(packMeta.getAuthors().get(i));
-            if (i + 1 < packMeta.getAuthors().size())
+            rowPane.findPaneOfTypeByID("box0", Box.class).show();
+            rowPane.findPaneOfTypeByID("category", Text.class).setText(Component.literal(StringUtils.capitalize(category)));
+        }
+    }
+
+    private record PacksDrawableComponent(
+        @NotNull Supplier<BOWindow> prevWindow,
+        @NotNull StructurePackMeta first,
+        @Nullable StructurePackMeta second) implements DrawableComponent
+    {
+        @Override
+        public void render(final Pane rowPane)
+        {
+            rowPane.findPaneOfTypeByID("box1", Box.class).show();
+            fillForMeta(rowPane, first, "1");
+
+            if (second != null)
             {
-                author.append(", ");
+                rowPane.findPaneOfTypeByID("box2", Box.class).show();
+                fillForMeta(rowPane, second, "2");
             }
         }
-        rowPane.findPaneOfTypeByID("authors" + side, Text.class).setText(Component.literal(author.toString()));
-        if (!packMeta.getIconPath().isEmpty())
-        {
-            rowPane.findPaneOfTypeByID("icon" + side, Image.class).setImage(OutOfJarResourceLocation.of(MOD_ID, packMeta.getPath().resolve(packMeta.getIconPath())), false);
-        }
 
-        rowPane.findPaneOfTypeByID("select" + side, Button.class).setTextColor(ChatFormatting.BLACK.getColor());
+        private void fillForMeta(final Pane rowPane, final StructurePackMeta packMeta, final String side)
+        {
+            rowPane.findPaneOfTypeByID("name" + side, Text.class).setText(Component.literal(packMeta.getName()));
+            rowPane.findPaneOfTypeByID("desc" + side, Text.class).setText(Component.literal(packMeta.getDesc()));
+            rowPane.findPaneOfTypeByID("authors" + side, Text.class).setText(Component.translatable(GUI_SWITCH_PACK_AUTHORS, String.join(", ", packMeta.getAuthors())));
+            if (!packMeta.getIconPath().isEmpty())
+            {
+                rowPane.findPaneOfTypeByID("icon" + side, Image.class).setImage(OutOfJarResourceLocation.of(MOD_ID, packMeta.getPath().resolve(packMeta.getIconPath())), false);
+            }
+
+            final Button selectButton = rowPane.findPaneOfTypeByID("select" + side, Button.class);
+            selectButton.setEnabled(!packMeta.isDisabled());
+            selectButton.setHandler(h -> {
+                StructurePacks.switchSelectedPack(packMeta);
+                prevWindow.get().open();
+            });
+
+            if (packMeta.isDisabled())
+            {
+                final MutableComponent configOptionComponent = Component.literal(CONFIG_OPTION_ALLOW_PLAYER_SCHEMATICS).withStyle(ChatFormatting.GOLD);
+                PaneBuilders.tooltipBuilder()
+                    .append(Component.translatable(GUI_SWITCH_PACK_DISABLED_TEXT, configOptionComponent))
+                    .hoverPane(selectButton).build();
+            }
+        }
     }
 }
