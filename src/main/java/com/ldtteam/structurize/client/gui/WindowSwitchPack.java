@@ -11,8 +11,8 @@ import com.ldtteam.blockui.util.resloc.OutOfJarResourceLocation;
 import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.structurize.api.util.Log;
-import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.StructurePackMeta;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.IOPool;
@@ -31,9 +31,8 @@ import java.util.function.Supplier;
 
 import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
 import static com.ldtteam.structurize.api.constants.WindowConstants.*;
-import static com.ldtteam.structurize.api.util.constant.TranslationConstants.GUI_SWITCH_PACK_AUTHORS;
-import static com.ldtteam.structurize.api.util.constant.TranslationConstants.GUI_SWITCH_PACK_DISABLED_TEXT;
-import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
+import static com.ldtteam.structurize.api.constants.TranslationConstants.GUI_SWITCH_PACK_AUTHORS;
+import static com.ldtteam.structurize.api.constants.TranslationConstants.GUI_SWITCH_PACK_DISABLED_TEXT;
 import static com.ldtteam.structurize.config.ServerConfiguration.CONFIG_OPTION_ALLOW_PLAYER_SCHEMATICS;
 
 /**
