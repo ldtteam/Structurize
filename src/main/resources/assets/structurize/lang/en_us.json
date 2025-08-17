@@ -192,7 +192,6 @@
   "structurize.gui.missing.pos": "Click the tool on a solid block first to select a starting position",
   "structurize.gui.manipulation.info": "Use the arrow buttons on the right to move the preview around or use the configured keys. You can exit and reposition via esc and then right click again to re-enter.",
   "structurize.pack.missing.blueprint": "The Requested Blueprint does not exist on the Serverside in the same Pack. Either the Client Pack has been tampered with, or the Server Pack is outdated.",
-  "structurize.pack.none": "No structure packs are installed. Scan something or install a mod that provides packs.",
   "structurize.pack.equaluser.error": "The server holds a pack with your player name, this might interfere with your ability to place personal scans. To avoid that you might want to delete the pack on the server side.",
   "com.ldtteam.structurize.iterators.default": "Default",
   "com.ldtteam.structurize.iterators.inwardcircle": "Inward Circle",
@@ -231,6 +230,8 @@
   "com.ldtteam.structurize.gui.taglist.title": "Existing tags in schematic:",
   "com.ldtteam.structurize.gui.tagoptions.title": "Registered Tags:",
   "com.ldtteam.tag.tooltip.groundlevel": "Used by the Buildtool to position the blueprint on the floor",
-  "com.ldtteam.tag.tooltip.invisible": "Hide Blueprint in Buildtool like Integrated Buildings or Mineshafts"
-
+  "com.ldtteam.tag.tooltip.invisible": "Hide Blueprint in Buildtool like Integrated Buildings or Mineshafts",
+  "com.ldtteam.structurize.gui.switchpack.authors": "Authors: %s",
+  "com.ldtteam.structurize.gui.switchpack.list.empty": "There are no structure packs found, please install some",
+  "com.ldtteam.structurize.gui.switchpack.pack_disabled.hover_text": "This pack is disabled because it only exists on the client. In order to use this pack, the server must enable the config option '%s' on the server."
 }

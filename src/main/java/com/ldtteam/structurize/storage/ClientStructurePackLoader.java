@@ -147,10 +147,7 @@ public class ClientStructurePackLoader
             {
                 loadingState = ClientLoadingState.FINISHED_SYNCING;
                 StructurePacks.setFinishedLoading();
-                if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
-                {
-                        StructurePacks.selectedPack = getRandomPack();
-                }
+                StructurePacks.ensureSelectedPack();
                 return;
             }
 
@@ -221,19 +218,20 @@ public class ClientStructurePackLoader
         boolean needsChanges = false;
         for (final StructurePackMeta pack : StructurePacks.getPackMetas())
         {
+            pack.setDisabled(false);
             final double version = serverStructurePacks.getOrDefault(pack.getName(), -1.0);
             if (version == -1)
             {
                 if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
                 {
                     // Don't have this pack on the server, disable.
-                    StructurePacks.disablePack(pack.getName());
+                    pack.setDisabled(true);
                 }
             }
             else if (version != pack.getVersion())
             {
                 // Version on the client is outdated. Set that we got pending changes.
-                StructurePacks.disablePack(pack.getName());
+                pack.setDisabled(true);
                 if (!pack.isImmutable())
                 {
                     needsChanges = true;
@@ -255,7 +253,7 @@ public class ClientStructurePackLoader
         Log.getLogger().warn("Received Structure pack from the Server: " + packName);
         IOPool.execute(() ->
         {
-            final StructurePackMeta pack = StructurePacks.disablePack(packName);
+            final StructurePackMeta pack = StructurePacks.removePack(packName);
             if (pack != null && !pack.isImmutable() && !JavaUtils.deleteDirectory(pack.getPath()))
             {
                 Log.getLogger().warn("Error trying to delete pack: ");
@@ -313,7 +311,7 @@ public class ClientStructurePackLoader
             {
                 loadingState = ClientLoadingState.FINISHED_SYNCING;
                 StructurePacks.setFinishedLoading();
-                StructurePacks.selectedPack = getRandomPack();
+                StructurePacks.ensureSelectedPack();
             }
         });
     }
@@ -339,7 +337,7 @@ public class ClientStructurePackLoader
     public static void handleSaveScanMessage(final CompoundTag compound, final String fileName, final HolderLookup.Provider provider)
     {
         final String packName = Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US);
-        StructurePacks.selectedPack = StructurePacks.getStructurePack(Minecraft.getInstance().getUser().getName());
+        StructurePacks.switchSelectedPack(StructurePacks.getStructurePack(Minecraft.getInstance().getUser().getName()));
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprintFuture(
           StructurePacks.storeBlueprint(packName, compound, Minecraft.getInstance().gameDirectory.toPath()
             .resolve(BLUEPRINT_FOLDER)
@@ -347,23 +345,5 @@ public class ClientStructurePackLoader
             .resolve(SCANS_FOLDER).resolve(fileName), provider));
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setPos(null);
         Minecraft.getInstance().player.displayClientMessage(Component.translatable("Scan successfully saved as %s", fileName), false);
-    }
-
-    /**
-     * Get a random pack from the pack metas.
-     * @return the random pack.
-     */
-    public static StructurePackMeta getRandomPack()
-    {
-        final Collection<StructurePackMeta> coll = StructurePacks.getPackMetas();
-        int num = (int) (Math.random() * coll.size());
-        for (StructurePackMeta packMeta : coll)
-        {
-            if (--num < 0)
-            {
-                return packMeta;
-            }
-        }
-        return null;
     }
 }

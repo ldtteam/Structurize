@@ -63,7 +63,7 @@ public class ClientConfiguration extends AbstractConfiguration
         finishCategory();   // blueprint
 
         createCategory("gameplay");
-        scanToolScrolling = defineBoolean("scan_tool_scrolling", true);
+        scanToolScrolling = defineBoolean("scan_tool_scrolling", false);
         finishCategory();
     }
 
