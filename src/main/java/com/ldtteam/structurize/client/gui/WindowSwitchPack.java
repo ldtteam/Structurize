@@ -99,12 +99,6 @@ public class WindowSwitchPack extends AbstractWindowSkeleton
         this.packList.setDataProvider(new ScrollingList.DataProvider()
         {
             @Override
-            public boolean shouldUpdate()
-            {
-                return false;
-            }
-
-            @Override
             public int getElementCount()
             {
                 return drawableComponents.size();
