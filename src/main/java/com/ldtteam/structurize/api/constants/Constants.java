@@ -3,6 +3,8 @@ package com.ldtteam.structurize.api.constants;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
+import java.util.Random;
+
 /**
  * Some constants needed for the whole mod.
  */
@@ -40,6 +42,11 @@ public final class Constants
     {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
+
+    /**
+     * Shared random
+     */
+    public static final Random rand = new Random();
 
     /**
      * Private constructor to hide implicit public one.

@@ -146,8 +146,8 @@ public class BlueprintPreviewData
         }
         else
         {
-            byteBuf.writeUtf(StructurePacks.selectedPack.getName());
-            byteBuf.writeUtf(StructurePacks.selectedPack.getSubPath(blueprint.getFilePath().resolve(blueprint.getFileName() + ".blueprint")));
+            byteBuf.writeUtf(StructurePacks.getSelectedPack().getName());
+            byteBuf.writeUtf(StructurePacks.getSelectedPack().getSubPath(blueprint.getFilePath().resolve(blueprint.getFileName() + ".blueprint")));
         }
         byteBuf.writeByte(rotationMirror.ordinal());
     }

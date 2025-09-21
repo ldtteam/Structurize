@@ -15,6 +15,8 @@ import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
  */
 public class ServerConfiguration extends AbstractConfiguration
 {
+    public static final String CONFIG_OPTION_ALLOW_PLAYER_SCHEMATICS = "allowPlayerSchematics";
+
     /**
      * Should the default schematics be ignored (from the jar)?
      */
@@ -69,7 +71,7 @@ public class ServerConfiguration extends AbstractConfiguration
         createCategory("gameplay");
 
         ignoreSchematicsFromJar = defineBoolean("ignoreSchematicsFromJar", false);
-        allowPlayerSchematics = defineBoolean("allowPlayerSchematics", true);
+        allowPlayerSchematics = defineBoolean(CONFIG_OPTION_ALLOW_PLAYER_SCHEMATICS, false);
         maxOperationsPerTick = defineInteger("maxOperationsPerTick", 1000, 0, 100000);
         maxCachedChanges = defineInteger("maxCachedChanges", 50, 0, 250);
         maxCachedSchematics = defineInteger("maxCachedSchematics", 100, 0, 100000);

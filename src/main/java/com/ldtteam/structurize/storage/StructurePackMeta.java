@@ -64,6 +64,11 @@ public class StructurePackMeta
     private boolean immutable = false;
 
     /**
+     * Whether this pack is disabled due to a sync problem.
+     */
+    private boolean disabled = false;
+
+    /**
      * Initialize the pack from json.
      *
      * @param json the json to use.
@@ -224,5 +229,28 @@ public class StructurePackMeta
         {
             return subPath.replace("\\", "/");
         }
+    }
+
+    /**
+     * Get whether this pack is disabled due to a sync problem.
+     *
+     * @return true if so.
+     */
+    public boolean isDisabled()
+    {
+        return disabled;
+    }
+
+    /**
+     * Set whether this pack is disabled due to a sync problem.
+     *
+     * @param disabled boolean indicating whether the pack should be marked as disabled or not.
+     */
+    public void setDisabled(final boolean disabled)
+    {
+        this.disabled = disabled;
+
+        // We have to re-check that a valid pack is selected upon switching the disabled state.
+        StructurePacks.ensureSelectedPack();
     }
 }
