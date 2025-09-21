@@ -65,8 +65,8 @@ public class StructurePacks
     /**
      * Selected pack on the client.
      */
-    @NotNull
-    private static String selectedPack = "";
+    @Nullable
+    public static StructurePackMeta selectedPack = null;
 
     /**
      * Blocks the current thread until loading has finished
@@ -723,7 +723,7 @@ public class StructurePacks
     public static StructurePackMeta getSelectedPack()
     {
         ensureSelectedPack();
-        return getStructurePack(selectedPack);
+        return selectedPack;
     }
 
     /**
@@ -733,7 +733,7 @@ public class StructurePacks
      */
     public static void switchSelectedPack(final StructurePackMeta packMeta)
     {
-        selectedPack = "";
+        selectedPack = null;
         if (packMeta != null)
         {
             switchSelectedPack(packMeta.getName());
@@ -747,11 +747,11 @@ public class StructurePacks
      */
     public static void switchSelectedPack(final String packName)
     {
-        selectedPack = "";
+        selectedPack = null;
         final StructurePackMeta structurePack = getStructurePack(packName);
         if (structurePack != null)
         {
-            selectedPack = structurePack.getName();
+            selectedPack = structurePack;
         }
     }
 
@@ -760,16 +760,16 @@ public class StructurePacks
      */
     public static void ensureSelectedPack()
     {
-        final StructurePackMeta structurePack = getStructurePack(selectedPack);
+        final StructurePackMeta structurePack = selectedPack;
         if (structurePack == null || structurePack.isDisabled())
         {
-            selectedPack = "";
+            selectedPack = null;
             final List<StructurePackMeta> packs = StructurePacks.getPackMetas().stream()
                 .filter(Predicate.not(StructurePackMeta::isDisabled))
                 .toList();
             if (!packs.isEmpty())
             {
-                selectedPack = packs.get(Constants.rand.nextInt(packs.size())).getName();
+                selectedPack = packs.get(Constants.rand.nextInt(packs.size()));
             }
         }
     }
