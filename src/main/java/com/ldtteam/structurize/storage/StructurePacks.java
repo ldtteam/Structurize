@@ -10,7 +10,6 @@ import com.ldtteam.structurize.util.IOPool;
 import com.ldtteam.structurize.util.ManualBarrier;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedOutputStream;
@@ -125,6 +124,7 @@ public class StructurePacks
     {
         packMetas.clear();
         clientPackMetas.clear();
+        selectedPack = null;
     }
 
     /**
