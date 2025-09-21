@@ -63,8 +63,10 @@ public class StructurePacks
 
     /**
      * Selected pack on the client.
+     * @deprecated -> Don't read/write directly, go through methods. 1.22 will make this a string.
      */
     @Nullable
+    @Deprecated
     public static StructurePackMeta selectedPack = null;
 
     /**
@@ -661,6 +663,12 @@ public class StructurePacks
                         {
                             packMetas.put(pack.getName(), pack);
                         }
+
+                        if (selectedPack != null && selectedPack.getName().equals(pack.getName()))
+                        {
+                            selectedPack = pack;
+                        }
+
                         Log.getLogger().info("Registered structure pack: " + pack.getName());
                     }
                     else
