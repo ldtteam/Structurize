@@ -3,6 +3,7 @@ package com.ldtteam.structurize.storage;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.util.IOPool;
@@ -62,8 +63,11 @@ public class StructurePacks
 
     /**
      * Selected pack on the client.
+     * @deprecated -> Don't read/write directly, go through methods. 1.22 will make this a string.
      */
-    public static StructurePackMeta selectedPack;
+    @Nullable
+    @Deprecated
+    public static StructurePackMeta selectedPack = null;
 
     /**
      * Blocks the current thread until loading has finished
@@ -122,13 +126,14 @@ public class StructurePacks
     {
         packMetas.clear();
         clientPackMetas.clear();
+        selectedPack = null;
     }
 
     /**
-     * Disable a specific pack.
+     * Remove a specific pack.
      * @param name the packname.
      */
-    public static StructurePackMeta disablePack(final String name)
+    public static StructurePackMeta removePack(final String name)
     {
         return packMetas.remove(name);
     }
@@ -658,6 +663,12 @@ public class StructurePacks
                         {
                             packMetas.put(pack.getName(), pack);
                         }
+
+                        if (selectedPack != null && selectedPack.getName().equals(pack.getName()))
+                        {
+                            selectedPack = pack;
+                        }
+
                         Log.getLogger().info("Registered structure pack: " + pack.getName());
                     }
                     else
@@ -709,6 +720,66 @@ public class StructurePacks
     public static boolean hasPack(final String key)
     {
         return packMetas.containsKey(key);
+    }
+
+    /**
+     * Get the currently selected pack.
+     *
+     * @return the random pack.
+     */
+    @Nullable
+    public static StructurePackMeta getSelectedPack()
+    {
+        ensureSelectedPack();
+        return selectedPack;
+    }
+
+    /**
+     * Set the currently selected pack.
+     *
+     * @param packMeta the new pack meta.
+     */
+    public static void switchSelectedPack(final StructurePackMeta packMeta)
+    {
+        selectedPack = null;
+        if (packMeta != null)
+        {
+            switchSelectedPack(packMeta.getName());
+        }
+    }
+
+    /**
+     * Set the currently selected pack.
+     *
+     * @param packName the new pack name.
+     */
+    public static void switchSelectedPack(final String packName)
+    {
+        selectedPack = null;
+        final StructurePackMeta structurePack = getStructurePack(packName);
+        if (structurePack != null)
+        {
+            selectedPack = structurePack;
+        }
+    }
+
+    /**
+     * Ensure that we have a selected pack.
+     */
+    public static void ensureSelectedPack()
+    {
+        final StructurePackMeta structurePack = selectedPack;
+        if (structurePack == null || structurePack.isDisabled())
+        {
+            selectedPack = null;
+            final List<StructurePackMeta> packs = StructurePacks.getPackMetas().stream()
+                .filter(Predicate.not(StructurePackMeta::isDisabled))
+                .toList();
+            if (!packs.isEmpty())
+            {
+                selectedPack = packs.get(Constants.rand.nextInt(packs.size()));
+            }
+        }
     }
 
     /**

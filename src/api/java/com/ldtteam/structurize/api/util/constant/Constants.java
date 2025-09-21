@@ -2,6 +2,8 @@ package com.ldtteam.structurize.api.util.constant;
 
 import net.minecraft.world.level.block.Block;
 
+import java.util.Random;
+
 /**
  * Some constants needed for the whole mod.
  */
@@ -73,6 +75,11 @@ public final class Constants
      * Local standard.
      */
     public static final String LOCAL = "Local";
+
+    /**
+     * Shared random
+     */
+    public static final Random rand = new Random();
 
     /**
      * Private constructor to hide implicit public one.
