@@ -162,7 +162,7 @@ public class ServerStructurePackLoader
     {
         if (loadingState == ServerLoadingState.UNINITIALIZED)
         {
-            Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(Collections.emptyMap()), player);
+            Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(List.of()), player);
             // Noop Single Player, Nothing to do here.
             return;
         }
@@ -211,32 +211,22 @@ public class ServerStructurePackLoader
 
     /**
      * Handle the client update for a given player and their packs.
-     * @param clientStructurePacks the client structure packs.
      * @param player the player.
      */
     private static void handleClientUpdate(final Map<String, Double> clientStructurePacks, final ServerPlayer player)
     {
+        Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(StructurePacks.getPackMetas()), player);
+
         final UUID uuid = player.getUUID();
         final Map<String, StructurePackMeta> missingPacks = new HashMap<>();
-        final Map<String, StructurePackMeta> packsToSync = new HashMap<>();
 
         for (final StructurePackMeta pack : StructurePacks.getPackMetas())
         {
-            if (!pack.isImmutable())
+            if (!pack.isImmutable() && clientStructurePacks.getOrDefault(pack.getName(), -1.0) != pack.getVersion())
             {
-                if (clientStructurePacks.getOrDefault(pack.getName(), -1.0) != pack.getVersion())
-                {
-                    missingPacks.put(pack.getName(), pack);
-                }
-                else
-                {
-                    packsToSync.put(pack.getName(), pack);
-                }
+                missingPacks.put(pack.getName(), pack);
             }
         }
-
-        packsToSync.putAll(missingPacks);
-        Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(packsToSync), player);
 
         IOPool.execute(() -> {
             int index = 1;
