@@ -9,6 +9,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,15 +43,12 @@ public class NotifyClientAboutStructurePacksMessage extends AbstractClientPlayMe
      * Notify the client about the server structurepacks.
      * @param clientStructurePacks the list of packs.
      */
-    public NotifyClientAboutStructurePacksMessage(final Map<String, StructurePackMeta> clientStructurePacks)
+    public NotifyClientAboutStructurePacksMessage(final Collection<StructurePackMeta> clientStructurePacks)
     {
         super(TYPE);
-        for (final StructurePackMeta pack : clientStructurePacks.values())
+        for (final StructurePackMeta pack : clientStructurePacks)
         {
-            if (!pack.isImmutable())
-            {
-                this.serverStructurePacks.put(pack.getName(), pack.getVersion());
-            }
+            this.serverStructurePacks.put(pack.getName(), pack.getVersion());
         }
     }
 

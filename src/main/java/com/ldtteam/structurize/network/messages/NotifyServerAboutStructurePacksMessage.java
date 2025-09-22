@@ -48,10 +48,7 @@ public class NotifyServerAboutStructurePacksMessage extends AbstractServerPlayMe
         super(TYPE);
         for (final StructurePackMeta pack : clientStructurePacks)
         {
-            if (!pack.isImmutable())
-            {
-                this.clientStructurePacks.put(pack.getName(), pack.getVersion());
-            }
+            this.clientStructurePacks.put(pack.getName(), pack.getVersion());
         }
     }
 

@@ -175,8 +175,6 @@ public class ClientStructurePackLoader
 
         if (serverStructurePacks.isEmpty())
         {
-            checkPackDifferences(serverStructurePacks);
-
             // Most likely single player. Skip.
             loadingState = ClientLoadingState.FINISHED_SYNCING;
             StructurePacks.setFinishedLoading();
@@ -218,22 +216,33 @@ public class ClientStructurePackLoader
         boolean needsChanges = false;
         for (final StructurePackMeta pack : StructurePacks.getPackMetas())
         {
+            // Assume the pack is fine by default
             pack.setDisabled(false);
+
+            // Validate the version of the server pack
             final double version = serverStructurePacks.getOrDefault(pack.getName(), -1.0);
+
+            // If the server pack version is -1 it means the server doesn't have this pack
             if (version == -1)
             {
                 if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
                 {
-                    // Don't have this pack on the server, disable.
                     pack.setDisabled(true);
                 }
             }
+            // Version on the client is different
             else if (version != pack.getVersion())
             {
-                // Version on the client is outdated. Set that we got pending changes.
-                pack.setDisabled(true);
-                if (!pack.isImmutable())
+                // If the pack is immutable, meaning from a jar, we cannot update it, so it becomes disabled
+                if (pack.isImmutable())
                 {
+                    pack.setDisabled(true);
+                }
+                // If the pack is mutable, we remove the local copy and tell the server we want to synchronize this pack anew
+                // On the next iteration, the client should tell the server it's now missing this pack, which should initiate a copy from the server
+                else
+                {
+                    StructurePacks.removePack(pack.getName());
                     needsChanges = true;
                 }
             }
