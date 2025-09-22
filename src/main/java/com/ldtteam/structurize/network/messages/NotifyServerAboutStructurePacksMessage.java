@@ -42,10 +42,7 @@ public class NotifyServerAboutStructurePacksMessage implements IMessage
     {
         for (final StructurePackMeta pack : clientStructurePacks)
         {
-            if (!pack.isImmutable())
-            {
-                this.clientStructurePacks.put(pack.getName(), pack.getVersion());
-            }
+            this.clientStructurePacks.put(pack.getName(), pack.getVersion());
         }
     }
 
