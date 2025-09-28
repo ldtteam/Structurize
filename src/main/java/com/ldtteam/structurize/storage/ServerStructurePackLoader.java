@@ -14,6 +14,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -256,18 +258,20 @@ public class ServerStructurePackLoader
             Files.walkFileTree(sourcePath, new SimpleFileVisitor<>()
             {
                 @Override
-                public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+                @NotNull
+                public FileVisitResult preVisitDirectory(@NotNull final Path dir, @NotNull final BasicFileAttributes attrs) throws IOException
                 {
                     if (!sourcePath.equals(dir))
                     {
-                        zos.putNextEntry(new ZipEntry(sourcePath.relativize(dir) + File.separator));
+                        zos.putNextEntry(new ZipEntry(sourcePath.relativize(dir) + "/"));
                         zos.closeEntry();
                     }
                     return FileVisitResult.CONTINUE;
                 }
 
                 @Override
-                public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
+                @NotNull
+                public FileVisitResult visitFile(@NotNull final Path file, @NotNull final BasicFileAttributes attrs) throws IOException
                 {
                     zos.putNextEntry(new ZipEntry(sourcePath.relativize(file).toString()));
                     Files.copy(file, zos);
@@ -278,7 +282,7 @@ public class ServerStructurePackLoader
         }
         catch (IOException e)
         {
-            Log.getLogger().warn("Unable to ZIP up: " + sourcePath.toString());
+            Log.getLogger().warn("Unable to ZIP up: {}", sourcePath);
             return null;
         }
         return buffer;
