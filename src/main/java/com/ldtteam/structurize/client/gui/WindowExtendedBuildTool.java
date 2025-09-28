@@ -217,7 +217,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             return;
         }
 
-        if (StringUtils.isBlank(currentStructurePack) && !currentStructurePack.equals(selectedPack.getName()))
+        if (!StringUtils.isBlank(currentStructurePack) && !currentStructurePack.equals(selectedPack.getName()))
         {
             depth = "";
             currentBluePrintMappingAtDepthCache.clear();
