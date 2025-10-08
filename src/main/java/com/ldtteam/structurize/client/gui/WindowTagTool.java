@@ -192,7 +192,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
     {
         super.close();
         TagData.updateItemStack(stack, tags -> tags.setCurrentTag(inputField.getText()));
-        new SetTagInTool(findPaneOfTypeByID(INPUT_FIELD, TextField.class).getText(), Minecraft.getInstance().player.getInventory().findSlotMatchingItem(stack)).sendToServer();
+        new SetTagInTool(inputField.getText(), Minecraft.getInstance().player.getInventory().findSlotMatchingItem(stack)).sendToServer();
     }
 
     @Override
