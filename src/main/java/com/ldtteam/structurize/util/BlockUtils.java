@@ -62,11 +62,6 @@ public final class BlockUtils
     private static final Set<Block> trueSolidBlocks = Collections.newSetFromMap(new IdentityHashMap<>());
 
     /**
-     * All solid blocks in the game that may float in the air without support.
-     */
-    private static final Set<Block> defaultFullBlocks = Collections.newSetFromMap(new IdentityHashMap<>());
-
-    /**
      * Predicated to determine if a block is free to place.
      */
         public static final List<BiPredicate<Block, BlockState>> FREE_TO_PLACE_BLOCKS = Arrays.asList(
@@ -99,10 +94,6 @@ public final class BlockUtils
                 .filter(block -> !block.defaultBlockState().canBeReplaced() && block.hasCollision && !(block instanceof Fallable) && !block.defaultBlockState().isAir()
                     && !(block instanceof LiquidBlock) && !block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS))
                 .forEach(trueSolidBlocks::add);
-
-            ForgeRegistries.BLOCKS.getValues().stream()
-              .filter(BlockUtils::isGoodFullBlock)
-              .forEach(defaultFullBlocks::add);
         }
     }
 
@@ -850,11 +841,11 @@ public final class BlockUtils
      * @param block the block to check.
      * @return true if so.
      */
-    public static boolean isGoodFullBlock(final Block block)
+    public static boolean isGoodFullBlock(final BlockState block)
     {
         try
         {
-            return block.defaultBlockState().getShape(null, null) == Shapes.block();
+            return block.getShape(null, null) == Shapes.block();
         }
         catch (final Exception e)
         {
@@ -869,7 +860,7 @@ public final class BlockUtils
 
     public static boolean isGoodFloorBlock(final BlockState blockState)
     {
-        return defaultFullBlocks.contains(blockState.getBlock()) && !blockState.is(ModTags.UNSUITABLE_SOLID_FOR_PLACEHOLDER);
+        return isGoodFullBlock(blockState) && !blockState.is(ModTags.UNSUITABLE_SOLID_FOR_PLACEHOLDER);
     }
 
     public static SolidnessInfo getSolidInfo(final BlockState blockState)
