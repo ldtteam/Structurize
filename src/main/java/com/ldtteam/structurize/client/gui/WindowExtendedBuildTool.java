@@ -254,7 +254,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         categoryFutures = StructurePacks.getCategoriesFuture(currentStructurePack, "");
         findPaneOfTypeByID("manipulator", View.class).setVisible(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getBlueprint() != null);
 
-        if (!currentBlueprintCat.isEmpty())
+        if (!currentBlueprintCat.isEmpty() && !currentBluePrintMappingAtDepthCache.isEmpty())
         {
             final String up = currentBlueprintCat.substring(0, currentBlueprintCat.lastIndexOf(":"));
             handleBlueprintCategory(up.contains(":") ? up : currentBlueprintCat, true);
