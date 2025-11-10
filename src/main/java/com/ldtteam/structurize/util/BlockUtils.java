@@ -39,9 +39,10 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.GameData;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
@@ -59,6 +60,11 @@ public final class BlockUtils
      * All solid blocks in the game that may float in the air without support.
      */
     private static final Set<Block> trueSolidBlocks = Collections.newSetFromMap(new IdentityHashMap<>());
+
+    /**
+     * All solid blocks in the game that may float in the air without support.
+     */
+    private static final Set<Block> defaultFullBlocks = Collections.newSetFromMap(new IdentityHashMap<>());
 
     /**
      * Predicated to determine if a block is free to place.
@@ -93,6 +99,10 @@ public final class BlockUtils
                 .filter(block -> !block.defaultBlockState().canBeReplaced() && block.hasCollision && !(block instanceof Fallable) && !block.defaultBlockState().isAir()
                     && !(block instanceof LiquidBlock) && !block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS))
                 .forEach(trueSolidBlocks::add);
+
+            ForgeRegistries.BLOCKS.getValues().stream()
+              .filter(BlockUtils::isGoodFullBlock)
+              .forEach(defaultFullBlocks::add);
         }
     }
 
@@ -835,6 +845,23 @@ public final class BlockUtils
         }
     }
 
+    /**
+     * Check if a block is a standard full block.
+     * @param block the block to check.
+     * @return true if so.
+     */
+    public static boolean isGoodFullBlock(final Block block)
+    {
+        try
+        {
+            return block.defaultBlockState().getShape(null, null) == Shapes.block();
+        }
+        catch (final Exception e)
+        {
+            return false;
+        }
+    }
+
     public static boolean isAnySolid(final BlockState blockState)
     {
         return canBlockFloatInAir(blockState) || isWeakSolidBlock(blockState);
@@ -842,7 +869,7 @@ public final class BlockUtils
 
     public static boolean isGoodFloorBlock(final BlockState blockState)
     {
-        return isAnySolid(blockState) && !blockState.is(ModTags.UNSUITABLE_SOLID_FOR_PLACEHOLDER);
+        return defaultFullBlocks.contains(blockState.getBlock()) && !blockState.is(ModTags.UNSUITABLE_SOLID_FOR_PLACEHOLDER);
     }
 
     public static SolidnessInfo getSolidInfo(final BlockState blockState)
