@@ -14,6 +14,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
@@ -71,6 +72,16 @@ public class BlueprintPreviewData
      * What value should be used for transparency if enabled
      */
     private float overridePreviewTransparency = -1;
+
+    /**
+     * Setting for whether blocks render nice or not
+     */
+    private boolean renderBlocksNice = Structurize.getConfig().getClient() != null && Structurize.getConfig().getClient().renderPlaceholdersNice.get();
+
+    /**
+     * Override blockstate for solid placeholders
+     */
+    private BlockState solidSubstitutionOverride = null;
 
     /**
      * Default constructor to create a new setup.
@@ -137,8 +148,8 @@ public class BlueprintPreviewData
         }
         else
         {
-            byteBuf.writeUtf(StructurePacks.selectedPack.getName());
-            byteBuf.writeUtf(StructurePacks.selectedPack.getSubPath(blueprint.getFilePath().resolve(blueprint.getFileName() + ".blueprint")));
+            byteBuf.writeUtf(StructurePacks.getSelectedPack().getName());
+            byteBuf.writeUtf(StructurePacks.getSelectedPack().getSubPath(blueprint.getFilePath().resolve(blueprint.getFileName() + ".blueprint")));
         }
         byteBuf.writeByte(rotationMirror.ordinal());
     }
@@ -392,6 +403,25 @@ public class BlueprintPreviewData
     }
 
     /**
+     * Sets whether substitution blocks should render nice
+     *
+     * @param renderNice
+     */
+    public void setRenderBlocksNice(final boolean renderNice)
+    {
+        renderBlocksNice = renderNice;
+    }
+
+    /**
+     * Whether substitution blocks render nice
+     * @return
+     */
+    public boolean getRenderBlocksNice()
+    {
+        return renderBlocksNice;
+    }
+
+    /**
      * Overrides client config for preview transparency if already enabled, else does nothing.
      *
      * @param overridePreviewTransparency -1 (or any negative) for keep config, 0 = transparent to 1 = opaque
@@ -404,5 +434,25 @@ public class BlueprintPreviewData
     public float getOverridePreviewTransparency()
     {
         return overridePreviewTransparency;
+    }
+
+    /**
+     * Get the solid placeholder blockstate override
+     *
+     * @return
+     */
+    public BlockState getSolidSubstitutionOverride()
+    {
+        return solidSubstitutionOverride;
+    }
+
+    /**
+     * Set the solid placeholder blockstate override, only updates when the renderer is recalculated
+     *
+     * @return
+     */
+    public void setSolidSubstitutionOverride(final BlockState solidSubstitutionOverride)
+    {
+        this.solidSubstitutionOverride = solidSubstitutionOverride;
     }
 }

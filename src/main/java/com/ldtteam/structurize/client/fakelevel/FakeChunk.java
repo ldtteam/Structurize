@@ -44,17 +44,32 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * Fake level fake chunk :D all data related methods must redirect to fake level
- * Updating procedure is same as fake leve
+ * Fake level fake chunk :D all data related methods must redirect to fake level Updating procedure is same as fakeLevel Porting info:
+ * <ol>
+ * <li>uncomment last method section</li>
+ * <li>fix compile errors</li>
+ * <li>add override for remaining methods and sort/implement them accordingly</li>
+ * <li>comment last method section</li>
+ * </ol>
+ * <p>
  */
 public class FakeChunk extends LevelChunk
 {
     private final FakeLevel fakeLevel;
 
+    // section cache
+    int lastY;
+    LevelChunkSection lastSection = null;
+
     public FakeChunk(final FakeLevel worldIn, final int x, final int z)
     {
         super(worldIn, new ChunkPos(x, z));
         this.fakeLevel = worldIn;
+
+        // set itself to cache
+        fakeLevel.lastX = x;
+        fakeLevel.lastZ = z;
+        fakeLevel.lastChunk = this;
     }
 
     // ========================================
@@ -210,7 +225,18 @@ public class FakeChunk extends LevelChunk
     @Override
     public LevelChunkSection[] getSections()
     {
+        // don't cache them
         return new LevelChunkSection[0];
+    }
+
+    @Override
+    public LevelChunkSection getSection(int yIdx)
+    {
+        if (lastY == yIdx && lastSection != null)
+        {
+            return lastSection;
+        }
+        return new FakeLevelChunkSection(this, yIdx);
     }
 
     // ========================================

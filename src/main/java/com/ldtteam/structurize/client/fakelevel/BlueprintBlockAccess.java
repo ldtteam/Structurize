@@ -21,6 +21,16 @@ public class BlueprintBlockAccess extends FakeLevel
     public static final IFakeLevelLightProvider LIGHT_PROVIDER = new ConfigBasedLightProvider(Structurize.getConfig().getClient().rendererLightLevel);
     private static final Scoreboard SCOREBOARD = new Scoreboard();
 
+    /**
+     * Override blockstate for solid placeholders
+     */
+    private BlockState solidSubstitutionOverride = null;
+
+    /**
+     * Override for rendering placeholders nicely
+     */
+    private boolean renderNice = Structurize.getConfig().getClient() != null && Structurize.getConfig().getClient().renderPlaceholdersNice.get();
+
     public BlueprintBlockAccess(final Blueprint blueprint)
     {
         super(blueprint, LIGHT_PROVIDER, SCOREBOARD, true);
@@ -40,10 +50,14 @@ public class BlueprintBlockAccess extends FakeLevel
 
     public BlockState prepareBlockStateForRendering(final BlockState state, final BlockPos pos)
     {
-        if (Structurize.getConfig().getClient().renderPlaceholdersNice.get())
+        if (renderNice)
         {
             if (state.getBlock() == ModBlocks.blockSolidSubstitution.get())
             {
+                if (solidSubstitutionOverride != null)
+                {
+                    return solidSubstitutionOverride;
+                }
                 return BlockUtils.getSubstitutionBlockAtWorld(anyLevel(), worldPos.offset(pos), levelSource.getRawBlockStateFunction().compose(b -> b.subtract(worldPos)));
             }
             else if (state.getBlock() == ModBlocks.blockFluidSubstitution.get())
@@ -65,5 +79,21 @@ public class BlueprintBlockAccess extends FakeLevel
         }
 
         return state;
+    }
+
+    /**
+     * Set the solid placeholder blockstate override, only updates when the renderer is recalculated
+     */
+    public void setSolidSubstitutionOverride(final BlockState solidSubstitutionOverride)
+    {
+        this.solidSubstitutionOverride = solidSubstitutionOverride;
+    }
+
+    /**
+     * Set the render nice override for placeholders, only updates when the renderer is recalculated
+     */
+    public void setRenderBlocksNiceOverride(final boolean renderNice)
+    {
+        this.renderNice = renderNice;
     }
 }

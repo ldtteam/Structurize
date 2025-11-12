@@ -14,6 +14,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -162,7 +164,7 @@ public class ServerStructurePackLoader
     {
         if (loadingState == ServerLoadingState.UNINITIALIZED)
         {
-            Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(Collections.emptyMap()), player);
+            Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(List.of()), player);
             // Noop Single Player, Nothing to do here.
             return;
         }
@@ -178,16 +180,16 @@ public class ServerStructurePackLoader
     }
 
     @SubscribeEvent
-    public static void onWorldTick(final TickEvent.LevelTickEvent event)
+    public static void onWorldTick(final TickEvent.ServerTickEvent event)
     {
-        if (event.phase == TickEvent.Phase.END && !event.level.isClientSide())
+        if (event.phase == TickEvent.Phase.END)
         {
-            if (event.level.getGameTime() % 20 == 0 && loadingState == ServerLoadingState.FINISHED_LOADING && !clientSyncRequests.isEmpty())
+            if (event.getServer().getTickCount() % 20 == 0 && loadingState == ServerLoadingState.FINISHED_LOADING && !clientSyncRequests.isEmpty())
             {
                 loadingState = ServerLoadingState.FINISHED_SYNCING;
                 for (final Map.Entry<UUID, Map<String, Double>> entry : clientSyncRequests.entrySet())
                 {
-                    final ServerPlayer player = (ServerPlayer) event.level.getPlayerByUUID(entry.getKey());
+                    final ServerPlayer player = event.getServer().getPlayerList().getPlayer(entry.getKey());
                     if (player != null)
                     {
                         handleClientUpdate(entry.getValue(), player);
@@ -199,7 +201,7 @@ public class ServerStructurePackLoader
             if (!messageSendTasks.isEmpty())
             {
                 final PackagedPack packData = messageSendTasks.poll();
-                final ServerPlayer player = (ServerPlayer) event.level.getPlayerByUUID(packData.player);
+                final ServerPlayer player = event.getServer().getPlayerList().getPlayer(packData.player);
                 // If the player logged off, we can just skip.
                 if (player != null)
                 {
@@ -211,32 +213,22 @@ public class ServerStructurePackLoader
 
     /**
      * Handle the client update for a given player and their packs.
-     * @param clientStructurePacks the client structure packs.
      * @param player the player.
      */
     private static void handleClientUpdate(final Map<String, Double> clientStructurePacks, final ServerPlayer player)
     {
+        Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(StructurePacks.getPackMetas()), player);
+
         final UUID uuid = player.getUUID();
         final Map<String, StructurePackMeta> missingPacks = new HashMap<>();
-        final Map<String, StructurePackMeta> packsToSync = new HashMap<>();
 
         for (final StructurePackMeta pack : StructurePacks.getPackMetas())
         {
-            if (!pack.isImmutable())
+            if (!pack.isImmutable() && clientStructurePacks.getOrDefault(pack.getName(), -1.0) != pack.getVersion())
             {
-                if (clientStructurePacks.getOrDefault(pack.getName(), -1.0) != pack.getVersion())
-                {
-                    missingPacks.put(pack.getName(), pack);
-                }
-                else
-                {
-                    packsToSync.put(pack.getName(), pack);
-                }
+                missingPacks.put(pack.getName(), pack);
             }
         }
-
-        packsToSync.putAll(missingPacks);
-        Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(packsToSync), player);
 
         IOPool.execute(() -> {
             int index = 1;
@@ -266,18 +258,20 @@ public class ServerStructurePackLoader
             Files.walkFileTree(sourcePath, new SimpleFileVisitor<>()
             {
                 @Override
-                public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+                @NotNull
+                public FileVisitResult preVisitDirectory(@NotNull final Path dir, @NotNull final BasicFileAttributes attrs) throws IOException
                 {
                     if (!sourcePath.equals(dir))
                     {
-                        zos.putNextEntry(new ZipEntry(sourcePath.relativize(dir) + File.separator));
+                        zos.putNextEntry(new ZipEntry(sourcePath.relativize(dir) + "/"));
                         zos.closeEntry();
                     }
                     return FileVisitResult.CONTINUE;
                 }
 
                 @Override
-                public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
+                @NotNull
+                public FileVisitResult visitFile(@NotNull final Path file, @NotNull final BasicFileAttributes attrs) throws IOException
                 {
                     zos.putNextEntry(new ZipEntry(sourcePath.relativize(file).toString()));
                     Files.copy(file, zos);
@@ -288,7 +282,7 @@ public class ServerStructurePackLoader
         }
         catch (IOException e)
         {
-            Log.getLogger().warn("Unable to ZIP up: " + sourcePath.toString());
+            Log.getLogger().warn("Unable to ZIP up: {}", sourcePath);
             return null;
         }
         return buffer;

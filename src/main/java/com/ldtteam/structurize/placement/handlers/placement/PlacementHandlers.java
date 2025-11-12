@@ -99,6 +99,29 @@ public final class PlacementHandlers
     }
 
     /**
+     * Finds the appropriate {@link IPlacementHandler} for the given location.
+     * @param world     the world.
+     * @param worldPos  the world position.
+     * @param newState  the blockstate being placed or removed.
+     * @return          the appropriate handler.
+     */
+    public static IPlacementHandler getHandler(final Level world,
+                                               final BlockPos worldPos,
+                                               final BlockState newState)
+    {
+        for (final IPlacementHandler placementHandler : handlers)
+        {
+            if (placementHandler.canHandle(world, worldPos, newState))
+            {
+                return placementHandler;
+            }
+        }
+
+        Log.getLogger().error("Unable to find any PlacementHandler for {}; this should be impossible.", newState.toString());
+        return new GeneralBlockPlacementHandler();
+    }
+
+    /**
      * Private constructor to hide implicit one.
      */
     private PlacementHandlers()
@@ -246,19 +269,29 @@ public final class PlacementHandlers
             if (!BlockUtils.isAnySolid(world.getBlockState(pos.below())))
             {
                 BlockPos posBelow = pos;
-                BlockState supportBlockState = Blocks.DIRT.defaultBlockState();
+                BlockState supportBlockState = Blocks.DIRT instanceof Fallable ? Blocks.STONE.defaultBlockState() : Blocks.DIRT.defaultBlockState();
                 for (int i = 0; i < 10; i++) // try up to ten blocks below for solid worldgen
                 {
                     posBelow = posBelow.below();
                     final boolean isFirstTest = i == 0;
                     final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, bp -> isFirstTest ? blockState : null);
-                    if (possibleSupport != null && BlockUtils.canBlockFloatInAir(possibleSupport) && !canHandle(world, posBelow, possibleSupport))
+                    if (possibleSupport != null && BlockUtils.canBlockFloatInAir(possibleSupport) && !canHandle(world,
+                        posBelow,
+                        possibleSupport))
                     {
                         supportBlockState = possibleSupport;
                         break;
                     }
                 }
-                itemList.addAll(getRequiredItemsForState(world, pos, supportBlockState, tileEntityData, complete));
+
+                if (canHandle(world, pos, supportBlockState))
+                {
+                    Log.getLogger().warn("Unable to use: " + supportBlockState + " as support for a falling block, it is either a falling black itself or made fallable");
+                }
+                else
+                {
+                    itemList.addAll(getRequiredItemsForState(world, pos, supportBlockState, tileEntityData, complete));
+                }
             }
             return itemList;
         }
@@ -341,9 +374,11 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
-            final List<ItemStack> itemList = new ArrayList<>();
-            itemList.add(new ItemStack(Blocks.DIRT));
-            return itemList;
+            if (complete)
+            {
+                return Collections.singletonList(new ItemStack(blockState.getBlock()));
+            }
+            return Collections.singletonList(new ItemStack(Blocks.DIRT));
         }
     }
 
@@ -647,9 +682,11 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
-            final List<ItemStack> itemList = new ArrayList<>();
-            itemList.add(new ItemStack(Blocks.DIRT, 1));
-            return itemList;
+            if (complete)
+            {
+                return Collections.singletonList(new ItemStack(blockState.getBlock()));
+            }
+            return Collections.singletonList(new ItemStack(Blocks.DIRT));
         }
     }
 
@@ -686,6 +723,10 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final boolean complete)
         {
+            if (complete)
+            {
+                return Collections.singletonList(new ItemStack(blockState.getBlock()));
+            }
             return new ArrayList<>();
         }
     }
@@ -1059,14 +1100,8 @@ public final class PlacementHandlers
      */
     public static List<ItemStack> getRequiredItemsForState(final Level world, final BlockPos pos, final BlockState state, final CompoundTag data, final boolean complete)
     {
-        for (final IPlacementHandler placementHandler : PlacementHandlers.handlers)
-        {
-            if (placementHandler.canHandle(world, pos, state))
-            {
-                return placementHandler.getRequiredItems(world, pos, state, data, complete);
-            }
-        }
-        return Collections.emptyList();
+        final IPlacementHandler placementHandler = getHandler(world, pos, state);
+        return placementHandler.getRequiredItems(world, pos, state, data, complete);
     }
 
     /**

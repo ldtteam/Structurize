@@ -3,6 +3,7 @@ package com.ldtteam.structurize.storage;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.util.IOPool;
@@ -11,10 +12,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
@@ -58,8 +63,11 @@ public class StructurePacks
 
     /**
      * Selected pack on the client.
+     * @deprecated -> Don't read/write directly, go through methods. 1.22 will make this a string.
      */
-    public static StructurePackMeta selectedPack;
+    @Nullable
+    @Deprecated
+    public static StructurePackMeta selectedPack = null;
 
     /**
      * Blocks the current thread until loading has finished
@@ -118,13 +126,14 @@ public class StructurePacks
     {
         packMetas.clear();
         clientPackMetas.clear();
+        selectedPack = null;
     }
 
     /**
-     * Disable a specific pack.
+     * Remove a specific pack.
      * @param name the packname.
      */
-    public static StructurePackMeta disablePack(final String name)
+    public static StructurePackMeta removePack(final String name)
     {
         return packMetas.remove(name);
     }
@@ -135,9 +144,9 @@ public class StructurePacks
      * @param subPath the path of the specific blueprint in the pack.
      * @return the blueprint future (might contain null).
      */
-    public static Future<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath)
+    public static CompletableFuture<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath)
     {
-        return IOPool.submit(() -> getBlueprint(structurePackId, subPath));
+        return CompletableFuture.supplyAsync(() -> getBlueprint(structurePackId, subPath), IOPool.getExecutor());
     }
 
     /**
@@ -146,9 +155,9 @@ public class StructurePacks
      * @param subPath the path of the specific blueprint in the pack.
      * @return the blueprint data future (might contain null).
      */
-    public static Future<byte[]> getBlueprintDataFuture(final String structurePackId, final String subPath)
+    public static CompletableFuture<byte[]> getBlueprintDataFuture(final String structurePackId, final String subPath)
     {
-        return IOPool.submit(() -> getBlueprintData(structurePackId, subPath));
+        return CompletableFuture.supplyAsync(() -> getBlueprintData(structurePackId, subPath), IOPool.getExecutor());
     }
 
     /**
@@ -157,9 +166,9 @@ public class StructurePacks
      * @param name the filename.
      * @return the blueprint future (might contain null).
      */
-    public static Future<Path> findBlueprintFuture(final String structurePackId, final String name)
+    public static CompletableFuture<Path> findBlueprintFuture(final String structurePackId, final String name)
     {
-        return IOPool.submit(() -> findBlueprint(structurePackId, name));
+        return CompletableFuture.supplyAsync(() -> findBlueprint(structurePackId, name), IOPool.getExecutor());
     }
 
     /**
@@ -168,9 +177,9 @@ public class StructurePacks
      * @param subPath the path of the set of blueprints (usually a folder).
      * @return the blueprints list (might be empty).
      */
-    public static Future<List<Blueprint>> getBlueprintsFuture(final String structurePackId, final String subPath)
+    public static CompletableFuture<List<Blueprint>> getBlueprintsFuture(final String structurePackId, final String subPath)
     {
-        return IOPool.submit(() -> getBlueprints(structurePackId, subPath));
+        return CompletableFuture.supplyAsync(() -> getBlueprints(structurePackId, subPath), IOPool.getExecutor());
     }
 
     /**
@@ -179,9 +188,9 @@ public class StructurePacks
      * @param subPath the sub-path.
      * @return the list of categories.
      */
-    public static Future<List<Category>> getCategoriesFuture(final String structurePackId, final String subPath)
+    public static CompletableFuture<List<Category>> getCategoriesFuture(final String structurePackId, final String subPath)
     {
-        return IOPool.submit(() -> getCategories(structurePackId, subPath));
+        return CompletableFuture.supplyAsync(() -> getCategories(structurePackId, subPath), IOPool.getExecutor());
     }
 
     /**
@@ -190,9 +199,9 @@ public class StructurePacks
      * @param path the path to search for.
      * @return the blueprint.
      */
-    public static Future<Blueprint> getBlueprintFuture(final String packName, final Path path)
+    public static CompletableFuture<Blueprint> getBlueprintFuture(final String packName, final Path path)
     {
-        return IOPool.submit(() -> getBlueprint(packName, path));
+        return CompletableFuture.supplyAsync(() -> getBlueprint(packName, path), IOPool.getExecutor());
     }
 
     /**
@@ -200,9 +209,9 @@ public class StructurePacks
      * @param blueprintPredicate the predicate to define the blueprint we're looking for.
      * @return the blueprint future.
      */
-    public static Future<Blueprint> findBlueprintFuture(final String structurePackId, final Predicate<Blueprint> blueprintPredicate)
+    public static CompletableFuture<Blueprint> findBlueprintFuture(final String structurePackId, final Predicate<Blueprint> blueprintPredicate)
     {
-        return IOPool.submit(() -> findBlueprint(structurePackId, blueprintPredicate));
+        return CompletableFuture.supplyAsync(() -> findBlueprint(structurePackId, blueprintPredicate), IOPool.getExecutor());
     }
 
     /**
@@ -212,9 +221,9 @@ public class StructurePacks
      * @param suppressError log exception or not.
      * @return the blueprint future (might contain null).
      */
-    public static Future<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath, final boolean suppressError)
+    public static CompletableFuture<Blueprint> getBlueprintFuture(final String structurePackId, final String subPath, final boolean suppressError)
     {
-        return IOPool.submit(() -> getBlueprint(structurePackId, subPath, suppressError));
+        return CompletableFuture.supplyAsync(() -> getBlueprint(structurePackId, subPath, suppressError), IOPool.getExecutor());
     }
 
 
@@ -225,9 +234,9 @@ public class StructurePacks
      * @param suppressError log exception or not.
      * @return the blueprint.
      */
-    public static Future<Blueprint> getBlueprintFuture(final String packName, final Path path, final boolean suppressError)
+    public static CompletableFuture<Blueprint> getBlueprintFuture(final String packName, final Path path, final boolean suppressError)
     {
-        return IOPool.submit(() -> getBlueprint(packName, path, suppressError));
+        return CompletableFuture.supplyAsync(() -> getBlueprint(packName, path, suppressError), IOPool.getExecutor());
     }
 
     // ------------------------- Synchronous Calls ------------------------- //
@@ -654,6 +663,12 @@ public class StructurePacks
                         {
                             packMetas.put(pack.getName(), pack);
                         }
+
+                        if (selectedPack != null && selectedPack.getName().equals(pack.getName()))
+                        {
+                            selectedPack = pack;
+                        }
+
                         Log.getLogger().info("Registered structure pack: " + pack.getName());
                     }
                     else
@@ -705,6 +720,66 @@ public class StructurePacks
     public static boolean hasPack(final String key)
     {
         return packMetas.containsKey(key);
+    }
+
+    /**
+     * Get the currently selected pack.
+     *
+     * @return the random pack.
+     */
+    @Nullable
+    public static StructurePackMeta getSelectedPack()
+    {
+        ensureSelectedPack();
+        return selectedPack;
+    }
+
+    /**
+     * Set the currently selected pack.
+     *
+     * @param packMeta the new pack meta.
+     */
+    public static void switchSelectedPack(final StructurePackMeta packMeta)
+    {
+        selectedPack = null;
+        if (packMeta != null)
+        {
+            switchSelectedPack(packMeta.getName());
+        }
+    }
+
+    /**
+     * Set the currently selected pack.
+     *
+     * @param packName the new pack name.
+     */
+    public static void switchSelectedPack(final String packName)
+    {
+        selectedPack = null;
+        final StructurePackMeta structurePack = getStructurePack(packName);
+        if (structurePack != null)
+        {
+            selectedPack = structurePack;
+        }
+    }
+
+    /**
+     * Ensure that we have a selected pack.
+     */
+    public static void ensureSelectedPack()
+    {
+        final StructurePackMeta structurePack = selectedPack;
+        if (structurePack == null || structurePack.isDisabled())
+        {
+            selectedPack = null;
+            final List<StructurePackMeta> packs = StructurePacks.getPackMetas().stream()
+                .filter(Predicate.not(StructurePackMeta::isDisabled))
+                .toList();
+            if (!packs.isEmpty())
+            {
+                selectedPack = packs.get(Constants.rand.nextInt(packs.size()));
+            }
+        }
     }
 
     /**

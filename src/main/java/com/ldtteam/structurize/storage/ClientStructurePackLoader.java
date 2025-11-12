@@ -26,10 +26,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -153,10 +150,7 @@ public class ClientStructurePackLoader
                 {
                     loadingState = ClientLoadingState.FINISHED_SYNCING;
                     StructurePacks.setFinishedLoading();
-                    if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
-                    {
-                        StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
-                    }
+                    StructurePacks.ensureSelectedPack();
                     return;
                 }
 
@@ -188,10 +182,7 @@ public class ClientStructurePackLoader
             // Most likely single player. Skip.
             loadingState = ClientLoadingState.FINISHED_SYNCING;
             StructurePacks.setFinishedLoading();
-            if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
-            {
-                StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
-            }
+            StructurePacks.ensureSelectedPack();
             return;
         }
         
@@ -200,29 +191,7 @@ public class ClientStructurePackLoader
             Minecraft.getInstance().player.sendSystemMessage(Component.translatable("structurize.pack.equaluser.error"));
         }
 
-        boolean needsChanges = false;
-        for (final StructurePackMeta pack : StructurePacks.getPackMetas())
-        {
-            if (!pack.isImmutable())
-            {
-                final double version = serverStructurePacks.getOrDefault(pack.getName(), -1.0);
-                if (version == -1)
-                {
-                    if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
-                    {
-                        // Don't have this pack on the server, disable.
-                        StructurePacks.disablePack(pack.getName());
-                    }
-                }
-                else if (version != pack.getVersion())
-                {
-                    // Version on the client is outdated. Set that we got pending changes.
-                    StructurePacks.disablePack(pack.getName());
-                    needsChanges = true;
-                }
-            }
-        }
-
+        boolean needsChanges = checkPackDifferences(serverStructurePacks);
         for (final String packKey : serverStructurePacks.keySet())
         {
             if (!StructurePacks.hasPack(packKey))
@@ -236,12 +205,53 @@ public class ClientStructurePackLoader
         {
             // No new packs have be synced and no updated packs have to be synced.
             loadingState = ClientLoadingState.FINISHED_SYNCING;
-            if (StructurePacks.selectedPack == null && !StructurePacks.getPackMetas().isEmpty())
-            {
-                StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
-            }
             StructurePacks.setFinishedLoading();
+            StructurePacks.ensureSelectedPack();
         }
+    }
+
+    /**
+     * Verify all the incoming server packs against the local ones
+     *
+     * @param serverStructurePacks the server structure packs.
+     */
+    private static boolean checkPackDifferences(final Map<String, Double> serverStructurePacks)
+    {
+        boolean needsChanges = false;
+        for (final StructurePackMeta pack : StructurePacks.getPackMetas())
+        {
+            // Assume the pack is fine by default
+            pack.setDisabled(false);
+
+            // Validate the version of the server pack
+            final double version = serverStructurePacks.getOrDefault(pack.getName(), -1.0);
+
+            // If the server pack version is -1 it means the server doesn't have this pack
+            if (version == -1)
+            {
+                if (!Structurize.getConfig().getServer().allowPlayerSchematics.get())
+                {
+                    pack.setDisabled(true);
+                }
+            }
+            // Version on the client is different
+            else if (version != pack.getVersion())
+            {
+                // If the pack is immutable, meaning from a jar, we cannot update it, so it becomes disabled
+                if (pack.isImmutable())
+                {
+                    pack.setDisabled(true);
+                }
+                // If the pack is mutable, we remove the local copy and tell the server we want to synchronize this pack anew
+                // On the next iteration, the client should tell the server it's now missing this pack, which should initiate a copy from the server
+                else
+                {
+                    StructurePacks.removePack(pack.getName());
+                    needsChanges = true;
+                }
+            }
+        }
+        return needsChanges;
     }
 
     /**
@@ -256,7 +266,7 @@ public class ClientStructurePackLoader
         Log.getLogger().warn("Received Structure pack from the Server: " + packName);
         IOPool.execute(() ->
         {
-            final StructurePackMeta pack = StructurePacks.disablePack(packName);
+            final StructurePackMeta pack = StructurePacks.removePack(packName);
             if (pack != null && !pack.isImmutable() && !JavaUtils.deleteDirectory(pack.getPath()))
             {
                 Log.getLogger().warn("Error trying to delete pack: ");
@@ -314,7 +324,7 @@ public class ClientStructurePackLoader
             {
                 loadingState = ClientLoadingState.FINISHED_SYNCING;
                 StructurePacks.setFinishedLoading();
-                StructurePacks.selectedPack = StructurePacks.getPackMetas().iterator().next();
+                StructurePacks.ensureSelectedPack();
             }
         });
     }
@@ -340,7 +350,7 @@ public class ClientStructurePackLoader
     public static void handleSaveScanMessage(final CompoundTag compound, final String fileName)
     {
         final String packName = Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US);
-        StructurePacks.selectedPack = StructurePacks.getStructurePack(Minecraft.getInstance().getUser().getName());
+        StructurePacks.switchSelectedPack(StructurePacks.getStructurePack(Minecraft.getInstance().getUser().getName()));
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprintFuture(
           StructurePacks.storeBlueprint(packName, compound, Minecraft.getInstance().gameDirectory.toPath()
             .resolve(BLUEPRINT_FOLDER)

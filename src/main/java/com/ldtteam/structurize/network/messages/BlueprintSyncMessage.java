@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.storage.BlueprintPlacementHandling;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -94,6 +95,9 @@ public class BlueprintSyncMessage implements IMessage
     @Override
     public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        BlueprintPlacementHandling.handlePlacement(this, ctxIn.getSender());
+        if (Structurize.getConfig().getServer().allowPlayerSchematics.get())
+        {
+            BlueprintPlacementHandling.handlePlacement(this, ctxIn.getSender());
+        }
     }
 }

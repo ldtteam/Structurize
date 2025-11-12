@@ -1,12 +1,12 @@
 package com.ldtteam.structurize.placement;
 
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import net.minecraft.core.BlockPos;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Random blueprint iterator.
@@ -33,7 +33,7 @@ public class BlueprintIteratorRandom extends AbstractBlueprintIterator
                 positions.add(new BlockPos(x, 0, z));
             }
         }
-        Collections.shuffle(positions, new Random(this.size.hashCode()));
+        Collections.shuffle(positions, Constants.rand);
     }
 
     /**
@@ -43,6 +43,7 @@ public class BlueprintIteratorRandom extends AbstractBlueprintIterator
      */
     public Result increment()
     {
+        this.prevProgressPos.set(this.progressPos);
         if (this.progressPos.equals(NULL_POS))
         {
             this.progressPos.set(this.positions.get(0).getX(), 0, this.positions.get(0).getZ());
@@ -75,6 +76,7 @@ public class BlueprintIteratorRandom extends AbstractBlueprintIterator
      */
     public Result decrement()
     {
+        this.prevProgressPos.set(this.progressPos);
         if (this.progressPos.equals(NULL_POS))
         {
             this.progressPos.set(this.positions.get(0).getX(), this.size.getY() - 1, this.positions.get(0).getZ());

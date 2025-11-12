@@ -301,7 +301,6 @@ public class TickedWorldOperation implements ITickedWorldOperation
                     final BlockState blockState = world.getBlockState(here);
                     final BlockEntity tileEntity = world.getBlockEntity(here);
                     boolean isMatch = false;
-                    boolean handled = false;
 
                     if (firstBlock.getItem() == Items.AIR && blockState.isAir())
                     {
@@ -309,22 +308,10 @@ public class TickedWorldOperation implements ITickedWorldOperation
                     }
                     else
                     {
-                        for (final IPlacementHandler handler : PlacementHandlers.handlers)
-                        {
-                            if (handler.canHandle(world, BlockPos.ZERO, blockState))
-                            {
-                                final List<ItemStack> itemList =
-                                  handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
-                                if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), firstBlock))
-                                {
-                                    isMatch = true;
-                                }
-                                handled = true;
-                                break;
-                            }
-                        }
-
-                        if (!handled && ItemStackUtils.compareItemStacksIgnoreStackSize(BlockUtils.getItemStackFromBlockState(blockState), firstBlock))
+                        final IPlacementHandler handler = PlacementHandlers.getHandler(world, BlockPos.ZERO, blockState);
+                        final List<ItemStack> itemList =
+                          handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+                        if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), firstBlock))
                         {
                             isMatch = true;
                         }

@@ -19,13 +19,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.AirItem;
-import net.minecraft.world.item.BedItem;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -36,27 +30,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.chunk.ImposterProtoChunk;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.*;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.FlatLevelSource;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
-import net.minecraft.world.level.levelgen.NoiseChunk;
-import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.SurfaceRules;
-import net.minecraft.world.level.levelgen.WorldGenerationContext;
+import net.minecraft.world.level.levelgen.*;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.GameData;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
@@ -105,7 +91,8 @@ public final class BlockUtils
             ForgeRegistries.BLOCKS.getValues()
                 .stream()
                 .filter(BlockUtils::canBlockSurviveWithoutSupport)
-                .filter(block -> !block.defaultBlockState().isAir() && !(block instanceof LiquidBlock) && !block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS))
+                .filter(block -> !block.defaultBlockState().canBeReplaced() && block.hasCollision && !(block instanceof Fallable) && !block.defaultBlockState().isAir()
+                    && !(block instanceof LiquidBlock) && !block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS))
                 .forEach(trueSolidBlocks::add);
         }
     }
@@ -541,7 +528,6 @@ public final class BlockUtils
         final BlockState blockState = world.getBlockState(position);
         final BlockEntity tileEntity = world.getBlockEntity(position);
         boolean isMatch = false;
-        boolean handled = false;
 
         if (block.getItem() == Items.AIR && blockState.isAir())
         {
@@ -549,22 +535,10 @@ public final class BlockUtils
         }
         else
         {
-            for (final IPlacementHandler handler : PlacementHandlers.handlers)
-            {
-                if (handler.canHandle(world, BlockPos.ZERO, blockState))
-                {
-                    final List<ItemStack> itemList =
-                      handler.getRequiredItems(world, position, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
-                    if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), block))
-                    {
-                        isMatch = true;
-                    }
-                    handled = true;
-                    break;
-                }
-            }
-
-            if (!handled && ItemStackUtils.compareItemStacksIgnoreStackSize(BlockUtils.getItemStackFromBlockState(blockState), block))
+            final IPlacementHandler handler = PlacementHandlers.getHandler(world, BlockPos.ZERO, blockState);
+            final List<ItemStack> itemList =
+              handler.getRequiredItems(world, position, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+            if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), block))
             {
                 isMatch = true;
             }
@@ -836,6 +810,11 @@ public final class BlockUtils
             return leaves.isRandomlyTicking(blockState);
         }
 
+        if (blockState.canBeReplaced() || !blockState.getBlock().hasCollision)
+        {
+            return false;
+        }
+
         final Block block = blockState.getBlock();
         return block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS) && canBlockSurviveWithoutSupport(block);
     }
@@ -857,6 +836,23 @@ public final class BlockUtils
         }
     }
 
+    /**
+     * Check if a block is a standard full block.
+     * @param block the block to check.
+     * @return true if so.
+     */
+    public static boolean isGoodFullBlock(final BlockState block)
+    {
+        try
+        {
+            return block.getShape(null, null) == Shapes.block();
+        }
+        catch (final Exception e)
+        {
+            return false;
+        }
+    }
+
     public static boolean isAnySolid(final BlockState blockState)
     {
         return canBlockFloatInAir(blockState) || isWeakSolidBlock(blockState);
@@ -864,7 +860,7 @@ public final class BlockUtils
 
     public static boolean isGoodFloorBlock(final BlockState blockState)
     {
-        return isAnySolid(blockState) && !blockState.is(ModTags.UNSUITABLE_SOLID_FOR_PLACEHOLDER);
+        return isGoodFullBlock(blockState) && !blockState.is(ModTags.UNSUITABLE_SOLID_FOR_PLACEHOLDER);
     }
 
     public static SolidnessInfo getSolidInfo(final BlockState blockState)
