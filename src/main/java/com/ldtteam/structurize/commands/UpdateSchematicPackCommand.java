@@ -13,6 +13,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;
 
@@ -73,7 +74,7 @@ public class UpdateSchematicPackCommand extends AbstractCommand
                     try
                     {
                         final ByteArrayInputStream inputStream = new ByteArrayInputStream(Files.readAllBytes(file));
-                        final CompoundTag nbt = NbtIo.readCompressed(inputStream);
+                        final CompoundTag nbt = NbtIo.readCompressed(inputStream, NbtAccounter.unlimitedHeap());
                         inputStream.close();
 
                         int currentDataVersion = SharedConstants.getCurrentVersion().getDataVersion().getVersion();
@@ -81,7 +82,7 @@ public class UpdateSchematicPackCommand extends AbstractCommand
 
                         if (oldDataVersion != currentDataVersion)
                         {
-                            final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt);
+                            final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(nbt, source.registryAccess());
                             if (blueprint == null)
                             {
                                 return;
