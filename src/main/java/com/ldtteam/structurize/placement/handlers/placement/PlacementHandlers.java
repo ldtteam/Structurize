@@ -199,7 +199,14 @@ public final class PlacementHandlers
                 return ActionProcessingResult.PASS;
             }
 
-            handleBlockPlacement(world, pos, BlockUtils.getFluidForDimension(world));
+            if (world.getBlockState(pos).hasProperty(BlockStateProperties.WATERLOGGED))
+            {
+                handleBlockPlacement(world, pos, world.getBlockState(pos).setValue(BlockStateProperties.WATERLOGGED, true));
+            }
+            else
+            {
+                handleBlockPlacement(world, pos, BlockUtils.getFluidForDimension(world));
+            }
 
             return ActionProcessingResult.PASS;
         }
