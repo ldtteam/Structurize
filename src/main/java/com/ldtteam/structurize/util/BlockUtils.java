@@ -62,6 +62,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.ldtteam.domumornamentum.util.Constants.BLOCK_ENTITY_TEXTURE_DATA;
+import static com.ldtteam.structurize.tag.ModTags.GOOD_SOLID_FOR_PLACEHOLDER;
 
 /**
  * Utility class for all Block type checking.
@@ -851,7 +852,7 @@ public final class BlockUtils
 
     public static boolean isGoodFloorBlock(final BlockState blockState)
     {
-        return isGoodFullBlock(blockState) && !blockState.is(ModTags.UNSUITABLE_SOLID_FOR_PLACEHOLDER);
+        return (isGoodFullBlock(blockState) && !blockState.is(ModTags.UNSUITABLE_SOLID_FOR_PLACEHOLDER)) || blockState.is(GOOD_SOLID_FOR_PLACEHOLDER);
     }
 
     public static SolidnessInfo getSolidInfo(final BlockState blockState)
