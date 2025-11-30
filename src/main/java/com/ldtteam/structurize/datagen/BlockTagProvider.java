@@ -11,6 +11,7 @@ import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Fallable;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -44,6 +45,8 @@ public class BlockTagProvider extends IntrinsicHolderTagsProvider<Block>
             .forEach(weakSolidTag::add);
 
         this.tag(ModTags.UNSUITABLE_SOLID_FOR_PLACEHOLDER).addTag(BlockTags.LEAVES);
+
+        this.tag(ModTags.GOOD_SOLID_FOR_PLACEHOLDER).add(Blocks.FARMLAND);
 
         this.tag(ModTags.BLUEPRINT_BLACKLIST);
     }

@@ -23,6 +23,7 @@ public class ModTags
 
     public static final TagKey<Block> WEAK_SOLID_BLOCKS = modTag(Registries.BLOCK, "weak_solid_blocks");
     public static final TagKey<Block> UNSUITABLE_SOLID_FOR_PLACEHOLDER = modTag(Registries.BLOCK, "unsuitable_solid_for_placeholder");
+    public static final TagKey<Block> GOOD_SOLID_FOR_PLACEHOLDER = modTag(Registries.BLOCK, "good_solid_for_placeholder");
 
     public static final TagKey<Block> BLUEPRINT_BLACKLIST = modTag(Registries.BLOCK, "blueprint_blacklist");
 
