@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.operations;
 
+import com.ldtteam.structurize.client.gui.util.ItemPositionsStorage;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
@@ -21,7 +22,7 @@ public class ReplaceBlockOperation extends AreaOperation
     /**
      * The block to replace from.
      */
-    private final ItemStack fromBlock;
+    private final ItemPositionsStorage toReplace;
 
     /**
      * The block to replace to.
@@ -37,16 +38,16 @@ public class ReplaceBlockOperation extends AreaOperation
      * Default constructor.
      *
      * @param player     the player who initiated the area operation.
-     * @param startPos   the start pos to iterate from.
-     * @param endPos     the end pos to iterate to.
-     * @param fromBlock  the block to replace from.
+     * @param toReplace
      * @param toBlock    the block to replace to.
      * @param percentage the replacement percentage.
      */
-    public ReplaceBlockOperation(final Player player, final BlockPos startPos, final BlockPos endPos, final ItemStack fromBlock, final ItemStack toBlock, final int percentage)
+    public ReplaceBlockOperation(final Player player, final ItemPositionsStorage toReplace, final ItemStack toBlock, final int percentage)
     {
-        super(Component.translatable("com.ldtteam.structurize.replace_block", fromBlock.getDisplayName(), toBlock.getDisplayName()), player, startPos, endPos);
-        this.fromBlock = fromBlock;
+        super(Component.translatable("com.ldtteam.structurize.replace_block", toReplace.itemStorage.getItemStack().getDisplayName(), toBlock.getDisplayName()),
+            player,
+            toReplace.positions);
+        this.toReplace = toReplace;
         this.toBlock = toBlock;
         this.percentage = Mth.clamp(0, 100, percentage);
     }
@@ -62,7 +63,7 @@ public class ReplaceBlockOperation extends AreaOperation
 
         final BlockState blockState = world.getBlockState(position);
 
-        if (BlockUtils.doBlocksMatch(fromBlock, world, position))
+        if (BlockUtils.doBlocksMatch(toReplace.itemStorage.getItemStack(), world, position))
         {
             storage.addPreviousDataFor(position, world);
             BlockUtils.handleCorrectBlockPlacement(world, fakePlayer, toBlock, blockState, position);

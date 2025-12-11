@@ -1,0 +1,14 @@
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
+        pause="false" lightbox="true">
+    <view size="270 150" pos="80 39" id="pickres" visible="false">
+        <input id="input" size="150 18" pos="60 2" maxlength="25"/>
+        <list id="resources" size="270 120" pos="0 30" childspacing="-1">
+            <box size="100% 18" linewidth="1">
+                <itemicon id="resourceIcon" size="16 16" pos="1 1"/>
+                <label id="resourceName" size="135 18" pos="20 0" color="white" wrap="true"/>
+                <buttonimage label="$(com.ldtteam.structurize.gui.scantool.select)" id="select" pos="160 1" size="86 17"
+                             source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
+            </box>
+        </list>
+    </view>
+</window>

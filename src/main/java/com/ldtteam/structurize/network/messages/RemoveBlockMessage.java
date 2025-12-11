@@ -1,11 +1,10 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.structurize.client.gui.util.ItemPositionsStorage;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.operations.RemoveBlockOperation;
 import com.ldtteam.structurize.operations.RemoveFilteredOperation;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
@@ -19,70 +18,46 @@ import java.util.List;
 public class RemoveBlockMessage implements IMessage
 {
     /**
-     * Position to scan from.
+     * The list of items to remove and their positions
      */
-    private final BlockPos from;
-
-    /**
-     * Position to scan to.
-     */
-    private final BlockPos to;
-
-    /**
-     * The blocks to remove from the world.
-     */
-    private final List<ItemStack> blocks;
+    private List<ItemPositionsStorage> toRemove = new ArrayList<>();
 
     /**
      * Empty constructor used when registering the message.
      */
     public RemoveBlockMessage(final FriendlyByteBuf buf)
     {
-        this.from = buf.readBlockPos();
-        this.to = buf.readBlockPos();
-        this.blocks = new ArrayList<>();
-        final int blockCount = buf.readInt();
-        for (int i = 0; i < blockCount; i++)
+        final int count = buf.readInt();
+
+        for (int i = 0; i < count; i++)
         {
-            this.blocks.add(buf.readItem());
+            toRemove.add(new ItemPositionsStorage(buf));
         }
     }
 
     /**
      * Create a message to remove a block from the world.
-     *
-     * @param pos1  start coordinate.
-     * @param pos2  end coordinate.
-     * @param stack the block to remove.
      */
-    public RemoveBlockMessage(final BlockPos pos1, final BlockPos pos2, final ItemStack stack)
+    public RemoveBlockMessage(final ItemPositionsStorage itemPositionsStorage)
     {
-        this(pos1, pos2, List.of(stack));
+        toRemove = List.of(itemPositionsStorage);
     }
 
     /**
      * Create a message to remove a block from the world.
-     *
-     * @param pos1   start coordinate.
-     * @param pos2   end coordinate.
-     * @param stacks the blocks to remove.
      */
-    public RemoveBlockMessage(final BlockPos pos1, final BlockPos pos2, final List<ItemStack> stacks)
+    public RemoveBlockMessage(final List<ItemPositionsStorage> itemPositionsStorageList)
     {
-        this.from = pos1;
-        this.to = pos2;
-        this.blocks = stacks;
+        toRemove = itemPositionsStorageList;
     }
 
     @Override
     public void toBytes(final FriendlyByteBuf buf)
     {
-        buf.writeBlockPos(from);
-        buf.writeBlockPos(to);
-        buf.writeInt(blocks.size());
-        for (final ItemStack block : blocks)
+        buf.writeInt(toRemove.size());
+        for (final ItemPositionsStorage positionsStorage : toRemove)
         {
-            buf.writeItem(block);
+            positionsStorage.serialize(buf);
         }
     }
 
@@ -101,15 +76,15 @@ public class RemoveBlockMessage implements IMessage
             return;
         }
 
-        if (blocks.size() > 1)
+        if (toRemove.size() > 1)
         {
-            Manager.addToQueue(new RemoveFilteredOperation(ctxIn.getSender(), from, to, blocks));
+            Manager.addToQueue(new RemoveFilteredOperation(ctxIn.getSender(), toRemove));
             return;
         }
 
-        if (!blocks.isEmpty())
+        if (!toRemove.isEmpty())
         {
-            Manager.addToQueue(new RemoveBlockOperation(ctxIn.getSender(), from, to, blocks.get(0)));
+            Manager.addToQueue(new RemoveBlockOperation(ctxIn.getSender(), toRemove.get(0)));
         }
     }
 }

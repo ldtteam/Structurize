@@ -44,6 +44,7 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -279,6 +280,15 @@ public class ClientEventSubscriber
             else
             {
                 ++mc.options.keyPickItem.clickCount;
+            }
+        }
+
+        for (Iterator<Map.Entry<String, BoxPreviewData>> iterator = RenderingCache.boxRenderingCache.entrySet().iterator(); iterator.hasNext(); )
+        {
+            final var entry = iterator.next();
+            if (entry.getValue().isExpired())
+            {
+                iterator.remove();
             }
         }
     }

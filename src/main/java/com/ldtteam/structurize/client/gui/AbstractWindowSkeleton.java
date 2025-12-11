@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
 import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.structurize.api.util.Log;
 import net.minecraft.resources.ResourceLocation;
@@ -23,6 +24,17 @@ public abstract class AbstractWindowSkeleton extends BOWindow implements ButtonH
     public AbstractWindowSkeleton(final String resource)
     {
         super(new ResourceLocation(resource));
+        buttons = new HashMap<>();
+    }
+
+    /**
+     * Constructor for the skeleton class of the windows.
+     *
+     * @param resource Resource location
+     */
+    public AbstractWindowSkeleton(final ResourceLocation resource)
+    {
+        super(resource);
         buttons = new HashMap<>();
     }
 

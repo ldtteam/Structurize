@@ -1,11 +1,11 @@
 package com.ldtteam.structurize.operations;
 
+import com.ldtteam.structurize.client.gui.util.ItemPositionsStorage;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Blocks;
 
 /**
@@ -16,25 +16,21 @@ public class RemoveBlockOperation extends AreaOperation
     /**
      * What type of block to remove.
      */
-    private final ItemStack block;
+    private final ItemPositionsStorage toRemove;
 
     /**
      * Default constructor.
-     *
-     * @param startPos the start pos to iterate from.
-     * @param endPos   the end pos to iterate to.
-     * @param block    what type of block to remove.
      */
-    public RemoveBlockOperation(final Player player, final BlockPos startPos, final BlockPos endPos, final ItemStack block)
+    public RemoveBlockOperation(final ServerPlayer player, final ItemPositionsStorage toRemove)
     {
-        super(Component.translatable("com.ldtteam.structurize.remove_block", block.getDisplayName()), player, startPos, endPos);
-        this.block = block;
+        super(Component.translatable("com.ldtteam.structurize.remove_block", toRemove.itemStorage.getItemStack().getDisplayName()), player, toRemove.positions);
+        this.toRemove = toRemove;
     }
 
     @Override
     protected void apply(final ServerLevel world, final BlockPos position)
     {
-        if (BlockUtils.doBlocksMatch(block, world, position))
+        if (BlockUtils.doBlocksMatch(toRemove.itemStorage.getItemStack(), world, position))
         {
             storage.addPreviousDataFor(position, world);
             world.removeBlock(position, false);

@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.api.util;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -39,11 +40,11 @@ public class ItemStorage
      * @param amount            the amount.
      * @param ignoreDamageValue should the damage value be ignored?
      */
-    public ItemStorage(final ItemStack stack, final int amount, final boolean ignoreDamageValue)
+    public ItemStorage(final ItemStack stack, final int amount, final boolean ignoreDamageValue, final boolean shouldIgnoreNBTValue)
     {
         this.stack = stack;
         this.shouldIgnoreDamageValue = ignoreDamageValue;
-        this.shouldIgnoreNBTValue = ignoreDamageValue;
+        this.shouldIgnoreNBTValue = shouldIgnoreNBTValue;
         this.amount = amount;
     }
 
@@ -86,6 +87,14 @@ public class ItemStorage
         this.shouldIgnoreDamageValue = false;
         this.shouldIgnoreNBTValue = false;
         this.amount = ItemStackUtils.getSize(stack);
+    }
+
+    public ItemStorage(final FriendlyByteBuf buf)
+    {
+        this.stack = buf.readItem();
+        this.shouldIgnoreDamageValue = buf.readBoolean();
+        this.shouldIgnoreNBTValue = buf.readBoolean();
+        this.amount = buf.readInt();
     }
 
     /**
@@ -147,6 +156,16 @@ public class ItemStorage
         return shouldIgnoreDamageValue;
     }
 
+    /**
+     * Getter for the should ignore nbt.
+     *
+     * @return true if should ignore.
+     */
+    public boolean ignoreNBTValue()
+    {
+        return shouldIgnoreNBTValue;
+    }
+
     @Override
     public int hashCode()
     {
@@ -189,5 +208,13 @@ public class ItemStorage
     public int getDamageValue()
     {
         return stack.getDamageValue();
+    }
+
+    public void serialize(final FriendlyByteBuf buf)
+    {
+        buf.writeItem(getItemStack());
+        buf.writeBoolean(ignoreDamageValue());
+        buf.writeBoolean(ignoreNBTValue());
+        buf.writeInt(getAmount());
     }
 }
