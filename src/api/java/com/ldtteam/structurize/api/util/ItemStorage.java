@@ -89,6 +89,11 @@ public class ItemStorage
         this.amount = ItemStackUtils.getSize(stack);
     }
 
+    /**
+     * Reads an itemstorage from a buffer
+     *
+     * @param buf
+     */
     public ItemStorage(final FriendlyByteBuf buf)
     {
         this.stack = buf.readItem();
@@ -210,6 +215,10 @@ public class ItemStorage
         return stack.getDamageValue();
     }
 
+    /**
+     * Serialize itemstorage to buffer
+     * @param buf
+     */
     public void serialize(final FriendlyByteBuf buf)
     {
         buf.writeItem(getItemStack());
