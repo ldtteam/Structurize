@@ -10,6 +10,8 @@ import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
 import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.network.messages.ItemMiddleMouseMessage;
 import com.ldtteam.structurize.network.messages.ScanToolTeleportMessage;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -25,6 +27,9 @@ import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Iterator;
+import java.util.Map;
 
 public class ClientEventSubscriber
 {
@@ -120,6 +125,15 @@ public class ClientEventSubscriber
             else
             {
                 ++mc.options.keyPickItem.clickCount;
+            }
+        }
+
+        for (Iterator<Map.Entry<String, BoxPreviewData>> iterator = RenderingCache.boxRenderingCache.entrySet().iterator(); iterator.hasNext(); )
+        {
+            final var entry = iterator.next();
+            if (entry.getValue().isExpired())
+            {
+                iterator.remove();
             }
         }
     }

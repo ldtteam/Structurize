@@ -7,7 +7,6 @@ import com.ldtteam.blockui.controls.ButtonImage;
 import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.controls.TextFieldVanilla;
-import com.ldtteam.blockui.controls.TextField.Filter;
 import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.structurize.Structurize;
@@ -26,7 +25,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.Mirror;
@@ -37,11 +36,13 @@ import net.neoforged.neoforge.common.ModConfigSpec.ValueSpec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.ldtteam.structurize.api.constants.Constants.*;
 import static com.ldtteam.structurize.api.constants.GUIConstants.*;
 import static com.ldtteam.structurize.api.constants.WindowConstants.*;
+import static com.ldtteam.structurize.client.gui.util.InputFilters.ONLY_NUMBERS;
 
 /**
  * BuildTool window.
@@ -379,20 +380,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                 buttonImage.off();
                 inputField.on();
                 inputField.setText(typedSetting.get().toString());
-                inputField.setFilter(new Filter()
-                {
-                    @Override
-                    public String filter(final String s)
-                    {
-                        return s;
-                    }
-
-                    @Override
-                    public boolean isAllowedCharacter(final char c)
-                    {
-                        return Character.isDigit(c) || c == '-' || c == '.';
-                    }
-                });
+                inputField.setFilter(ONLY_NUMBERS);
                 inputField.setHandler(a -> {
                     if (inputField.getText().isBlank())
                     {

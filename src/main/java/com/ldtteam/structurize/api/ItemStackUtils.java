@@ -7,6 +7,7 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ItemFrame;
@@ -21,7 +22,11 @@ import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.Nullable;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -378,5 +383,35 @@ public final class ItemStackUtils
             }
         }
         return false;
+    }
+
+    /**
+     * Item serializer helper, including air
+     *
+     * @param stack
+     * @param buf
+     */
+    public static void serializeToBuffer(final ItemStack stack, RegistryFriendlyByteBuf buf)
+    {
+        buf.writeBoolean(stack.isEmpty());
+        if (!stack.isEmpty())
+        {
+            ItemStack.STREAM_CODEC.encode(buf, stack);
+        }
+    }
+
+    /**
+     * Item deserializer helper, including air. Must be serialized with the above util
+     *
+     * @param buf
+     */
+    public static ItemStack deserializeFromBuffer(RegistryFriendlyByteBuf buf)
+    {
+        if (!buf.readBoolean())
+        {
+            return ItemStack.STREAM_CODEC.decode(buf);
+        }
+
+        return ItemStack.EMPTY;
     }
 }

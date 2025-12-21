@@ -21,12 +21,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 /**
  * Computes as exact as possible contents of given AABB. This should be used as base for item related analysis
@@ -117,7 +113,7 @@ public class WindowBlockGetterContents extends BOWindow
     {
         if (blockAsItem != null)
         {
-            itemSet.computeIfAbsent(blockAsItem.getItem(), i -> new ItemStorage(blockAsItem.copyWithCount(1), 0, true))
+            itemSet.computeIfAbsent(blockAsItem.getItem(), i -> new ItemStorage(blockAsItem.copyWithCount(1), 0, true, true))
                 .addAmount(Math.max(1, blockAsItem.getCount()));
         }
     }

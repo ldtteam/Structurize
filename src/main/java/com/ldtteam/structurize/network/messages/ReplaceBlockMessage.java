@@ -2,13 +2,14 @@ package com.ldtteam.structurize.network.messages;
 
 import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.client.gui.util.ItemPositionsStorage;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.operations.ReplaceBlockOperation;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
@@ -19,19 +20,9 @@ public class ReplaceBlockMessage extends AbstractServerPlayMessage
     public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "replace_block", ReplaceBlockMessage::new);
 
     /**
-     * Position to scan from.
+     *  The block to replace with its positions
      */
-    private final BlockPos from;
-
-    /**
-     * Position to scan to.
-     */
-    private final BlockPos to;
-
-    /**
-     * The block to remove from the world.
-     */
-    private final ItemStack blockFrom;
+    private final ItemPositionsStorage toReplace;
 
     /**
      * The block to remove from the world.
@@ -49,26 +40,20 @@ public class ReplaceBlockMessage extends AbstractServerPlayMessage
     protected ReplaceBlockMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
-        this.from = buf.readBlockPos();
-        this.to = buf.readBlockPos();
-        this.blockTo = ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
-        this.blockFrom = ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
+        this.blockTo = ItemStackUtils.deserializeFromBuffer(buf);
         this.pct = buf.readInt();
+        toReplace = new ItemPositionsStorage(buf);
     }
 
     /**
      * Create a message to replace a block from the world.
-     * @param pos1 start coordinate.
-     * @param pos2 end coordinate.
-     * @param blockFrom the block to replace.
-     * @param blockTo the block to replace it with.
+     *
+     * @param blockTo   the block to replace it with.
      */
-    public ReplaceBlockMessage(final BlockPos pos1, final BlockPos pos2, final ItemStack blockFrom, final ItemStack blockTo, final int pct)
+    public ReplaceBlockMessage(final ItemPositionsStorage toReplace, final ItemStack blockTo, final int pct)
     {
         super(TYPE);
-        this.from = pos1;
-        this.to = pos2;
-        this.blockFrom = blockFrom;
+        this.toReplace = toReplace;
         this.blockTo = blockTo;
         this.pct = pct;
     }
@@ -76,11 +61,9 @@ public class ReplaceBlockMessage extends AbstractServerPlayMessage
     @Override
     protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
-        buf.writeBlockPos(from);
-        buf.writeBlockPos(to);
-        ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, blockTo);
-        ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, blockFrom);
+        ItemStackUtils.serializeToBuffer(blockTo, buf);
         buf.writeInt(pct);
+        toReplace.serialize(buf);
     }
 
     @Override
@@ -91,6 +74,6 @@ public class ReplaceBlockMessage extends AbstractServerPlayMessage
             return;
         }
 
-        Manager.addToQueue(new ReplaceBlockOperation(player, from, to, blockFrom, blockTo, pct));
+        Manager.addToQueue(new ReplaceBlockOperation(player, toReplace, blockTo, pct));
     }
 }

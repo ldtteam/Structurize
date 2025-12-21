@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
- * Send the scan tool update message to the client.
+ * Marks an area of blocks for re-rendering on the client
  */
 public class UpdateClientRender extends AbstractClientPlayMessage
 {

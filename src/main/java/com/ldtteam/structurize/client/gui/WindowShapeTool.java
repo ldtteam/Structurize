@@ -1,19 +1,23 @@
 package com.ldtteam.structurize.client.gui;
 
-import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.controls.ToggleButton;
 import com.ldtteam.blockui.views.DropDownList;
 import com.ldtteam.blockui.views.View;
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.api.Shape;
 import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
+import com.ldtteam.structurize.client.gui.util.ItemUtil;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
 import com.ldtteam.structurize.storage.ClientFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
-import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -43,11 +47,11 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     /**
      * Shape variables.
      */
-    private static int     width  = 1;
-    private static int     height = 1;
-    private static int     length = 1;
-    private static int     frequency = 1;
-    private static String  equation = "";
+    private static int    width     = 1;
+    private static int    height    = 1;
+    private static int    length    = 1;
+    private static int    frequency = 1;
+    private static String equation  = "";
 
     private static boolean hollow = false;
 
@@ -184,7 +188,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
         registerButton(INPUT_FREQUENCY + BUTTON_PLUS, () -> adjust(inputFrequency, frequency + 1));
 
         sections.clear();
-        Arrays.stream(Shape.values()).map(s -> new Tuple<>(s, Component.translatable("structurize.shapetool.shape." + s.name().toLowerCase()))).forEach(sections::add);        
+        Arrays.stream(Shape.values()).map(s -> new Tuple<>(s, Component.translatable("structurize.shapetool.shape." + s.name().toLowerCase()))).forEach(sections::add);
 
         sectionsDropDownList = findPaneOfTypeByID(DROPDOWN_STYLE_ID, DropDownList.class);
         sectionsDropDownList.setHandler(this::onDropDownListChanged);
@@ -201,7 +205,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
         updateRotationState();
 
         findPaneOfTypeByID(BUTTON_HOLLOW, ToggleButton.class)
-          .setActiveState(hollow ? "hollow" : "solid");
+            .setActiveState(hollow ? "hollow" : "solid");
     }
 
     /**
@@ -241,7 +245,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
         findPaneByID(RESOURCE_ICON_FILL).show();
 
         if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL || shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID
-                   || shape == Shape.DIAMOND)
+            || shape == Shape.DIAMOND)
         {
             width.hide();
             length.hide();
@@ -263,15 +267,15 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      */
     private void pickMainBlock()
     {
-        new WindowReplaceBlock(mainBlock, RenderingCache.getOrCreateBlueprintPreviewData("shapes").getPos(), true, this).open();
+        new WindowSelectRes(this, Component.literal("Select the main block"), mainBlock, ItemUtil.getAllItems(), (s, c) -> updateBlock(s, true), false, null).open();
     }
 
     /**
      * Opens the block picker window.
-     * */
+     */
     private void pickFillBlock()
     {
-        new WindowReplaceBlock(secondaryBlock, RenderingCache.getOrCreateBlueprintPreviewData("shapes").getPos(), false, this).open();
+        new WindowSelectRes(this, Component.literal("Select the main block"), secondaryBlock, ItemUtil.getAllItems(), (s, c) -> updateBlock(s, false), false, null).open();
     }
 
     private void adjust(final TextField input, final int value)
@@ -318,15 +322,15 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
         {
             final String packName = Minecraft.getInstance().getUser().getName();
             final Path subpath = Path.of(
-                    SHAPES_FOLDER,
-                    shape.toString().toLowerCase(Locale.ROOT),
-                    mainBlock.getItem().toString().replace(':', '_'),
-                    secondaryBlock.getItem().toString().replace(':', '_'),
-                    String.format("%dx%dx%dx%d_%c.blueprint", length, width, height, frequency, hollow ? 'h' : 'f'));
+                SHAPES_FOLDER,
+                shape.toString().toLowerCase(Locale.ROOT),
+                mainBlock.getItem().toString().replace(':', '_'),
+                secondaryBlock.getItem().toString().replace(':', '_'),
+                String.format("%dx%dx%dx%d_%c.blueprint", length, width, height, frequency, hollow ? 'h' : 'f'));
             final Path path = Minecraft.getInstance().gameDirectory.toPath()
-                    .resolve(BLUEPRINT_FOLDER)
-                    .resolve(packName.toLowerCase(Locale.US))
-                    .resolve(subpath);
+                .resolve(BLUEPRINT_FOLDER)
+                .resolve(packName.toLowerCase(Locale.US))
+                .resolve(subpath);
 
             final CompoundTag compound = BlueprintUtil.writeBlueprintToNBT(previewData.getBlueprint());
             ClientFutureProcessor.queueBlueprint(
@@ -352,7 +356,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
     @Override
     protected void cancelClicked()
     {
-        width  = 1;
+        width = 1;
         height = 1;
         length = 1;
         frequency = 1;
@@ -389,7 +393,8 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
 
     /**
      * Update the block from the replace block window.
-     * @param stack the stack to set.
+     *
+     * @param stack  the stack to set.
      * @param isMain if primary or secondary.
      */
     public void updateBlock(final ItemStack stack, final boolean isMain)
@@ -469,7 +474,7 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
                 final int localFrequency = Integer.parseInt(frequencyText);
 
                 if (shapeHeight != localHeight || shapeLength != localLength || shapeWidth != localWidth || shapeFrequency != localFrequency
-                      || !shapeequation.equals(localequation))
+                    || !shapeequation.equals(localequation))
                 {
                     this.shapeWidth = localWidth;
                     this.shapeLength = localLength;

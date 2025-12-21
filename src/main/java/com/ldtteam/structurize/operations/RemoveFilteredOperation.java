@@ -1,13 +1,16 @@
 package com.ldtteam.structurize.operations;
 
+import com.ldtteam.structurize.client.gui.util.ItemPositionsStorage;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.level.ServerPlayer;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Operation for removing multiple types of blocks.
@@ -17,27 +20,38 @@ public class RemoveFilteredOperation extends AreaOperation
     /**
      * What type of blocks to remove.
      */
-    private final List<ItemStack> blocks;
+    private final List<ItemPositionsStorage> toRemove;
 
     /**
      * Default constructor.
-     *
-     * @param startPos the start pos to iterate from.
-     * @param endPos   the end pos to iterate to.
-     * @param blocks   what type of blocks to remove.
      */
-    public RemoveFilteredOperation(final Player player, final BlockPos startPos, final BlockPos endPos, final List<ItemStack> blocks)
+    public RemoveFilteredOperation(final ServerPlayer player, final List<ItemPositionsStorage> toRemove)
     {
-        super(Component.translatable("com.ldtteam.structurize.remove_blocks"), player, startPos, endPos);
-        this.blocks = blocks;
+        super(Component.translatable("com.ldtteam.structurize.remove_blocks"), player, consolidatePositions(toRemove));
+        this.toRemove = toRemove;
+    }
+
+    /**
+     * Combines all positions into a list
+     * @param toRemove
+     * @return
+     */
+    private static List<BlockPos> consolidatePositions(final List<ItemPositionsStorage> toRemove)
+    {
+        Set<BlockPos> positions = new HashSet<>();
+        for (final ItemPositionsStorage itemPositionsStorage : toRemove)
+        {
+            positions.addAll(itemPositionsStorage.positions);
+        }
+        return new ArrayList<>(positions);
     }
 
     @Override
     protected void apply(final ServerLevel world, final BlockPos position)
     {
-        for (final ItemStack block : blocks)
+        for (final ItemPositionsStorage itemPositionsStorage : toRemove)
         {
-            if (BlockUtils.doBlocksMatch(block, world, position))
+            if (BlockUtils.doBlocksMatch(itemPositionsStorage.itemStorage.getItemStack(), world, position))
             {
                 storage.addPreviousDataFor(position, world);
                 world.removeBlock(position, false);
