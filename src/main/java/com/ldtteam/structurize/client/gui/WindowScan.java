@@ -9,17 +9,19 @@ import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
+import com.ldtteam.structurize.client.gui.util.InputFilters;
+import com.ldtteam.structurize.client.gui.util.ItemPositionsStorage;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
-import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ScanToolData;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -31,6 +33,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +51,9 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private static final String BUILDING_NAME_RESOURCE_SUFFIX = ":gui/windowscantool.xml";
 
-    /** chest warning message */
+    /**
+     * chest warning message
+     */
     private static final String CHEST_WARNING = "chestwarning";
 
     /**
@@ -57,9 +62,9 @@ public class WindowScan extends AbstractWindowSkeleton
     //private static final int ENTER_KEY = 28;
 
     /**
-     * Contains all resources needed for a certain build.
+     * Current list view of resources
      */
-    private final Map<String, ItemStorage> resources = new HashMap<>();
+    private final Map<ItemStorage, ItemPositionsStorage> allResources = new HashMap<>();
 
     /**
      * Contains all entities needed for a certain build.
@@ -108,12 +113,13 @@ public class WindowScan extends AbstractWindowSkeleton
     private final ScrollingList entityList;
 
     /**
-     * True if using the replacement window
+     * Timer until the resources get adjusted to the filter input
      */
-    private boolean replacing;
+    private int updateFilterTimer = 0;
 
     /**
      * Constructor for when the player wants to scan something.
+     *
      * @param data the scan tool data
      */
     public WindowScan(@NotNull final ScanToolData data)
@@ -123,6 +129,8 @@ public class WindowScan extends AbstractWindowSkeleton
         registerButton(BUTTON_CONFIRM, this::confirmClicked);
         registerButton(BUTTON_CANCEL, this::discardClicked);
         registerButton(BUTTON_SHOW_RES, this::showResClicked);
+        registerButton(VISIBLE_CHECKBOX, this::updateResources);
+        registerButton(HIDDEN_CHECKBOX, this::updateResources);
         registerButton(BUTTON_REMOVE_ENTITY, this::removeEntity);
         registerButton(BUTTON_REMOVE_BLOCK, this::removeBlock);
         registerButton(BUTTON_REPLACE_BLOCK, this::replaceBlock);
@@ -145,6 +153,14 @@ public class WindowScan extends AbstractWindowSkeleton
         pos2z = findPaneOfTypeByID(POS2Z_LABEL, TextField.class);
 
         slotId = findPaneOfTypeByID("slot", TextField.class);
+
+        pos1x.setFilter(InputFilters.ONLY_NUMBERS);
+        pos1y.setFilter(InputFilters.ONLY_NUMBERS);
+        pos1z.setFilter(InputFilters.ONLY_NUMBERS);
+        pos2x.setFilter(InputFilters.ONLY_NUMBERS);
+        pos2y.setFilter(InputFilters.ONLY_NUMBERS);
+        pos2z.setFilter(InputFilters.ONLY_NUMBERS);
+        slotId.setFilter(InputFilters.ONLY_NUMBERS);
 
         resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
         entityList = findPaneOfTypeByID(LIST_ENTITIES, ScrollingList.class);
@@ -181,7 +197,13 @@ public class WindowScan extends AbstractWindowSkeleton
             double circleRadiusMult = Double.parseDouble(findPaneOfTypeByID(INPUT_RADIUS, TextField.class).getText());
             int heightOffset = Integer.parseInt(findPaneOfTypeByID(INPUT_HEIGHT_OFFSET, TextField.class).getText());
             int minDistToBlocks = Integer.parseInt(findPaneOfTypeByID(INPUT_BLOCKDIST, TextField.class).getText());
-            Network.getNetwork().sendToServer(new FillTopPlaceholderMessage(data.getCurrentSlotData().getBox().getPos1(), data.getCurrentSlotData().getBox().getPos2(), yStretch, circleRadiusMult, heightOffset, minDistToBlocks));
+            Network.getNetwork()
+                .sendToServer(new FillTopPlaceholderMessage(data.getCurrentSlotData().getBox().getPos1(),
+                    data.getCurrentSlotData().getBox().getPos2(),
+                    yStretch,
+                    circleRadiusMult,
+                    heightOffset,
+                    minDistToBlocks));
         }
         catch (Exception e)
         {
@@ -198,6 +220,10 @@ public class WindowScan extends AbstractWindowSkeleton
         findPaneOfTypeByID(FILTER_NAME, TextField.class).show();
         findPaneOfTypeByID(BUTTON_SHOW_RES, Button.class).hide();
         findPaneOfTypeByID(REMOVE_FILTERED, Button.class).show();
+        findPaneOfTypeByID(VISIBLE_CHECKBOX, CheckBox.class).show();
+        findPaneOfTypeByID(VISIBLE_CHECKBOX, CheckBox.class).setChecked(true);
+        findPaneOfTypeByID(HIDDEN_CHECKBOX, CheckBox.class).show();
+        findPaneOfTypeByID(HIDDEN_CHECKBOX, CheckBox.class).setChecked(true);
         updateResources();
     }
 
@@ -220,66 +246,39 @@ public class WindowScan extends AbstractWindowSkeleton
 
     private void removeBlock(final Button button)
     {
-        final int x1 = Integer.parseInt(pos1x.getText());
-        final int y1 = Integer.parseInt(pos1y.getText());
-        final int z1 = Integer.parseInt(pos1z.getText());
-
-        final int x2 = Integer.parseInt(pos2x.getText());
-        final int y2 = Integer.parseInt(pos2y.getText());
-        final int z2 = Integer.parseInt(pos2z.getText());
-
         final int row = resourceList.getListElementIndexByPane(button);
-        final List<ItemStorage> tempRes = new ArrayList<>(resources.values());
-        final ItemStack stack = tempRes.get(row).getItemStack();
-        Network.getNetwork().sendToServer(new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), stack));
-        final int hashCode = stack.hasTag() ? stack.getTag().hashCode() : 0;
-        resources.remove(stack.getDescriptionId() + ":" + stack.getDamageValue() + "-" + hashCode);
+        final List<ItemStorage> tempRes = new ArrayList<>(getResources());
+        final ItemPositionsStorage toRemove = allResources.get(tempRes.get(row));
+        Network.getNetwork().sendToServer(new RemoveBlockMessage(toRemove));
+        removeAllNeededResource(toRemove.itemStorage.getItemStack());
         updateResourceList();
+    }
+
+    /**
+     * Helper to get the current set of resources to display
+     *
+     * @return
+     */
+    private Set<ItemStorage> getResources()
+    {
+        return allResources.keySet();
     }
 
     private void removeFilteredBlock()
     {
-        final int x1 = Integer.parseInt(pos1x.getText());
-        final int y1 = Integer.parseInt(pos1y.getText());
-        final int z1 = Integer.parseInt(pos1z.getText());
-
-        final int x2 = Integer.parseInt(pos2x.getText());
-        final int y2 = Integer.parseInt(pos2y.getText());
-        final int z2 = Integer.parseInt(pos2z.getText());
-
-        final List<ItemStack> blocks = new ArrayList<>();
-        for (final ItemStorage tempRes : new ArrayList<>(resources.values()))
-        {
-            final ItemStack stack = tempRes.getItemStack();
-            blocks.add(stack);
-            final int hashCode = stack.hasTag() ? stack.getTag().hashCode() : 0;
-            resources.remove(stack.getDescriptionId() + ":" + stack.getDamageValue() + "-" + hashCode);
-        }
-
-        Network.getNetwork().sendToServer(new RemoveBlockMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), blocks));
+        Network.getNetwork().sendToServer(new RemoveBlockMessage(allResources.values().stream().toList()));
+        allResources.clear();
         updateResourceList();
     }
 
-
     private void replaceBlock(final Button button)
     {
-        final int x1 = Integer.parseInt(pos1x.getText());
-        final int y1 = Integer.parseInt(pos1y.getText());
-        final int z1 = Integer.parseInt(pos1z.getText());
-
-        final int x2 = Integer.parseInt(pos2x.getText());
-        final int y2 = Integer.parseInt(pos2y.getText());
-        final int z2 = Integer.parseInt(pos2z.getText());
-
         final int row = resourceList.getListElementIndexByPane(button);
-        final List<ItemStorage> tempRes = new ArrayList<>(resources.values());
-
-        new WindowReplaceBlock(tempRes.get(row).getItemStack(), new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), this).open();
-        replacing = true;
+        final List<ItemStorage> tempRes = new ArrayList<>(getResources());
+        new WindowReplaceBlock(this, allResources.get(tempRes.get(row))).open();
     }
 
     @Override
-    @SuppressWarnings("resource")
     public void onOpened()
     {
         super.onOpened();
@@ -300,8 +299,11 @@ public class WindowScan extends AbstractWindowSkeleton
         findPaneOfTypeByID(FILTER_NAME, TextField.class).setHandler(input -> {
             filter = findPaneOfTypeByID(FILTER_NAME, TextField.class).getText();
 
-            updateResources();
+
+            updateFilterTimer = 10;
         });
+
+        updateFilterTimer = 30;
     }
 
     @Override
@@ -318,11 +320,13 @@ public class WindowScan extends AbstractWindowSkeleton
     @Override
     public void onUpdate()
     {
-        if (replacing)
+        if (updateFilterTimer > 0)
         {
-            // onOpened doesn't get called again when we're reopened from a child BO window
-            updateResources();
-            replacing = false;
+            updateFilterTimer--;
+            if (updateFilterTimer == 0)
+            {
+                updateResources();
+            }
         }
 
         super.onUpdate();
@@ -334,6 +338,15 @@ public class WindowScan extends AbstractWindowSkeleton
     private void discardClicked()
     {
         RenderingCache.removeBox("scan");
+
+        for (Iterator<Map.Entry<String, BoxPreviewData>> iterator = RenderingCache.boxRenderingCache.entrySet().iterator(); iterator.hasNext(); )
+        {
+            final var entry = iterator.next();
+            if (entry.getKey().contains("clickedResource"))
+            {
+                iterator.remove();
+            }
+        }
         close();
     }
 
@@ -431,10 +444,11 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private void updateResources()
     {
+        updateFilterTimer = 0;
         updateBounds();
 
         final Level world = Minecraft.getInstance().level;
-        resources.clear();
+        allResources.clear();
         entities.clear();
 
         if (findPaneByID(BUTTON_SHOW_RES).isVisible())
@@ -451,31 +465,59 @@ public class WindowScan extends AbstractWindowSkeleton
             // LEASH_KNOT, while not directly serializable, still serializes as part of the mob
             // and drops a lead, so we should alert builders that it exists in the scan
             if (!entities.containsKey(entity.getName().getString())
-                  && (entity.getType().canSerialize() || entity.getType().equals(EntityType.LEASH_KNOT))
-                  && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                                             || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
+                && (entity.getType().canSerialize() || entity.getType().equals(EntityType.LEASH_KNOT))
+                && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+                || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
             {
                 entities.mergeInt(entity.getType(), 1, Integer::sum);
             }
         }
 
-        for (final BlockPos here : BlockPos.betweenClosed(slot.getBox().getPos1(), slot.getBox().getPos2()))
-        {
-            final BlockState blockState = world.getBlockState(here);
-            final BlockEntity tileEntity = world.getBlockEntity(here);
+        final AABB box = new AABB(slot.getBox().getPos1(), slot.getBox().getPos2());
+        final BlockPos.MutableBlockPos here = new BlockPos.MutableBlockPos();
+        final int minX = Math.min(slot.getBox().getPos1().getX(), slot.getBox().getPos2().getX());
+        final int minY = Math.min(slot.getBox().getPos1().getY(), slot.getBox().getPos2().getY());
+        final int minZ = Math.min(slot.getBox().getPos1().getZ(), slot.getBox().getPos2().getZ());
+        final int maxX = Math.max(slot.getBox().getPos1().getX(), slot.getBox().getPos2().getX());
+        final int maxY = Math.max(slot.getBox().getPos1().getY(), slot.getBox().getPos2().getY());
+        final int maxZ = Math.max(slot.getBox().getPos1().getZ(), slot.getBox().getPos2().getZ());
 
-            @Nullable final Block block = blockState.getBlock();
-            if (block == Blocks.AIR || block == Blocks.VOID_AIR || block == Blocks.CAVE_AIR)
+        for (int x = minX; x <= maxX; x++)
+        {
+            for (int z = minZ; z <= maxZ; z++)
             {
-                addNeededResource(new ItemStack(Blocks.AIR, 1), 1);
-            }
-            else
-            {
-                final IPlacementHandler handler = PlacementHandlers.getHandler(world, BlockPos.ZERO, blockState);
-                final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
-                for (final ItemStack stack : itemList)
+                for (int y = minY; y <= maxY; y++)
                 {
-                    addNeededResource(stack, 1);
+                    here.set(x, y, z);
+                    final BlockState blockState = world.getBlockState(here);
+                    final BlockEntity tileEntity = world.getBlockEntity(here);
+
+                    boolean visible = false;
+                    for (final Direction dir : Direction.values())
+                    {
+                        BlockPos offsetPos = here.relative(dir);
+                        if (!box.contains(offsetPos.getCenter())
+                            || world.getBlockState(offsetPos).canOcclude() && world.getBlockState(offsetPos).getShape(world, offsetPos) != Shapes.block())
+                        {
+                            visible = true;
+                            break;
+                        }
+                    }
+
+                    @Nullable final Block block = blockState.getBlock();
+                    if (block == Blocks.AIR || block == Blocks.VOID_AIR || block == Blocks.CAVE_AIR)
+                    {
+                        addNeededResource(new ItemStack(Blocks.AIR, 1), visible, here);
+                    }
+                    else
+                    {
+                        final IPlacementHandler handler = PlacementHandlers.getHandler(world, BlockPos.ZERO, blockState);
+                        final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+                        for (final ItemStack stack : itemList)
+                        {
+                            addNeededResource(stack, visible, here);
+                        }
+                    }
                 }
             }
         }
@@ -489,33 +531,41 @@ public class WindowScan extends AbstractWindowSkeleton
      * Add a new resource to the needed list.
      *
      * @param res    the resource.
-     * @param amount the amount.
+     * @param pos    the blockpos the resource is for
      */
-    public void addNeededResource(@Nullable final ItemStack res, final int amount)
+    public void addNeededResource(@Nullable final ItemStack res, final boolean visible, final BlockPos pos)
     {
-        if (res == null || amount == 0)
+        if (res == null)
         {
             return;
         }
 
-        final int hashCode = res.hasTag() ? res.getTag().hashCode() : 0;
-        ItemStorage resource = resources.get(res.getDescriptionId() + ":" + res.getDamageValue() + "-" + hashCode);
-        if (resource == null)
+        final var visibleCheckBox = findPaneOfTypeByID(VISIBLE_CHECKBOX, CheckBox.class);
+        final var hiddenCheckBox = findPaneOfTypeByID(HIDDEN_CHECKBOX, CheckBox.class);
+        if (visible && !visibleCheckBox.isChecked())
         {
-            resource = new ItemStorage(res);
-            resource.setAmount(amount);
+            return;
         }
-        else
+
+        if (!visible && !hiddenCheckBox.isChecked())
         {
-            resource.setAmount(resource.getAmount() + amount);
+            return;
         }
 
         if (filter.isEmpty()
-                || res.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
-                || res.getHoverName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
+            || res.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+            || res.getHoverName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
         {
-            resources.put(res.getDescriptionId() + ":" + res.getDamageValue() + "-" + hashCode, resource);
+            final ItemStorage stackToStore = new ItemStorage(res, 1, true, false);
+            final ItemPositionsStorage existing = allResources.computeIfAbsent(stackToStore, ItemPositionsStorage::new);
+            existing.addItemAndPos(stackToStore, pos.immutable());
         }
+    }
+
+    public void removeAllNeededResource(final ItemStack res)
+    {
+        final ItemStorage storage = new ItemStorage(res, 1, true, false);
+        allResources.remove(storage);
     }
 
     public void updateEntitylist()
@@ -576,7 +626,8 @@ public class WindowScan extends AbstractWindowSkeleton
         resourceList.enable();
         resourceList.show();
         window.findPaneOfTypeByID(CHEST_WARNING, Text.class).show();
-        final List<ItemStorage> tempRes = new ArrayList<>(resources.values());
+        final List<ItemStorage> tempRes = new ArrayList<>(getResources());
+        tempRes.sort(Comparator.comparing(s1 -> s1.getItemStack().getHoverName().getString()));
 
         //Creates a dataProvider for the unemployed resourceList.
         resourceList.setDataProvider(new ScrollingList.DataProvider()
@@ -616,6 +667,26 @@ public class WindowScan extends AbstractWindowSkeleton
                     rowPane.findPaneOfTypeByID(BUTTON_REMOVE_BLOCK, Button.class).hide();
                     rowPane.findPaneOfTypeByID(BUTTON_REPLACE_BLOCK, Button.class).hide();
                 }
+
+                List<Component> tooltip = new ArrayList<>(rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).getModifiedItemStackTooltip());
+                tooltip.add(Component.translatable("com.ldtteam.structurize.gui.scantool.item.tooltipclick"));
+
+                (new AbstractTextBuilder.AutomaticTooltipBuilder()).hoverPane(rowPane.findPaneOfTypeByID(BUTTON_SHOWBLOCK, Button.class))
+                    .build()
+                    .setTextOld(tooltip);
+                rowPane.findPaneOfTypeByID(BUTTON_SHOWBLOCK, Button.class).setHandler(b -> doHighLightBlocks(b, resource));
+            }
+
+            private void doHighLightBlocks(Button button, final ItemStorage block)
+            {
+                final ItemPositionsStorage itemPositionsStorage = allResources.get(block);
+                for (final BlockPos position : itemPositionsStorage.positions)
+                {
+                    BoxPreviewData previewData = new BoxPreviewData(position, position, Optional.empty());
+                    previewData.setExpireTime(30);
+                    RenderingCache.queue("clickedResource" + position.toShortString(), previewData);
+                }
+                window.close();
             }
         });
     }

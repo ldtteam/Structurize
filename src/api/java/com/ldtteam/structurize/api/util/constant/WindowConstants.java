@@ -318,6 +318,21 @@ public final class WindowConstants
     public static final String REMOVE_FILTERED = "removefiltered";
 
     /**
+     * Display visible blocks checkbox
+     */
+    public static final String VISIBLE_CHECKBOX = "showvisisble";
+
+    /**
+     * Display hidden blocks checkbox
+     */
+    public static final String HIDDEN_CHECKBOX = "showhidden";
+
+    /**
+     * Shows the block in the world button
+     */
+    public static final String BUTTON_SHOWBLOCK = "showBlock";
+
+    /**
      * public constructor to hide implicit public one.
      */
     private WindowConstants()

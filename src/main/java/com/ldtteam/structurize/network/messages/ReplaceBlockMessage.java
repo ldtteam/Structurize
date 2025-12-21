@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.structurize.client.gui.util.ItemPositionsStorage;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.operations.ReplaceBlockOperation;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
@@ -15,19 +15,9 @@ import org.jetbrains.annotations.Nullable;
 public class ReplaceBlockMessage implements IMessage
 {
     /**
-     * Position to scan from.
+     *  The block to replace with its positions
      */
-    private final BlockPos from;
-
-    /**
-     * Position to scan to.
-     */
-    private final BlockPos to;
-
-    /**
-     * The block to remove from the world.
-     */
-    private final ItemStack blockFrom;
+    private final ItemPositionsStorage toReplace;
 
     /**
      * The block to remove from the world.
@@ -44,25 +34,19 @@ public class ReplaceBlockMessage implements IMessage
      */
     public ReplaceBlockMessage(final FriendlyByteBuf buf)
     {
-        this.from = buf.readBlockPos();
-        this.to = buf.readBlockPos();
         this.blockTo = buf.readItem();
-        this.blockFrom = buf.readItem();
         this.pct = buf.readInt();
+        toReplace = new ItemPositionsStorage(buf);
     }
 
     /**
      * Create a message to replace a block from the world.
-     * @param pos1 start coordinate.
-     * @param pos2 end coordinate.
-     * @param blockFrom the block to replace.
-     * @param blockTo the block to replace it with.
+     *
+     * @param blockTo   the block to replace it with.
      */
-    public ReplaceBlockMessage(final BlockPos pos1, final BlockPos pos2, final ItemStack blockFrom, final ItemStack blockTo, final int pct)
+    public ReplaceBlockMessage(final ItemPositionsStorage toReplace, final ItemStack blockTo, final int pct)
     {
-        this.from = pos1;
-        this.to = pos2;
-        this.blockFrom = blockFrom;
+        this.toReplace = toReplace;
         this.blockTo = blockTo;
         this.pct = pct;
     }
@@ -70,11 +54,9 @@ public class ReplaceBlockMessage implements IMessage
     @Override
     public void toBytes(final FriendlyByteBuf buf)
     {
-        buf.writeBlockPos(from);
-        buf.writeBlockPos(to);
         buf.writeItem(blockTo);
-        buf.writeItem(blockFrom);
         buf.writeInt(pct);
+        toReplace.serialize(buf);
     }
 
     @Nullable
@@ -92,6 +74,6 @@ public class ReplaceBlockMessage implements IMessage
             return;
         }
 
-        Manager.addToQueue(new ReplaceBlockOperation(ctxIn.getSender(), from, to, blockFrom, blockTo, pct));
+        Manager.addToQueue(new ReplaceBlockOperation(ctxIn.getSender(), toReplace, blockTo, pct));
     }
 }

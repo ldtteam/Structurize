@@ -8,7 +8,7 @@ import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Send the scan tool update message to the client.
+ * Marks an area of blocks for re-rendering on the client
  */
 public class UpdateClientRender implements IMessage
 {

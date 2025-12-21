@@ -19,6 +19,8 @@ public class BoxPreviewData
     @NotNull
     private Optional<BlockPos> anchor;
 
+    private long expireTime = Long.MAX_VALUE;
+
     /**
      * Create a new box.
      * @param pos1 the first pos.
@@ -50,5 +52,15 @@ public class BoxPreviewData
     public void setAnchor(final Optional<BlockPos> anchor)
     {
         this.anchor = anchor;
+    }
+
+    public boolean isExpired()
+    {
+        return System.currentTimeMillis() - expireTime > 0;
+    }
+
+    public void setExpireTime(final int seconds)
+    {
+        expireTime = System.currentTimeMillis() + seconds * 1000;
     }
 }
