@@ -118,6 +118,11 @@ public class WindowScan extends AbstractWindowSkeleton
     private int updateFilterTimer = 0;
 
     /**
+     * The sorted visible list of items, used by the UI
+     */
+    private ArrayList<ItemStorage> visibleResourcesSortedList = new ArrayList<>();
+
+    /**
      * Constructor for when the player wants to scan something.
      *
      * @param data the scan tool data
@@ -247,8 +252,7 @@ public class WindowScan extends AbstractWindowSkeleton
     private void removeBlock(final Button button)
     {
         final int row = resourceList.getListElementIndexByPane(button);
-        final List<ItemStorage> tempRes = new ArrayList<>(getResources());
-        final ItemPositionsStorage toRemove = allResources.get(tempRes.get(row));
+        final ItemPositionsStorage toRemove = allResources.get(visibleResourcesSortedList.get(row));
         Network.getNetwork().sendToServer(new RemoveBlockMessage(toRemove));
         removeAllNeededResource(toRemove.itemStorage.getItemStack());
         updateResourceList();
@@ -274,8 +278,7 @@ public class WindowScan extends AbstractWindowSkeleton
     private void replaceBlock(final Button button)
     {
         final int row = resourceList.getListElementIndexByPane(button);
-        final List<ItemStorage> tempRes = new ArrayList<>(getResources());
-        new WindowReplaceBlock(this, allResources.get(tempRes.get(row))).open();
+        new WindowReplaceBlock(this, allResources.get(visibleResourcesSortedList.get(row))).open();
     }
 
     @Override
@@ -626,8 +629,8 @@ public class WindowScan extends AbstractWindowSkeleton
         resourceList.enable();
         resourceList.show();
         window.findPaneOfTypeByID(CHEST_WARNING, Text.class).show();
-        final List<ItemStorage> tempRes = new ArrayList<>(getResources());
-        tempRes.sort(Comparator.comparing(s1 -> s1.getItemStack().getHoverName().getString()));
+        visibleResourcesSortedList = new ArrayList<>(getResources());
+        visibleResourcesSortedList.sort(Comparator.comparing(s1 -> s1.getItemStack().getHoverName().getString()));
 
         //Creates a dataProvider for the unemployed resourceList.
         resourceList.setDataProvider(new ScrollingList.DataProvider()
@@ -639,7 +642,7 @@ public class WindowScan extends AbstractWindowSkeleton
             @Override
             public int getElementCount()
             {
-                return tempRes.size();
+                return visibleResourcesSortedList.size();
             }
 
             /**
@@ -651,7 +654,7 @@ public class WindowScan extends AbstractWindowSkeleton
             @SuppressWarnings("resource")
             public void updateElement(final int index, final Pane rowPane)
             {
-                final ItemStorage resource = tempRes.get(index);
+                final ItemStorage resource = visibleResourcesSortedList.get(index);
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
                 final Text quantityLabel = rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class);
                 resourceLabel.setText(resource.getItemStack().getHoverName());
