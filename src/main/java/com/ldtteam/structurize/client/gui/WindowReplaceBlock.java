@@ -5,6 +5,7 @@ import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.client.gui.util.InputFilters;
 import com.ldtteam.structurize.client.gui.util.ItemPositionsStorage;
 import com.ldtteam.structurize.client.gui.util.ItemUtil;
 import com.ldtteam.structurize.network.messages.ReplaceBlockMessage;
@@ -51,6 +52,7 @@ public class WindowReplaceBlock extends WindowSelectRes
             Component.translatable("com.ldtteam.structurize.gui.scan.replace.pct"));
         this.toReplace = toReplace;
         findPaneOfTypeByID("count", TextField.class).setText("100");
+        findPaneOfTypeByID(COUNT, TextField.class).setFilter(InputFilters.PERCENT);
     }
 
     @Override
