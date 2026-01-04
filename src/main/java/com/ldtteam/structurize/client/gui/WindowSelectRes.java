@@ -194,7 +194,7 @@ public class WindowSelectRes extends AbstractWindowSkeleton
         if (this.selectCountText != null)
         {
             countField.setVisible(true);
-            countField.setFilter(InputFilters.ONLY_POSITIVE_NUMBERS);
+            countField.setFilter(InputFilters.ONLY_POSITIVE_NUMBERS_MAX1k);
             countText.setVisible(true);
             countText.setText(selectCountText);
         }
