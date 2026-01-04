@@ -128,7 +128,8 @@ public class ChangeStorage
         {
             final Map.Entry<BlockPos, BlockChangeData> entry = iterator.next();
             // Only revert block changes which this operation caused
-            if (world.getBlockState(entry.getKey()).getBlock() != entry.getValue().getPostState().getBlock())
+            if (world.getBlockState(entry.getKey()).getBlock() != entry.getValue().getPostState().getBlock()
+                || entry.getValue().getPostTE() != world.getBlockEntity(entry.getKey()))
             {
                 continue;
             }
