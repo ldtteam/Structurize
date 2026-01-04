@@ -2,11 +2,11 @@ package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.management.Manager;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -128,7 +128,7 @@ public class ChangeStorage
         {
             final Map.Entry<BlockPos, BlockChangeData> entry = iterator.next();
             // Only revert block changes which this operation caused
-            if (world.getBlockState(entry.getKey()) != entry.getValue().getPostState())
+            if (world.getBlockState(entry.getKey()).getBlock() != entry.getValue().getPostState().getBlock())
             {
                 continue;
             }
