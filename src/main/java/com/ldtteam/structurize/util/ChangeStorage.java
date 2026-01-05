@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -8,6 +9,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -138,12 +141,14 @@ public class ChangeStorage
             {
                 undoStorage.addPreviousDataFor(entry.getKey(), world);
             }
-            world.setBlockAndUpdate(entry.getKey(), entry.getValue().getPreState());
+            world.setBlock(entry.getKey(), Blocks.COBBLESTONE.defaultBlockState(), Block.UPDATE_CLIENTS);
+            world.setBlock(entry.getKey(), entry.getValue().getPreState(), Constants.UPDATE_FLAG);
 
             if (entry.getValue().getPreTE() != null)
             {
                 world.setBlockEntity(entry.getValue().getPreTE());
             }
+            world.markAndNotifyBlock(entry.getKey(), world.getChunkAt(entry.getKey()), entry.getValue().getPreState(), entry.getValue().getPreState(), 2, 512);
 
             if (undoStorage != null)
             {
@@ -202,16 +207,19 @@ public class ChangeStorage
         while (iterator.hasNext())
         {
             final Map.Entry<BlockPos, BlockChangeData> entry = iterator.next();
-            if (world.getBlockState(entry.getKey()) != entry.getValue().getPreState())
+            if (world.getBlockState(entry.getKey()).getBlock() != entry.getValue().getPreState().getBlock())
             {
                 continue;
             }
 
-            world.setBlockAndUpdate(entry.getKey(), entry.getValue().getPostState());
+            world.setBlock(entry.getKey(), Blocks.COBBLESTONE.defaultBlockState(), Block.UPDATE_CLIENTS);
+            world.setBlock(entry.getKey(), entry.getValue().getPostState(), Constants.UPDATE_FLAG);
             if (entry.getValue().getPostTE() != null)
             {
                 world.setBlockEntity(entry.getValue().getPostTE());
             }
+            world.markAndNotifyBlock(entry.getKey(), world.getChunkAt(entry.getKey()), entry.getValue().getPostState(), entry.getValue().getPostState(), 2, 512);
+
             count++;
 
             if (count >= Structurize.getConfig().getServer().maxOperationsPerTick.get())

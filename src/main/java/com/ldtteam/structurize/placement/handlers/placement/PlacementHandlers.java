@@ -65,6 +65,7 @@ public final class PlacementHandlers
         handlers.add(new DripStoneBlockPlacementHandler());
         handlers.add(new FallingBlockPlacementHandler());
         handlers.add(new BannerPlacementHandler());
+        handlers.add(new DoBlockPlacementHandler());
         handlers.add(new GeneralBlockPlacementHandler());
     }
 
