@@ -267,7 +267,13 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      */
     private void pickMainBlock()
     {
-        new WindowSelectRes(this, Component.literal("Select the main block"), mainBlock, ItemUtil.getAllItems(), (s, c) -> updateBlock(s, true), false, null).open();
+        new WindowSelectRes(this,
+            Component.literal("Select the main block"),
+            mainBlock,
+            ItemUtil.getAllItemsInlcudingInventory(),
+            (s, c) -> updateBlock(s, true),
+            false,
+            null).open();
     }
 
     /**
@@ -275,7 +281,13 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
      */
     private void pickFillBlock()
     {
-        new WindowSelectRes(this, Component.literal("Select the main block"), secondaryBlock, ItemUtil.getAllItems(), (s, c) -> updateBlock(s, false), false, null).open();
+        new WindowSelectRes(this,
+            Component.literal("Select the main block"),
+            secondaryBlock,
+            ItemUtil.getAllItemsInlcudingInventory(),
+            (s, c) -> updateBlock(s, false),
+            false,
+            null).open();
     }
 
     private void adjust(final TextField input, final int value)

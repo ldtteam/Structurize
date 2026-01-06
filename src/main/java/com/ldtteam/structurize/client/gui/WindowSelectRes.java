@@ -331,11 +331,15 @@ public class WindowSelectRes extends AbstractWindowSkeleton
 
         if (filter.isEmpty())
         {
-            displayedItems.sort(Comparator.comparing(s1 -> s1.getHoverName().getString()));
+            displayedItems.sort(Comparator.comparing(s -> mc.player.getInventory().contains((ItemStack) s))
+                .reversed()
+                .thenComparing((s1 -> ((ItemStack) s1).getHoverName().getString())));
         }
         else
         {
-            displayedItems.sort(Comparator.comparingInt(s1 -> StringUtils.getLevenshteinDistance(s1.getHoverName().getString(), filter)));
+            displayedItems.sort(Comparator.comparing(s -> mc.player.getInventory().contains((ItemStack) s))
+                .reversed()
+                .thenComparingInt(s1 -> StringUtils.getLevenshteinDistance(((ItemStack) s1).getHoverName().getString(), filter)));
         }
         this.updateResourceList();
     }

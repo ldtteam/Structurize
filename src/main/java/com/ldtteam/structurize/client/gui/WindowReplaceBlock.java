@@ -45,7 +45,7 @@ public class WindowReplaceBlock extends WindowSelectRes
         super(origin,
             Component.translatable("com.ldtteam.structurize.gui.replaceblock.info"),
             toReplace.itemStorage.getItemStack(),
-            ItemUtil.getAllItems(),
+            ItemUtil.getAllItemsInlcudingInventory(),
             ((stack, integer) -> {}),
             true,
             Component.translatable("com.ldtteam.structurize.gui.scan.replace.pct"));
