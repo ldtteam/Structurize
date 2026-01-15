@@ -126,12 +126,6 @@ public class WindowTagTool extends AbstractWindowSkeleton
             }
 
             @Override
-            public boolean shouldUpdate()
-            {
-                return false;
-            }
-
-            @Override
             public void updateElement(final int index, final Pane rowPane)
             {
                 final PositionWithTags positionWithTags = positionsList.get(index);
@@ -150,12 +144,6 @@ public class WindowTagTool extends AbstractWindowSkeleton
             public int getElementCount()
             {
                 return tagOptions.size();
-            }
-
-            @Override
-            public boolean shouldUpdate()
-            {
-                return false;
             }
 
             @Override
