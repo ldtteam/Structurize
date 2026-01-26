@@ -17,4 +17,5 @@ jobs:
     uses: ldtteam/operapublicacreator/.github/workflows/branch.sync.yaml@main
     with:
       version: ${{ inputs.version }}
+      workflow_file: 'release.yml'
     secrets: inherit
