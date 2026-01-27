@@ -739,7 +739,7 @@ public final class BlockUtils
     {
         private OurWorldGenRegion(ServerLevel p_143484_, List<ChunkAccess> p_143485_)
         {
-            super(p_143484_, p_143485_, null, -1);
+            super(p_143484_, p_143485_, ChunkStatus.EMPTY, -1);
         }
 
         @Override
