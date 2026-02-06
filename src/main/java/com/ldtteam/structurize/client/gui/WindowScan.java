@@ -33,7 +33,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.Shapes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -476,7 +475,6 @@ public class WindowScan extends AbstractWindowSkeleton
             }
         }
 
-        final AABB box = new AABB(slot.getBox().getPos1(), slot.getBox().getPos2());
         final BlockPos.MutableBlockPos here = new BlockPos.MutableBlockPos();
         final int minX = Math.min(slot.getBox().getPos1().getX(), slot.getBox().getPos2().getX());
         final int minY = Math.min(slot.getBox().getPos1().getY(), slot.getBox().getPos2().getY());
@@ -499,8 +497,9 @@ public class WindowScan extends AbstractWindowSkeleton
                     for (final Direction dir : Direction.values())
                     {
                         BlockPos offsetPos = here.relative(dir);
-                        if (!box.contains(offsetPos.getCenter())
-                            || world.getBlockState(offsetPos).canOcclude() && world.getBlockState(offsetPos).getShape(world, offsetPos) != Shapes.block())
+                        if (!(offsetPos.getX() >= minX && offsetPos.getX() <= maxX && offsetPos.getY() >= minY && offsetPos.getY() <= maxY && offsetPos.getZ() >= minZ
+                            && offsetPos.getZ() <= maxZ)
+                            || !world.getBlockState(offsetPos).canOcclude())
                         {
                             visible = true;
                             break;
