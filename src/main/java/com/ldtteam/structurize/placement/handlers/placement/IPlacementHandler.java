@@ -1,15 +1,18 @@
 package com.ldtteam.structurize.placement.handlers.placement;
 
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.placement.IPlacementContext;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
+import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.InventoryUtils;
-import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -19,6 +22,38 @@ import java.util.List;
  */
 public interface IPlacementHandler
 {
+    static boolean doesWorldStateMatchBlueprintState(@NotNull BlockInfo blockInfo, @NotNull BlockPos worldPos, @NotNull IStructureHandler structureHandler)
+    {
+        // If we're doing full paste, do a more simple comparison. That saves us a lot of logic in the placement handlers.
+        if (!structureHandler.fancyPlacement())
+        {
+            if (blockInfo.hasTileEntityData())
+            {
+                // Always update tile entities in here.
+                return false;
+            }
+            return blockInfo.getState().equals(structureHandler.getWorld().getBlockState(blockInfo.getPos()));
+        }
+
+        final IPlacementHandler placementHandler = PlacementHandlers.getHandler(structureHandler.getWorld(), worldPos, blockInfo.getState());
+        Tuple<BlockEntity, CompoundTag> blockEntityData = null;
+        if (blockInfo.hasTileEntityData())
+        {
+            final BlockEntity blockEntity = structureHandler.getWorld().getBlockEntity(worldPos);
+            if (blockEntity == null)
+            {
+                return false;
+            }
+            blockEntityData = new Tuple<>(blockEntity, blockInfo.getTileEntityData());
+        }
+
+        //todo domum blocks on minecol side
+        //todo minecolonies racks on minecol side
+        //todo minecolonies allow conversion of dirt like to dirt
+
+        return placementHandler.doesWorldStateMatchBlueprintState(structureHandler.getWorld().getBlockState(worldPos), blockInfo.getState(), blockEntityData, structureHandler);
+    }
+
     /**
      * Check if a placement handler can handle a certain block.
      *
@@ -33,70 +68,18 @@ public interface IPlacementHandler
      * Method used to handle the processing of a Placement of a block.
      *
      * @param world          receives the world.
-     * @param pos            the position.
+     * @param worldPos            the position.
      * @param blockState     the blockState.
      * @param tileEntityData the placer of the block.
-     * @param complete       place it complete (with or without substitution blocks etc).
-     * @param centerPos      centerPos the central position of it.
+     * @param placementContext extended placement context.
      * @return ACCEPT, DENY or IGNORE.
      */
-    default ActionProcessingResult handle(
+    ActionProcessingResult handle(
       final Level world,
-      final BlockPos pos,
+      final BlockPos worldPos,
       final BlockState blockState,
       @Nullable final CompoundTag tileEntityData,
-      final boolean complete, final BlockPos centerPos)
-    {
-        /*
-         * Do nothing...
-         */
-        return ActionProcessingResult.PASS;
-    }
-
-    /**
-     * Method used to handle the processing of a Placement of a block.
-     *
-     * @param world          receives the world.
-     * @param pos            the position.
-     * @param blockState     the blockState.
-     * @param tileEntityData the placer of the block.
-     * @param complete       place it complete (with or without substitution blocks etc).
-     * @param centerPos      the central position of it.
-     * @param settings       the settings to use to rotate or mirror it.
-     * @return ACCEPT, DENY or IGNORE.
-     */
-    default ActionProcessingResult handle(
-      final Level world,
-      final BlockPos pos,
-      final BlockState blockState,
-      @Nullable final CompoundTag tileEntityData,
-      final boolean complete, final BlockPos centerPos, final RotationMirror settings)
-    {
-        return handle(world, pos, blockState, tileEntityData, complete, centerPos);
-    }
-
-    /**
-     * Method used to handle the processing of a Placement of a block.
-     *
-     * @param blueprint      the blueprint.
-     * @param world          receives the world.
-     * @param pos            the position.
-     * @param blockState     the blockState.
-     * @param tileEntityData the placer of the block.
-     * @param complete       place it complete (with or without substitution blocks etc).
-     * @param centerPos      the central position of it.
-     * @param settings       the settings to use to rotate or mirror it.
-     * @return ACCEPT, DENY or IGNORE.
-     */
-    default ActionProcessingResult handle(final Blueprint blueprint,
-      final Level world,
-      final BlockPos pos,
-      final BlockState blockState,
-      @Nullable final CompoundTag tileEntityData,
-      final boolean complete, final BlockPos centerPos, final RotationMirror settings)
-    {
-        return handle(world, pos, blockState, tileEntityData, complete, centerPos,settings);
-    }
+      @NotNull final IPlacementContext placementContext);
 
     /**
      * Handles the removal of the existing block in the world
@@ -145,15 +128,21 @@ public interface IPlacementHandler
      * @param pos            the position.
      * @param blockState     the blockState.
      * @param tileEntityData the placer of the block.
-     * @param complete       place it complete (with or without substitution blocks etc).
+     * @param placementContext the placement context.
      * @return the list of items.
      */
     List<ItemStack> getRequiredItems(
-      final Level world,
-      final BlockPos pos,
-      final BlockState blockState,
-      @Nullable final CompoundTag tileEntityData,
-      final boolean complete);
+        final Level world,
+        final BlockPos pos,
+        final BlockState blockState,
+        @Nullable final CompoundTag tileEntityData,
+        final @NotNull IPlacementContext placementContext);
+
+    /**
+     * Method used to compare blueprint state with world state to detect if changes are necessary.
+     * @return true if world state matches blueprint state.
+     */
+    boolean doesWorldStateMatchBlueprintState(final BlockState worldState, final BlockState blueprintState, final Tuple<BlockEntity, CompoundTag> blockEntityData, final @NotNull IPlacementContext structureHandler);
 
     /**
      * Possible result of an IPlacementHandler call.
