@@ -5,10 +5,8 @@ import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.placement.IPlacementContext;
-import com.ldtteam.structurize.placement.StructurePlacer;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.tag.ModTags;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -31,10 +29,7 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.ldtteam.structurize.api.constants.Constants.UPDATE_FLAG;
 
@@ -100,7 +95,13 @@ public final class PlacementHandlers
     public static void add(IPlacementHandler handler)
     {
         handlers.add(1, handler);
+        handlerCache.clear();
     }
+
+    /**
+     * Simple block based handler cache to avoid too many iterations
+     */
+    private static Map<Block, IPlacementHandler> handlerCache = new IdentityHashMap<>(128);
 
     /**
      * Finds the appropriate {@link IPlacementHandler} for the given location.
@@ -113,10 +114,18 @@ public final class PlacementHandlers
                                                final BlockPos worldPos,
                                                final BlockState newState)
     {
+        final Block block = newState.getBlock();
+        final IPlacementHandler cached = handlerCache.get(block);
+        if (cached != null)
+        {
+            return cached;
+        }
+
         for (final IPlacementHandler placementHandler : handlers)
         {
             if (placementHandler.canHandle(world, worldPos, newState))
             {
+                handlerCache.put(block, placementHandler);
                 return placementHandler;
             }
         }
