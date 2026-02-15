@@ -36,40 +36,6 @@ public class DoDoorBlockPlacementHandler implements IPlacementHandler
     }
 
     @Override
-    public boolean doesWorldStateMatchBlueprintState(
-        final BlockState worldState,
-        final BlockState blueprintState,
-        final Tuple<BlockEntity, CompoundTag> blockEntityData,
-        final @NotNull IPlacementContext structureHandler)
-    {
-        if (worldState.getBlock() == blueprintState.getBlock())
-        {
-            if (structureHandler.fancyPlacement())
-            {
-                for (Property<?> property : worldState.getProperties())
-                {
-                    // Compare properties, but if just open or powered don't match, ignore.
-                    if (!blueprintState.hasProperty(property) ||
-                        (blueprintState.getValue(property) != worldState.getValue(property)
-                            && property != net.minecraft.world.level.block.DoorBlock.OPEN)
-                            && property != net.minecraft.world.level.block.DoorBlock.POWERED)
-                    {
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                if (!worldState.equals(blueprintState))
-                {
-                    return false;
-                }
-            }
-        }
-        return compareBEData(blockEntityData);
-    }
-
-    @Override
     public ActionProcessingResult handle(
         @NotNull final Level world,
         @NotNull final BlockPos pos,
@@ -126,6 +92,40 @@ public class DoDoorBlockPlacementHandler implements IPlacementHandler
         }
         itemList.removeIf(ItemStackUtils::isEmpty);
         return itemList;
+    }
+
+    @Override
+    public boolean doesWorldStateMatchBlueprintState(
+        final BlockState worldState,
+        final BlockState blueprintState,
+        final Tuple<BlockEntity, CompoundTag> blockEntityData,
+        final @NotNull IPlacementContext structureHandler)
+    {
+        if (worldState.getBlock() == blueprintState.getBlock())
+        {
+            if (structureHandler.fancyPlacement())
+            {
+                for (Property<?> property : worldState.getProperties())
+                {
+                    // Compare properties, but if just open or powered don't match, ignore.
+                    if (!blueprintState.hasProperty(property) ||
+                        (blueprintState.getValue(property) != worldState.getValue(property)
+                            && property != net.minecraft.world.level.block.DoorBlock.OPEN)
+                            && property != net.minecraft.world.level.block.DoorBlock.POWERED)
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                if (!worldState.equals(blueprintState))
+                {
+                    return false;
+                }
+            }
+        }
+        return compareBEData(blockEntityData);
     }
 }
 

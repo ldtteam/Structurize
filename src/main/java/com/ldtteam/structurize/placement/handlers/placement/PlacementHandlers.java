@@ -69,6 +69,7 @@ public final class PlacementHandlers
         handlers.add(new DoBlockPlacementHandler());
         handlers.add(new DoDoorBlockPlacementHandler());
         handlers.add(new SolidSubstitutionPlacementHandler());
+        handlers.add(new SubstitutionPlacementHandler());
         handlers.add(new GeneralBlockPlacementHandler());
     }
 
@@ -491,8 +492,9 @@ public final class PlacementHandlers
                 {
                     return worldState.equals(blueprintState);
                 }
+                return true;
             }
-            return true;
+            return false;
         }
     }
 
@@ -1249,6 +1251,54 @@ public final class PlacementHandlers
             final IPlacementContext placementContext)
         {
             return worldState.equals(blueprintState) || BlockUtils.isGoodFloorBlock(worldState);
+        }
+    }
+
+    public static class SubstitutionPlacementHandler implements IPlacementHandler
+    {
+        @Override
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
+        {
+            return blockState.getBlock() == ModBlocks.blockSubstitution.get();
+        }
+
+        @Override
+        public ActionProcessingResult handle(
+            final Level world,
+            final BlockPos pos,
+            final BlockState blockState,
+            @Nullable final CompoundTag tileEntityData,
+            final IPlacementContext placementContext)
+        {
+            return ActionProcessingResult.PASS;
+        }
+
+        @Override
+        public List<ItemStack> getRequiredItems(
+            final Level world,
+            final BlockPos pos,
+            final BlockState blockState,
+            @Nullable final CompoundTag tileEntityData,
+            final IPlacementContext placementContext)
+        {
+            if (placementContext.fancyPlacement())
+            {
+                return Collections.emptyList();
+            }
+            else
+            {
+                return Collections.singletonList(new ItemStack(ModBlocks.blockSubstitution.get()));
+            }
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final IPlacementContext placementContext)
+        {
+            return placementContext.fancyPlacement() || worldState.equals(blueprintState);
         }
     }
 

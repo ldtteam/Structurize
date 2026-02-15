@@ -136,13 +136,13 @@ public interface IPlacementHandler
         final BlockPos pos,
         final BlockState blockState,
         @Nullable final CompoundTag tileEntityData,
-        final @NotNull IPlacementContext placementContext);
+        @NotNull final IPlacementContext placementContext);
 
     /**
      * Method used to compare blueprint state with world state to detect if changes are necessary.
      * @return true if world state matches blueprint state.
      */
-    boolean doesWorldStateMatchBlueprintState(final BlockState worldState, final BlockState blueprintState, final Tuple<BlockEntity, CompoundTag> blockEntityData, final @NotNull IPlacementContext structureHandler);
+    boolean doesWorldStateMatchBlueprintState(final BlockState worldState, final BlockState blueprintState, @Nullable final Tuple<BlockEntity, CompoundTag> blockEntityData,  @NotNull final IPlacementContext placementContext);
 
     /**
      * Possible result of an IPlacementHandler call.
