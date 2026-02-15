@@ -3,8 +3,8 @@ package com.ldtteam.structurize.placement.structure;
 import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.placement.IPlacementContext;
 import com.ldtteam.structurize.util.InventoryUtils;
-import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.BlockPos;
@@ -12,13 +12,12 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * A handler for structures.
  * Handlers hold necessary and specific information about the entity/block/etc that is executing the placement.
  */
-public interface IStructureHandler
+public interface IStructureHandler extends IPlacementContext
 {
     /**
      * Set the blueprint.
@@ -55,28 +54,10 @@ public interface IStructureHandler
     }
 
     /**
-     * Get the bluerint from the handler.
-     * @return the blueprint
-     */
-    Blueprint getBluePrint();
-
-    /**
      * Get the world from the handler.
      * @return the world.
      */
     Level getWorld();
-
-    /**
-     * Get the world position this is placed at.
-     * @return the position.
-     */
-    BlockPos getWorldPos();
-
-    /**
-     * Getter for the placement settings.
-     * @return the settings object.
-     */
-    RotationMirror getRotationMirror();
 
     /**
      * Get the inventory of the handler.
@@ -152,17 +133,12 @@ public interface IStructureHandler
     boolean replaceWithSolidBlock(BlockState blockState);
 
     /**
-     * If this is supposed to be fancy placement (player facing) or builder facing (complete).
-     * @return true if fancy placement.
-     */
-    boolean fancyPlacement();
-
-    /**
      * Special equal condition check.
      * @param state the first state.
      * @param state1 the second state.
      * @return true if considered equal and block should be skipped.
      */
+    @Deprecated
     boolean shouldBlocksBeConsideredEqual(BlockState state, BlockState state1);
 
     /**
@@ -197,7 +173,7 @@ public interface IStructureHandler
      */
     default BlockPos getProgressPosInWorld(final BlockPos localPos)
     {
-        return getWorldPos().subtract(getBluePrint().getPrimaryBlockOffset()).offset(localPos);
+        return getCenterPos().subtract(getBluePrint().getPrimaryBlockOffset()).offset(localPos);
     }
 
     /**
@@ -207,7 +183,7 @@ public interface IStructureHandler
      */
     default BlockPos getStructurePosFromWorld(final BlockPos worldPos)
     {
-        return getBluePrint().getPrimaryBlockOffset().offset(worldPos.subtract(getWorldPos()));
+        return getBluePrint().getPrimaryBlockOffset().offset(worldPos.subtract(getCenterPos()));
     }
 
     /**
@@ -217,15 +193,6 @@ public interface IStructureHandler
      * @param requiredItems the list of required items.
      */
     void prePlacementLogic(final BlockPos worldPos, final BlockState blockState, final List<ItemStack> requiredItems);
-
-    /**
-     * Get the solid worldgen block for given pos while using data from handler.
-     * 
-     * @param  worldPos      the world pos.
-     * @param  virtualBlocks blueprint blocks, fnc may return null if virtual block is not available (then use level instead for getting surrounding block states), pos argument is using world coords
-     * @return               the solid worldgen block (classically biome dependent).
-     */
-    BlockState getSolidBlockForPos(BlockPos worldPos, Function<BlockPos, @Nullable BlockState> virtualBlocks);
 
     /**
      * Check if the handler is ready.

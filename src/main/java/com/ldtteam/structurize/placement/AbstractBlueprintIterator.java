@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.placement;
 
+import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
-import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import net.minecraft.core.BlockPos;
 import net.neoforged.neoforge.common.util.TriPredicate;
@@ -105,9 +105,7 @@ public abstract class AbstractBlueprintIterator implements IBlueprintIterator
             {
                 continue;
             }
-            else if (!isRemoving() && BlockUtils.areBlockStatesEqual(info.getBlockInfo().getState(), structureHandler.getWorld().getBlockState(worldPos), structureHandler::replaceWithSolidBlock, structureHandler.fancyPlacement(), structureHandler::shouldBlocksBeConsideredEqual,
-              info.getBlockInfo().getTileEntityData(),
-              info.getBlockInfo().getTileEntityData() == null ? null : structureHandler.getWorld().getBlockEntity(worldPos)) && info.getEntities().length == 0)
+            else if (!isRemoving() && IPlacementHandler.doesWorldStateMatchBlueprintState(info.getBlockInfo(), worldPos, structureHandler) && info.getEntities().length == 0)
             {
                 structureHandler.triggerSuccess(progressPos, Collections.emptyList(), false);
                 continue;
