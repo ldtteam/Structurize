@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.placement.handlers.placement;
 
 import com.ldtteam.domumornamentum.block.IMateriallyTexturedBlock;
+import com.ldtteam.domumornamentum.block.decorative.PillarBlock;
 import com.ldtteam.domumornamentum.client.model.data.MaterialTextureData;
 import com.ldtteam.domumornamentum.entity.block.MateriallyTexturedBlockEntity;
 import com.ldtteam.domumornamentum.util.BlockUtils;
@@ -14,7 +15,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.FenceBlock;
 import net.minecraft.world.level.block.FenceGateBlock;
@@ -51,13 +54,35 @@ public class DoBlockPlacementHandler implements IPlacementHandler
         @Nullable final CompoundTag tileEntityData,
         @NotNull final IPlacementContext placementContext)
     {
-        if (world.getBlockState(pos).equals(blockState))
+        BlockState placementState = blockState;
+        if (blockState.getBlock() instanceof WallBlock
+            || blockState.getBlock() instanceof FenceBlock
+            || blockState.getBlock() instanceof IronBarsBlock
+            || blockState.getBlock() instanceof PillarBlock)
+        {
+            try
+            {
+                final BlockState tempState = blockState.getBlock().getStateForPlacement(
+                    new BlockPlaceContext(world, null, InteractionHand.MAIN_HAND, ItemStack.EMPTY,
+                        new BlockHitResult(new Vec3(0, 0, 0), Direction.DOWN, pos, true)));
+                if (tempState != null)
+                {
+                    placementState = tempState;
+                }
+            }
+            catch (final Exception ex)
+            {
+                // Noop
+            }
+        }
+
+        if (world.getBlockState(pos).equals(placementState))
         {
             // Need to remove first to be able to place over.
             world.removeBlock(pos, false);
         }
 
-        if (!world.setBlock(pos, blockState, UPDATE_FLAG))
+        if (!world.setBlock(pos, placementState, UPDATE_FLAG))
         {
             return ActionProcessingResult.PASS;
         }
@@ -67,7 +92,7 @@ public class DoBlockPlacementHandler implements IPlacementHandler
             try
             {
                 handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
-                blockState.getBlock().setPlacedBy(world, pos, blockState, null, blockState.getBlock().getCloneItemStack(blockState,
+                placementState.getBlock().setPlacedBy(world, pos, placementState, null, placementState.getBlock().getCloneItemStack(placementState,
                     new BlockHitResult(new Vec3(0, 0, 0), Direction.NORTH, pos, false), world, pos, null));
             }
             catch (final Exception ex)
