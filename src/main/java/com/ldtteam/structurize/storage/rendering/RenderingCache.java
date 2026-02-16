@@ -5,17 +5,19 @@ import com.ldtteam.structurize.network.messages.SyncPreviewCacheToClient;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Rendering cache for boxes, blueprints, etc.
+ * Rendering cache for boxes, blueprints, etc. TODO:
  */
 public class RenderingCache
 {
     /**
      * Boxes to render.
      */
-    private static Map<String, BoxPreviewData> boxRenderingCache = new HashMap<>();
+    public static Map<String, BoxPreviewData> boxRenderingCache = new HashMap<>();
 
     /**
      * Blueprints to render.

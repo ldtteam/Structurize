@@ -4,8 +4,10 @@ import com.ldtteam.common.util.BlockToItemHelper;
 import com.ldtteam.domumornamentum.client.model.data.MaterialTextureData;
 import com.ldtteam.domumornamentum.entity.block.MateriallyTexturedBlockEntity;
 import com.ldtteam.structurize.api.ItemStackUtils;
+import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.placement.SimplePlacementContext;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.tag.ModTags;
@@ -62,6 +64,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.ldtteam.domumornamentum.util.Constants.BLOCK_ENTITY_TEXTURE_DATA;
+import static com.ldtteam.structurize.tag.ModTags.GOOD_SOLID_FOR_PLACEHOLDER;
 
 /**
  * Utility class for all Block type checking.
@@ -432,7 +435,6 @@ public final class BlockUtils
      * @return ItemStack fromt the BlockState.
      * @see BlockToItemHelper
      */
-    @Deprecated(forRemoval = true, since = "1.21")
     public static ItemStack getItemStackFromBlockState(final BlockState blockState)
     {
         if (blockState.getBlock() instanceof final LiquidBlock liquid)
@@ -470,7 +472,7 @@ public final class BlockUtils
         {
             final IPlacementHandler handler = PlacementHandlers.getHandler(world, BlockPos.ZERO, blockState);
             final List<ItemStack> itemList =
-              handler.getRequiredItems(world, position, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(world.registryAccess()), true);
+              handler.getRequiredItems(world, position, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(world.registryAccess()), new SimplePlacementContext(false, RotationMirror.NONE));
             if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), block))
             {
                 isMatch = true;
@@ -851,7 +853,7 @@ public final class BlockUtils
 
     public static boolean isGoodFloorBlock(final BlockState blockState)
     {
-        return isGoodFullBlock(blockState) && !blockState.is(ModTags.UNSUITABLE_SOLID_FOR_PLACEHOLDER);
+        return (isGoodFullBlock(blockState) && !blockState.is(ModTags.UNSUITABLE_SOLID_FOR_PLACEHOLDER)) || blockState.is(GOOD_SOLID_FOR_PLACEHOLDER);
     }
 
     public static SolidnessInfo getSolidInfo(final BlockState blockState)

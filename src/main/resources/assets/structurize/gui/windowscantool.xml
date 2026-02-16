@@ -40,6 +40,7 @@
                          source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
             <button label="$(com.ldtteam.structurize.gui.scantool.replace)" id="replaceBlock" pos="104 13" size="86 17"
                          source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
+            <button id="showBlock" source="structurize:textures/gui/transparent.png" pos="1 1" size="86 16"/>
         </box>
     </list>
 
@@ -64,6 +65,16 @@
 
     <text id="chestwarning" size="140 11" pos="140 75" textscale="0.5" visible="false"
            label="$(com.ldtteam.structurize.gui.scantool.chests)"/>
+
+    <checkbox id="showvisisble" pos="60 83" size="16 16" visible="false"
+              source="structurize:textures/gui/builderhut/checkbox_empty.png"
+              checkmark="structurize:textures/gui/builderhut/checkbox_checked.png"
+              tooltip="$(com.ldtteam.structurize.gui.scantool.show_visible)" textcolor="black"/>
+
+    <checkbox id="showhidden" pos="40 83" size="16 16" visible="false"
+              source="structurize:textures/gui/builderhut/checkbox_empty.png"
+              checkmark="structurize:textures/gui/builderhut/checkbox_checked.png"
+              tooltip="$(com.ldtteam.structurize.gui.scantool.show_hidden)" textcolor="black"/>
 
     <button label="$(com.ldtteam.structurize.gui.scantool.remove_filtered)" id="removefiltered" pos="80 83" size="86 17"
                  source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black" visible="false"/>

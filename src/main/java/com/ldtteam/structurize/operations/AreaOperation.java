@@ -8,6 +8,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -23,17 +25,22 @@ public abstract class AreaOperation extends BaseOperation
     /**
      * The start position to iterate from.
      */
-    protected final BlockPos startPos;
+    protected BlockPos.MutableBlockPos startPos = new BlockPos.MutableBlockPos();
 
     /**
      * The end position to iterate to.
      */
-    protected final BlockPos endPos;
+    protected BlockPos.MutableBlockPos endPos = new BlockPos.MutableBlockPos();
 
     /**
-     * The current iterator position.
+     * A pre-existing list of positions to work on
      */
-    private BlockPos currentPos;
+    private List<BlockPos> workPosList = new ArrayList<>();
+
+    /**
+     * The current list index pos
+     */
+    private int currentListIndex = 0;
 
     /**
      * Default constructor.
@@ -47,9 +54,25 @@ public abstract class AreaOperation extends BaseOperation
     {
         super(new ChangeStorage(storageText, player != null ? player.getUUID() : UUID.randomUUID()));
         this.player = player;
-        this.startPos = new BlockPos(Math.min(startPos.getX(), endPos.getX()), Math.min(startPos.getY(), endPos.getY()), Math.min(startPos.getZ(), endPos.getZ()));
-        this.endPos = new BlockPos(Math.max(startPos.getX(), endPos.getX()), Math.max(startPos.getY(), endPos.getY()), Math.max(startPos.getZ(), endPos.getZ()));
-        this.currentPos = this.startPos;
+        this.startPos = new BlockPos.MutableBlockPos(Math.min(startPos.getX(), endPos.getX()), Math.min(startPos.getY(), endPos.getY()), Math.min(startPos.getZ(), endPos.getZ()));
+        this.endPos = new BlockPos.MutableBlockPos(Math.max(startPos.getX(), endPos.getX()), Math.max(startPos.getY(), endPos.getY()), Math.max(startPos.getZ(), endPos.getZ()));
+        for (int x = startPos.getX(); x <= endPos.getX(); x++)
+        {
+            for (int z = startPos.getZ(); z <= endPos.getZ(); z++)
+            {
+                for (int y = startPos.getY(); y <= endPos.getY(); y++)
+                {
+                    workPosList.add(new BlockPos(x, y, z));
+                }
+            }
+        }
+    }
+
+    protected AreaOperation(final Component storageText, final Player player, final List<BlockPos> workPosList)
+    {
+        super(new ChangeStorage(storageText, player != null ? player.getUUID() : UUID.randomUUID()));
+        this.player = player;
+        this.workPosList = workPosList;
     }
 
     @Override
@@ -61,26 +84,20 @@ public abstract class AreaOperation extends BaseOperation
         }
 
         int count = 0;
-        for (int y = currentPos.getY(); y <= endPos.getY(); y++)
+        for (int i = currentListIndex; i < workPosList.size(); i++)
         {
-            for (int x = currentPos.getX(); x <= endPos.getX(); x++)
+            final BlockPos currentPos = workPosList.get(i);
+            currentListIndex = i;
+            apply(world, currentPos);
+
+            this.startPos.set(Math.min(startPos.getX(), currentPos.getX()), Math.min(startPos.getY(), currentPos.getY()), Math.min(startPos.getZ(), currentPos.getZ()));
+            this.endPos.set(Math.max(endPos.getX(), currentPos.getX()), Math.max(endPos.getY(), currentPos.getY()), Math.max(endPos.getZ(), currentPos.getZ()));
+
+            count++;
+            if (count >= Structurize.getConfig().getServer().maxOperationsPerTick.get())
             {
-                for (int z = currentPos.getZ(); z <= endPos.getZ(); z++)
-                {
-                    final BlockPos here = new BlockPos(x, y, z);
-
-                    apply(world, here);
-
-                    count++;
-                    if (count >= Structurize.getConfig().getServer().maxOperationsPerTick.get())
-                    {
-                        currentPos = here;
-                        return false;
-                    }
-                }
-                currentPos = new BlockPos(x, y, startPos.getZ());
+                return false;
             }
-            currentPos = new BlockPos(startPos.getX(), y, startPos.getZ());
         }
 
         new UpdateClientRender(startPos, endPos).sendToAllClients();
