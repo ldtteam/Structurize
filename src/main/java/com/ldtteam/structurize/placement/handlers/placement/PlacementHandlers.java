@@ -1276,6 +1276,10 @@ public final class PlacementHandlers
             @Nullable final CompoundTag tileEntityData,
             final IPlacementContext placementContext)
         {
+            if (!placementContext.fancyPlacement())
+            {
+                world.setBlock(pos, blockState, UPDATE_FLAG);
+            }
             return ActionProcessingResult.PASS;
         }
 
