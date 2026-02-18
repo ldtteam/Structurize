@@ -1259,7 +1259,7 @@ public final class PlacementHandlers
             final Tuple<BlockEntity, CompoundTag> blockEntityData,
             final IPlacementContext placementContext)
         {
-            return worldState.equals(blueprintState) || BlockUtils.isGoodFloorBlock(worldState);
+            return worldState.equals(blueprintState) || (placementContext.fancyPlacement() && BlockUtils.isGoodFloorBlock(worldState));
         }
     }
 
