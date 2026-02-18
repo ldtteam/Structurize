@@ -121,7 +121,6 @@ public final class PlacementHandlers
         final IPlacementHandler cached = handlerCache.get(block);
         if (cached != null)
         {
-            Log.getLogger().warn("Resolved: " + newState.toString() + " to " + cached.getClass().toString());
             return cached;
         }
 
@@ -129,7 +128,6 @@ public final class PlacementHandlers
         {
             if (placementHandler.canHandle(world, worldPos, newState))
             {
-                Log.getLogger().warn("Resolved: " + newState.toString() + " to " + placementHandler.getClass().toString());
                 handlerCache.put(block, placementHandler);
                 return placementHandler;
             }
