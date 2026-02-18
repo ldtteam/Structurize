@@ -46,6 +46,8 @@ public final class PlacementHandlers
     static
     {
         handlers.add(new AirPlacementHandler());
+        handlers.add(new SolidSubstitutionPlacementHandler());
+        handlers.add(new SubstitutionPlacementHandler());
         handlers.add(new BlackListedBlockPlacementHandler());
         handlers.add(new FluidSubstitutionPlacementHandler());
         handlers.add(new FirePlacementHandler());
@@ -57,14 +59,12 @@ public final class PlacementHandlers
         handlers.add(new SpecialBlockPlacementAttemptHandler());
         handlers.add(new FlowerPotPlacementHandler());
         handlers.add(new HopperClientLagPlacementHandler());
-        handlers.add(new ContainerPlacementHandler());
         handlers.add(new DripStoneBlockPlacementHandler());
         handlers.add(new FallingBlockPlacementHandler());
         handlers.add(new BannerPlacementHandler());
         handlers.add(new DoBlockPlacementHandler());
         handlers.add(new DoDoorBlockPlacementHandler());
-        handlers.add(new SolidSubstitutionPlacementHandler());
-        handlers.add(new SubstitutionPlacementHandler());
+        handlers.add(new ContainerPlacementHandler());
         handlers.add(new GeneralBlockPlacementHandler());
     }
 
@@ -119,6 +119,7 @@ public final class PlacementHandlers
         final IPlacementHandler cached = handlerCache.get(block);
         if (cached != null)
         {
+            Log.getLogger().warn("Resolved: " + newState.toString() + " to " + cached.getClass().toString());
             return cached;
         }
 
@@ -126,6 +127,7 @@ public final class PlacementHandlers
         {
             if (placementHandler.canHandle(world, worldPos, newState))
             {
+                Log.getLogger().warn("Resolved: " + newState.toString() + " to " + placementHandler.getClass().toString());
                 handlerCache.put(block, placementHandler);
                 return placementHandler;
             }
