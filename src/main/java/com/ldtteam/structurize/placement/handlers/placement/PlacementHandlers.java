@@ -657,6 +657,11 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final IPlacementContext placementContext)
         {
+            if (world.getBlockState(pos).getBlock() == Blocks.FLOWER_POT)
+            {
+                world.removeBlock(pos, false);
+            }
+
             return simplePlacement(world, pos, blockState, placementContext.getRotationMirror(), tileEntityData);
         }
 
