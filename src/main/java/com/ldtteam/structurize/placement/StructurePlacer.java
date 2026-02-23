@@ -512,12 +512,6 @@ public class StructurePlacer
             requiredItems.addAll(result.getRequiredItems());
         }
 
-        BlockEntity worldEntity = null;
-        if (tileEntityData != null)
-        {
-            worldEntity = world.getBlockEntity(worldPos);
-        }
-
         if (localState.getBlock() == ModBlocks.blockTagSubstitution.get() && handler.fancyPlacement())
         {
             if (tileEntityData != null && BlockEntity.loadStatic(localPos, localState, tileEntityData, world.registryAccess()) instanceof BlockEntityTagSubstitution tagEntity)
@@ -531,8 +525,12 @@ public class StructurePlacer
             }
         }
 
-        if (BlockUtils.areBlockStatesEqual(localState, worldState, handler::replaceWithSolidBlock, handler.fancyPlacement(), handler::shouldBlocksBeConsideredEqual, tileEntityData, worldEntity))
+        if (IPlacementHandler.doesWorldStateMatchBlueprintState(new BlockInfo(localPos, localState, handler.getBluePrint().getTileEntityData(worldPos, localPos)), worldPos, this.handler))
         {
+            if (requiredItems.isEmpty())
+            {
+                return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
+            }
             return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
         }
 

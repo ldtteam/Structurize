@@ -35,10 +35,6 @@ import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.Set;
-
 public class ClientLifecycleSubscriber
 {
     @SubscribeEvent
@@ -96,20 +92,6 @@ public class ClientLifecycleSubscriber
     public static void registerKeys(final RegisterKeyMappingsEvent event)
     {
         ModKeyMappings.register(event);
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void registerCaps(final RegisterCapabilitiesEvent event)
-    {
-        final Set<Block> containerBlocks = Collections.newSetFromMap(new IdentityHashMap<>());
-        for (final Block block : BuiltInRegistries.BLOCK)
-        {
-            if (event.isBlockRegistered(ItemHandler.BLOCK, block))
-            {
-                containerBlocks.add(block);
-            }
-        }
-        ContainerPlacementHandler.CONTAINERS = containerBlocks;
     }
 
     @SubscribeEvent

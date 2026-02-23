@@ -48,6 +48,8 @@ public final class PlacementHandlers
     static
     {
         handlers.add(new AirPlacementHandler());
+        handlers.add(new SolidSubstitutionPlacementHandler());
+        handlers.add(new SubstitutionPlacementHandler());
         handlers.add(new BlackListedBlockPlacementHandler());
         handlers.add(new FluidSubstitutionPlacementHandler());
         handlers.add(new FirePlacementHandler());
@@ -1201,7 +1203,7 @@ public final class PlacementHandlers
             final Tuple<BlockEntity, CompoundTag> blockEntityData,
             final IPlacementContext placementContext)
         {
-            return worldState.equals(blueprintState) || BlockUtils.isGoodFloorBlock(worldState);
+            return worldState.equals(blueprintState) || (placementContext.fancyPlacement() && BlockUtils.isGoodFloorBlock(worldState));
         }
     }
 
@@ -1221,6 +1223,10 @@ public final class PlacementHandlers
             @Nullable final CompoundTag tileEntityData,
             final IPlacementContext placementContext)
         {
+            if (!placementContext.fancyPlacement())
+            {
+                world.setBlock(pos, blockState, UPDATE_FLAG);
+            }
             return ActionProcessingResult.PASS;
         }
 
