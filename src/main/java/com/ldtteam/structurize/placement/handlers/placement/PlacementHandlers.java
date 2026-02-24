@@ -45,6 +45,12 @@ public final class PlacementHandlers
 {
     public static final List<IPlacementHandler> handlers = new ArrayList<>();
 
+    public enum AddType {
+        BEFORE,
+        AFTER,
+        REPLACE
+    }
+
     static
     {
         handlers.add(new AirPlacementHandler());
@@ -85,6 +91,39 @@ public final class PlacementHandlers
                 if (override == handlers.get(i).getClass())
                 {
                     handlers.set(i, handler);
+                    return;
+                }
+            }
+            add(handler);
+        }
+    }
+
+    /**
+     * Allows for Adding a Handler before, after or instead of another one.
+     * @param handler the new handler to add
+     * @param override the class to match.
+     * @param addType if before/after/replace.
+     */
+    public static void add(IPlacementHandler handler, Class<?> override, final AddType addType)
+    {
+        synchronized (handlers)
+        {
+            for (int i = 0; i < handlers.size(); i++)
+            {
+                if (override == handlers.get(i).getClass())
+                {
+                    switch (addType)
+                    {
+                        case BEFORE:
+                            handlers.add(i - 1, handler);
+                            break;
+                        case AFTER:
+                            handlers.add(i, handler);
+                            break;
+                        case REPLACE:
+                            handlers.set(i, handler);
+                            break;
+                    }
                     return;
                 }
             }
