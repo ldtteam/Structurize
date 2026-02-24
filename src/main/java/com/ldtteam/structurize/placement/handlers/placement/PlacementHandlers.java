@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 
 import static com.ldtteam.structurize.api.constants.Constants.UPDATE_FLAG;
 
@@ -45,6 +46,13 @@ import static com.ldtteam.structurize.api.constants.Constants.UPDATE_FLAG;
 public final class PlacementHandlers
 {
     public static final List<IPlacementHandler> handlers = new ArrayList<>();
+
+    public enum AddType {
+        BEFORE,
+        AFTER,
+        REPLACE
+    }
+
     static
     {
         handlers.add(new AirPlacementHandler());
@@ -78,15 +86,51 @@ public final class PlacementHandlers
      */
     public static void add(IPlacementHandler handler, Class<?> override)
     {
-        for (int i = 0; i < handlers.size(); i++)
+        synchronized (handlers)
         {
-            if (override.isInstance(handlers.get(i)))
+            for (int i = 0; i < handlers.size(); i++)
             {
-                handlers.set(i, handler);
-                return;
+                if (override == handlers.get(i).getClass())
+                {
+                    handlers.set(i, handler);
+                    return;
+                }
             }
+            add(handler);
         }
-        add(handler);
+    }
+
+    /**
+     * Allows for Adding a Handler before, after or instead of another one.
+     * @param handler the new handler to add
+     * @param override the class to match.
+     * @param addType if before/after/replace.
+     */
+    public static void add(IPlacementHandler handler, Class<?> override, final AddType addType)
+    {
+        synchronized (handlers)
+        {
+            for (int i = 0; i < handlers.size(); i++)
+            {
+                if (override == handlers.get(i).getClass())
+                {
+                    switch (addType)
+                    {
+                        case BEFORE:
+                            handlers.add(i - 1, handler);
+                            break;
+                        case AFTER:
+                            handlers.add(i, handler);
+                            break;
+                        case REPLACE:
+                            handlers.set(i, handler);
+                            break;
+                    }
+                    return;
+                }
+            }
+            add(handler);
+        }
     }
 
     /**
@@ -97,8 +141,11 @@ public final class PlacementHandlers
      */
     public static void add(IPlacementHandler handler)
     {
-        handlers.add(1, handler);
-        handlerCache.clear();
+        synchronized (handlers)
+        {
+            handlers.add(1, handler);
+            handlerCache.clear();
+        }
     }
 
     /**
@@ -136,6 +183,7 @@ public final class PlacementHandlers
         Log.getLogger().error("Unable to find any PlacementHandler for {}; this should be impossible.", newState.toString());
         return new GeneralBlockPlacementHandler();
     }
+
     /**
      * Private constructor to hide implicit one.
      */
