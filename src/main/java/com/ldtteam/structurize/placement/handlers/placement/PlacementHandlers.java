@@ -21,6 +21,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelWriter;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -196,7 +198,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(Level world, BlockPos pos, BlockState blockState)
         {
-            return blockState.getBlock() == ModBlocks.blockFluidSubstitution.get();
+            return blockState.is(ModBlocks.blockFluidSubstitution);
         }
 
         @Override
@@ -245,25 +247,25 @@ public final class PlacementHandlers
 
         @Override
         public ActionProcessingResult handle(
-          Level world,
-          BlockPos pos,
-          BlockState blockState,
-          @Nullable CompoundTag tileEntityData,
-          IPlacementContext placementContext)
+            final Level world,
+            final BlockPos pos,
+            final BlockState blockState,
+            final @Nullable CompoundTag tileEntityData,
+            final @NotNull IPlacementContext placementContext)
         {
             if (!placementContext.fancyPlacement())
             {
-                world.setBlock(pos, ModBlocks.blockFluidSubstitution.get().defaultBlockState(), UPDATE_FLAG);
+                handleBlockPlacement(world, pos, ModBlocks.blockFluidSubstitution.get().defaultBlockState());
                 return ActionProcessingResult.PASS;
             }
 
             if (world.getBlockState(pos).hasProperty(BlockStateProperties.WATERLOGGED))
             {
-                world.setBlock(pos, world.getBlockState(pos).setValue(BlockStateProperties.WATERLOGGED, true), UPDATE_FLAG);
+                handleBlockPlacement(world, pos, world.getBlockState(pos).setValue(BlockStateProperties.WATERLOGGED, true));
             }
             else
             {
-                world.setBlock(pos, BlockUtils.getFluidForDimension(world), UPDATE_FLAG);
+                handleBlockPlacement(world, pos, BlockUtils.getFluidForDimension(world));
             }
 
             return ActionProcessingResult.PASS;
@@ -288,7 +290,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
-            return blockState.getBlock() instanceof FireBlock;
+            return blockState.is(Blocks.FIRE);
         }
 
         @Override
@@ -312,8 +314,7 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final IPlacementContext placementContext)
         {
-            world.setBlock(pos, blockState, UPDATE_FLAG);
-            return ActionProcessingResult.PASS;
+            return simplePlacement(world, pos, blockState, null, null);
         }
 
         @Override
@@ -395,7 +396,7 @@ public final class PlacementHandlers
                 BlockPos posBelow = pos;
                 BlockState supportBlockState = Blocks.DIRT.defaultBlockState();
                 for (int i = 0; i < 10; i++) // try up to ten blocks below for solid worldgen
-                { 
+                {
                     posBelow = posBelow.below();
                     final boolean isFirstTest = i == 0;
                     final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, bp -> isFirstTest ? blockState : null);
@@ -405,16 +406,12 @@ public final class PlacementHandlers
                         break;
                     }
                 }
-                world.setBlock(pos.below(), supportBlockState, UPDATE_FLAG);
-            }
-            if (!world.setBlock(pos, blockState, UPDATE_FLAG))
-            {
-                return ActionProcessingResult.DENY;
+                handleBlockPlacement(world, pos.below(), supportBlockState);
             }
 
-            if (tileEntityData != null)
+            if (!handleBlockPlacement(world, pos, blockState, placementContext.getRotationMirror(), tileEntityData))
             {
-                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
+                return ActionProcessingResult.DENY;
             }
 
             return ActionProcessingResult.SUCCESS;
@@ -447,11 +444,7 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final IPlacementContext placementContext)
         {
-            if (!world.setBlock(pos, blockState, UPDATE_FLAG))
-            {
-                return ActionProcessingResult.DENY;
-            }
-            return ActionProcessingResult.SUCCESS;
+            return simplePlacement(world, pos, blockState, null, null);
         }
 
         @Override
@@ -490,19 +483,18 @@ public final class PlacementHandlers
 
         @Override
         public ActionProcessingResult handle(
-          final Level world,
-          final BlockPos pos,
-          final BlockState blockState,
-          @Nullable final CompoundTag tileEntityData,
-          final IPlacementContext placementContext)
+            final Level world,
+            final BlockPos pos,
+            final BlockState blockState,
+            @Nullable final CompoundTag tileEntityData,
+            final @NotNull IPlacementContext placementContext)
         {
             if (blockState.getValue(DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
             {
-                world.setBlock(pos, blockState.setValue(DoorBlock.HALF, DoubleBlockHalf.LOWER), UPDATE_FLAG);
-                world.setBlock(pos.above(), blockState.setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER), UPDATE_FLAG);
+                return simplePlacement(world, pos, blockState, placementContext.getRotationMirror(), tileEntityData);
             }
 
-            return ActionProcessingResult.SUCCESS;
+            return ActionProcessingResult.PASS;
         }
 
         @Override
@@ -570,20 +562,9 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final IPlacementContext placementContext)
         {
-            if (blockState.getValue(BedBlock.PART) == BedPart.HEAD)
+            if (blockState.getValue(BedBlock.PART) == BedPart.FOOT)
             {
-                final Direction facing = blockState.getValue(BedBlock.FACING);
-
-                // pos.offset(facing) will get the other part of the bed
-                world.setBlock(pos.relative(facing.getOpposite()), blockState.setValue(BedBlock.PART, BedPart.FOOT), UPDATE_FLAG);
-                world.setBlock(pos, blockState.setValue(BedBlock.PART, BedPart.HEAD), UPDATE_FLAG);
-
-                if (tileEntityData != null)
-                {
-                    handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
-                    handleTileEntityPlacement(tileEntityData, world, pos.relative(facing.getOpposite()), placementContext.getRotationMirror());
-                }
-                return ActionProcessingResult.SUCCESS;
+                return simplePlacement(world, pos, blockState, placementContext.getRotationMirror(), tileEntityData);
             }
 
             return ActionProcessingResult.PASS;
@@ -627,17 +608,15 @@ public final class PlacementHandlers
 
         @Override
         public ActionProcessingResult handle(
-          final Level world,
-          final BlockPos pos,
-          final BlockState blockState,
-          @Nullable final CompoundTag tileEntityData,
-          final IPlacementContext placementContext)
+            final Level world,
+            final BlockPos pos,
+            final BlockState blockState,
+            @Nullable final CompoundTag tileEntityData,
+            final @NotNull IPlacementContext placementContext)
         {
             if (blockState.getValue(DoublePlantBlock.HALF).equals(DoubleBlockHalf.LOWER))
             {
-                world.setBlock(pos, blockState.setValue(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER), UPDATE_FLAG);
-                world.setBlock(pos.above(), blockState.setValue(DoublePlantBlock.HALF, DoubleBlockHalf.UPPER), UPDATE_FLAG);
-                return ActionProcessingResult.SUCCESS;
+                return simplePlacement(world, pos, blockState, placementContext.getRotationMirror(), tileEntityData);
             }
             return ActionProcessingResult.PASS;
         }
@@ -730,16 +709,7 @@ public final class PlacementHandlers
                 world.removeBlock(pos, false);
             }
 
-            if (!world.setBlock(pos, blockState, UPDATE_FLAG))
-            {
-                return ActionProcessingResult.DENY;
-            }
-
-            if (tileEntityData != null)
-            {
-                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
-            }
-            return ActionProcessingResult.SUCCESS;
+            return simplePlacement(world, pos, blockState, placementContext.getRotationMirror(), tileEntityData);
         }
 
         @Override
@@ -839,18 +809,13 @@ public final class PlacementHandlers
 
         @Override
         public ActionProcessingResult handle(
-          final Level world,
-          final BlockPos pos,
-          final BlockState blockState,
-          @Nullable final CompoundTag tileEntityData,
-          final IPlacementContext placementContext)
+            final Level world,
+            final BlockPos pos,
+            final BlockState blockState,
+            @Nullable final CompoundTag tileEntityData,
+            final @NotNull IPlacementContext placementContext)
         {
-            if (!world.setBlock(pos, Blocks.DIRT_PATH.defaultBlockState(), UPDATE_FLAG))
-            {
-                return ActionProcessingResult.DENY;
-            }
-
-            return ActionProcessingResult.SUCCESS;
+            return simplePlacement(world, pos, blockState, placementContext.getRotationMirror(), tileEntityData);
         }
 
         @Override
@@ -904,22 +869,13 @@ public final class PlacementHandlers
             if (world.getBlockState(pos).equals(blockState))
             {
                 world.removeBlock(pos, false);
-                world.setBlock(pos, blockState, UPDATE_FLAG);
-                if (tileEntityData != null)
-                {
-                    handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
-                }
+                handleBlockPlacement(world, pos, blockState, placementContext.getRotationMirror(), tileEntityData);
                 return ActionProcessingResult.PASS;
             }
 
-            if (!world.setBlock(pos, blockState, UPDATE_FLAG))
+            if (!handleBlockPlacement(world, pos, blockState, placementContext.getRotationMirror(), tileEntityData))
             {
                 return ActionProcessingResult.DENY;
-            }
-
-            if (tileEntityData != null)
-            {
-                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
             }
 
             return ActionProcessingResult.SUCCESS;
@@ -968,7 +924,7 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final IPlacementContext placementContext)
         {
-            if (!world.setBlock(pos, blockState, UPDATE_FLAG))
+            if (!handleBlockPlacement(world, pos, blockState))
             {
                 return ActionProcessingResult.DENY;
             }
@@ -1065,22 +1021,13 @@ public final class PlacementHandlers
         {
             if (world.getBlockState(pos).equals(blockState))
             {
-                if (tileEntityData != null)
-                {
-                    handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
-                }
+                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
                 return ActionProcessingResult.PASS;
             }
 
-            if (!world.setBlock(pos, blockState, UPDATE_FLAG))
+            if (!handleBlockPlacement(world, pos, blockState, placementContext.getRotationMirror(), tileEntityData))
             {
                 return ActionProcessingResult.DENY;
-            }
-
-            if (tileEntityData != null)
-            {
-                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
-                blockState.getBlock().setPlacedBy(world, pos, blockState, null, BlockUtils.getItemStackFromBlockState(blockState));
             }
 
             return ActionProcessingResult.SUCCESS;
@@ -1154,14 +1101,14 @@ public final class PlacementHandlers
             {
                 placeDripStoneInDir(dir.getOpposite(), blueprint, pos.subtract(centerPos).offset(blueprint.getPrimaryBlockOffset()), pos, blockState, world);
                 placeDripStoneInDir(dir, blueprint, pos.subtract(centerPos).offset(blueprint.getPrimaryBlockOffset()), pos, blockState, world);
-                world.setBlock(pos, blockState, UPDATE_FLAG);
+                handleBlockPlacement(world, pos, blockState);
 
                 // both direction.
                 return ActionProcessingResult.SUCCESS;
             }
 
             placeDripStoneInDir(dir, blueprint, pos.subtract(centerPos).offset(blueprint.getPrimaryBlockOffset()), pos, blockState, world);
-            world.setBlock(pos, blockState, UPDATE_FLAG);
+            handleBlockPlacement(world, pos, blockState);
             return ActionProcessingResult.SUCCESS;
         }
 
@@ -1175,10 +1122,10 @@ public final class PlacementHandlers
                     final BlockState secondState = blueprint.getBlockState(blueprintPos.relative(dir, 2));
                     if (secondState != null && secondState.getBlock() == Blocks.POINTED_DRIPSTONE)
                     {
-                        world.setBlock(worldPos.relative(dir, 2), secondState, UPDATE_FLAG);
+                        handleBlockPlacement(world, worldPos.relative(dir, 2), secondState);
                     }
 
-                    world.setBlock(worldPos.relative(dir, 1), firstState, UPDATE_FLAG);
+                    handleBlockPlacement(world, worldPos.relative(dir, 1), firstState);
                 }
             }
             catch (final Exception ex)
@@ -1363,6 +1310,80 @@ public final class PlacementHandlers
     }
 
     /**
+     * Handles block placement.
+     *
+     * @param world      the world.
+     * @param pos        the position.
+     * @param blockState the block state of the block about to be placed.
+     * @return true if successfully placed.
+     */
+    public static boolean handleBlockPlacement(
+        final @NotNull Level world,
+        final @NotNull BlockPos pos,
+        final @NotNull BlockState blockState)
+    {
+        return handleBlockPlacement(world, pos, blockState, null, null);
+    }
+
+    /**
+     * Handles block placement.
+     *
+     * @param world      the world.
+     * @param pos        the position.
+     * @param blockState the block state of the block about to be placed.
+     * @param settings   the rotation and mirroring settings.
+     * @return true if successfully placed.
+     */
+    public static boolean handleBlockPlacement(
+        final @NotNull Level world,
+        final @NotNull BlockPos pos,
+        final @NotNull BlockState blockState,
+        final @Nullable RotationMirror settings,
+        final @Nullable CompoundTag tileEntityData)
+    {
+        return handleBlockPlacement(LevelWriter::setBlock, world, pos, blockState, UPDATE_FLAG, settings, tileEntityData);
+    }
+
+    /**
+     * Handles block placement.
+     *
+     * @param world      the world.
+     * @param pos        the position.
+     * @param blockState the block state of the block about to be placed.
+     * @param settings   the rotation and mirroring settings.
+     * @return true if successfully placed.
+     */
+    public static boolean handleBlockPlacement(
+        final @NotNull BlockPlacementFunction placementFunction,
+        final @NotNull Level world,
+        final @NotNull BlockPos pos,
+        final @NotNull BlockState blockState,
+        final int flags,
+        final @Nullable RotationMirror settings,
+        final @Nullable CompoundTag tileEntityData)
+    {
+        final boolean success = placementFunction.execute(world, pos, blockState, flags);
+        if (success)
+        {
+            if (tileEntityData != null && settings != null)
+            {
+                handleTileEntityPlacement(tileEntityData, world, pos, settings);
+            }
+
+            blockState.getBlock().setPlacedBy(world, pos, blockState, null, BlockUtils.getItemStackFromBlockState(blockState));
+        }
+        return success;
+    }
+
+    /**
+     * Handler for placing the block down into the world.
+     */
+    public interface BlockPlacementFunction
+    {
+        boolean execute(LevelAccessor world, BlockPos pos, BlockState state, int flags);
+    }
+
+    /**
      * Handles tileEntity placement.
      *
      * @param tileEntityData the data of the tile entity.
@@ -1370,11 +1391,7 @@ public final class PlacementHandlers
      * @param pos            the position.
      * @param settings       the placement settings.
      */
-    public static void handleTileEntityPlacement(
-      final CompoundTag tileEntityData,
-      final Level world,
-      final BlockPos pos,
-      final RotationMirror settings)
+    public static void handleTileEntityPlacement(@Nullable final CompoundTag tileEntityData, final Level world, final BlockPos pos, final RotationMirror settings)
     {
         if (tileEntityData != null)
         {
@@ -1439,5 +1456,37 @@ public final class PlacementHandlers
             // We might not be able to query all inventories like this.
             return Collections.emptyList();
         }
+    }
+
+    /**
+     * Simple block placement that only overwrites the block if the same block is not already present.
+     * If the block is already present, the tile entity data is updated if necessary.
+     * If the block is not present, the block is placed down and the tile entity is set down too.
+     *
+     * @param world          receives the world.
+     * @param pos            the position.
+     * @param blockState     the blockState.
+     * @param settings       the settings to use to rotate or mirror it.
+     * @param tileEntityData the placer of the block.
+     * @return ACCEPT, DENY or IGNORE.
+     */
+    public static IPlacementHandler.ActionProcessingResult simplePlacement(
+        final @NotNull Level world,
+        final @NotNull BlockPos pos,
+        final @NotNull BlockState blockState,
+        final @Nullable RotationMirror settings,
+        final @Nullable CompoundTag tileEntityData)
+    {
+        if (world.getBlockState(pos).is(blockState.getBlock()))
+        {
+            handleTileEntityPlacement(tileEntityData, world, pos, settings);
+            return IPlacementHandler.ActionProcessingResult.PASS;
+        }
+        if (!handleBlockPlacement(world, pos, blockState, settings, tileEntityData))
+        {
+            return IPlacementHandler.ActionProcessingResult.DENY;
+        }
+
+        return IPlacementHandler.ActionProcessingResult.SUCCESS;
     }
 }
