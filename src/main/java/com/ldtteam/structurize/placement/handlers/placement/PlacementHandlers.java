@@ -115,10 +115,10 @@ public final class PlacementHandlers
                     switch (addType)
                     {
                         case BEFORE:
-                            handlers.add(i - 1, handler);
+                            handlers.add(i, handler);
                             break;
                         case AFTER:
-                            handlers.add(i, handler);
+                            handlers.add(i+1, handler);
                             break;
                         case REPLACE:
                             handlers.set(i, handler);
@@ -132,16 +132,15 @@ public final class PlacementHandlers
     }
 
     /**
-     * Adds a handler to the start of the handlers list,
-     * effectively overriding existing ones with similar
-     * 'canHandle' functions because this one will evaluate before them
+     * Adds a handler to the start of the handlers list, right after the air, solid and light placeholder handlers.
+     * This may effectively override existing ones with similar 'canHandle' functions because this one will evaluate before them.
      * @param handler
      */
     public static void add(IPlacementHandler handler)
     {
         synchronized (handlers)
         {
-            handlers.add(1, handler);
+            handlers.add(3, handler);
             handlerCache.clear();
         }
     }
