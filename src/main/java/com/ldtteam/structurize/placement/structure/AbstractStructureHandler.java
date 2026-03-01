@@ -144,7 +144,7 @@ public abstract class AbstractStructureHandler implements IStructureHandler
     }
 
     @Override
-    public BlockPos getWorldPos()
+    public BlockPos getCenterPos()
     {
         return this.worldPos;
     }

@@ -4,8 +4,8 @@ import com.ldtteam.structurize.api.util.IRotatableBlockEntity;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.placement.IPlacementContext;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.tag.ModTags;
 import com.ldtteam.structurize.util.BlockUtils;
@@ -14,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -23,11 +24,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BedPart;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.DripstoneThickness;
+import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -59,13 +58,15 @@ public final class PlacementHandlers
         handlers.add(new DoublePlantPlacementHandler());
         handlers.add(new SpecialBlockPlacementAttemptHandler());
         handlers.add(new FlowerPotPlacementHandler());
-        handlers.add(new StairBlockPlacementHandler());
         handlers.add(new HopperClientLagPlacementHandler());
         handlers.add(new ContainerPlacementHandler());
         handlers.add(new DripStoneBlockPlacementHandler());
         handlers.add(new FallingBlockPlacementHandler());
         handlers.add(new BannerPlacementHandler());
         handlers.add(new DoBlockPlacementHandler());
+        handlers.add(new DoDoorBlockPlacementHandler());
+        handlers.add(new SolidSubstitutionPlacementHandler());
+        handlers.add(new SubstitutionPlacementHandler());
         handlers.add(new GeneralBlockPlacementHandler());
     }
 
@@ -97,7 +98,13 @@ public final class PlacementHandlers
     public static void add(IPlacementHandler handler)
     {
         handlers.add(1, handler);
+        handlerCache.clear();
     }
+
+    /**
+     * Simple block based handler cache to avoid too many iterations
+     */
+    private static Map<Block, IPlacementHandler> handlerCache = new IdentityHashMap<>(128);
 
     /**
      * Finds the appropriate {@link IPlacementHandler} for the given location.
@@ -110,10 +117,18 @@ public final class PlacementHandlers
                                                final BlockPos worldPos,
                                                final BlockState newState)
     {
+        final Block block = newState.getBlock();
+        final IPlacementHandler cached = handlerCache.get(block);
+        if (cached != null)
+        {
+            return cached;
+        }
+
         for (final IPlacementHandler placementHandler : handlers)
         {
             if (placementHandler.canHandle(world, worldPos, newState))
             {
+                handlerCache.put(block, placementHandler);
                 return placementHandler;
             }
         }
@@ -137,7 +152,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(Level world, BlockPos pos, BlockState blockState)
         {
-            return blockState.getBlock() instanceof BlockFluidSubstitution;
+            return blockState.getBlock() == ModBlocks.blockFluidSubstitution.get();
         }
 
         @Override
@@ -146,11 +161,11 @@ public final class PlacementHandlers
           BlockPos pos,
           BlockState blockState,
           @Nullable CompoundTag tileEntityData,
-          boolean complete)
+          IPlacementContext placementContext)
         {
             List<ItemStack> items = new ArrayList<>();
 
-            if (complete)
+            if (!placementContext.fancyPlacement())
             {
                 // for scan tool, show the actual placeholder block
                 items.add(new ItemStack(blockState.getBlock()));
@@ -190,10 +205,9 @@ public final class PlacementHandlers
           BlockPos pos,
           BlockState blockState,
           @Nullable CompoundTag tileEntityData,
-          boolean complete,
-          BlockPos centerPos)
+          IPlacementContext placementContext)
         {
-            if (complete)
+            if (!placementContext.fancyPlacement())
             {
                 world.setBlock(pos, ModBlocks.blockFluidSubstitution.get().defaultBlockState(), UPDATE_FLAG);
                 return ActionProcessingResult.PASS;
@@ -209,6 +223,19 @@ public final class PlacementHandlers
             }
 
             return ActionProcessingResult.PASS;
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
+        {
+            // If is source keep, if water logged, keep, if full solid, keep. (Replace primarily if air, plant, etc).
+            return worldState.getFluidState().isSource()
+                || worldState.hasProperty(BlockStateProperties.WATERLOGGED)
+                || BlockUtils.isAnySolid(worldState);
         }
     }
 
@@ -226,7 +253,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+          final IPlacementContext placementContext)
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(new ItemStack(Items.FLINT_AND_STEEL, 1));
@@ -239,11 +266,20 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos)
+          final IPlacementContext placementContext)
         {
             world.setBlock(pos, blockState, UPDATE_FLAG);
             return ActionProcessingResult.PASS;
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
+        {
+            return worldState.equals(blueprintState);
         }
     }
 
@@ -261,7 +297,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+          final IPlacementContext placementContext)
         {
             final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
@@ -291,7 +327,7 @@ public final class PlacementHandlers
                 }
                 else
                 {
-                    itemList.addAll(getRequiredItemsForState(world, pos, supportBlockState, tileEntityData, complete));
+                    itemList.addAll(getRequiredItemsForState(world, pos, supportBlockState, tileEntityData, placementContext));
                 }
             }
             return itemList;
@@ -303,9 +339,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos,
-          final PlacementSettings settings)
+          final IPlacementContext placementContext)
         {
             if (world.getBlockState(pos).equals(blockState))
             {
@@ -336,10 +370,20 @@ public final class PlacementHandlers
 
             if (tileEntityData != null)
             {
-                handleTileEntityPlacement(tileEntityData, world, pos, settings);
+                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
             }
 
             return ActionProcessingResult.SUCCESS;
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
+        {
+            return worldState.equals(blueprintState);
         }
     }
 
@@ -348,7 +392,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
-            return blockState.getBlock() == Blocks.GRASS_BLOCK || (blockState.getBlock() != Blocks.DIRT && blockState.is(BlockTags.DIRT) && Blocks.DIRT == blockState.getBlock());
+            return blockState.getBlock() == Blocks.GRASS_BLOCK;
         }
 
         @Override
@@ -357,8 +401,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos)
+          final IPlacementContext placementContext)
         {
             if (!world.setBlock(pos, blockState, UPDATE_FLAG))
             {
@@ -373,13 +416,23 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+          final IPlacementContext placementContext)
         {
-            if (complete)
+            if (!placementContext.fancyPlacement())
             {
                 return Collections.singletonList(new ItemStack(blockState.getBlock()));
             }
             return Collections.singletonList(new ItemStack(Blocks.DIRT));
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext placementContext)
+        {
+            return worldState.is(BlockTags.DIRT);
         }
     }
 
@@ -397,8 +450,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos)
+          final IPlacementContext placementContext)
         {
             if (blockState.getValue(DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
             {
@@ -415,7 +467,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+          final IPlacementContext placementContext)
         {
             final List<ItemStack> itemList = new ArrayList<>();
             if (blockState.getValue(DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
@@ -423,6 +475,38 @@ public final class PlacementHandlers
                 itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             }
             return itemList;
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
+        {
+            if (worldState.getBlock() == blueprintState.getBlock())
+            {
+                if (structureHandler.fancyPlacement())
+                {
+                    for (Property<?> property : worldState.getProperties())
+                    {
+                        // Compare properties, but if just open or powered don't match, ignore.
+                        if (!blueprintState.hasProperty(property) ||
+                            (blueprintState.getValue(property) != worldState.getValue(property)
+                                && property != net.minecraft.world.level.block.DoorBlock.OPEN)
+                                && property != net.minecraft.world.level.block.DoorBlock.POWERED)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                else
+                {
+                    return worldState.equals(blueprintState);
+                }
+                return true;
+            }
+            return false;
         }
     }
 
@@ -440,9 +524,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos,
-          final PlacementSettings settings)
+          final IPlacementContext placementContext)
         {
             if (blockState.getValue(BedBlock.PART) == BedPart.HEAD)
             {
@@ -454,8 +536,8 @@ public final class PlacementHandlers
 
                 if (tileEntityData != null)
                 {
-                    handleTileEntityPlacement(tileEntityData, world, pos, settings);
-                    handleTileEntityPlacement(tileEntityData, world, pos.relative(facing.getOpposite()), settings);
+                    handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
+                    handleTileEntityPlacement(tileEntityData, world, pos.relative(facing.getOpposite()), placementContext.getRotationMirror());
                 }
                 return ActionProcessingResult.SUCCESS;
             }
@@ -469,7 +551,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+          final IPlacementContext placementContext)
         {
             if (blockState.getValue(BedBlock.PART) == BedPart.HEAD)
             {
@@ -478,6 +560,16 @@ public final class PlacementHandlers
                 return list;
             }
             return Collections.emptyList();
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
+        {
+            return worldState.equals(blueprintState);
         }
     }
 
@@ -495,8 +587,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos)
+          final IPlacementContext placementContext)
         {
             if (blockState.getValue(DoublePlantBlock.HALF).equals(DoubleBlockHalf.LOWER))
             {
@@ -513,11 +604,21 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+            final IPlacementContext placementContext)
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             return itemList;
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
+        {
+            return worldState.equals(blueprintState);
         }
     }
 
@@ -526,8 +627,9 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
-            return blockState.getBlock() instanceof EndPortalBlock || blockState.getBlock() instanceof SpawnerBlock ||
-                     blockState.getBlock() instanceof DragonEggBlock;
+            return blockState.getBlock() instanceof EndPortalBlock
+                || blockState.getBlock() instanceof SpawnerBlock
+                || blockState.getBlock() instanceof DragonEggBlock;
         }
 
         @Override
@@ -536,8 +638,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos)
+            final IPlacementContext placementContext)
         {
             return ActionProcessingResult.PASS;
         }
@@ -548,9 +649,19 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+          final IPlacementContext placementContext)
         {
             return new ArrayList<>();
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
+        {
+            return true;
         }
     }
 
@@ -568,14 +679,13 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos,
-          final PlacementSettings settings)
+          final IPlacementContext placementContext)
         {
-            if (world.getBlockState(pos).getBlock() == blockState.getBlock())
+            if (world.getBlockState(pos).getBlock() == Blocks.FLOWER_POT)
             {
-                return ActionProcessingResult.PASS;
+                world.removeBlock(pos, false);
             }
+
             if (!world.setBlock(pos, blockState, UPDATE_FLAG))
             {
                 return ActionProcessingResult.DENY;
@@ -583,7 +693,7 @@ public final class PlacementHandlers
 
             if (tileEntityData != null)
             {
-                handleTileEntityPlacement(tileEntityData, world, pos, settings);
+                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
             }
             return ActionProcessingResult.SUCCESS;
         }
@@ -594,13 +704,29 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+          final IPlacementContext placementContext)
         {
             final List<ItemStack> itemList = new ArrayList<>();
-            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
-            itemList.add(new ItemStack(((FlowerPotBlock) blockState.getBlock()).getContent()));
+            if (world.getBlockState(pos).getBlock() != Blocks.FLOWER_POT)
+            {
+                itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+            }
+            itemList.add(new ItemStack(((FlowerPotBlock) blockState.getBlock()).getPotted()));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
+        {
+            return worldState.equals(blueprintState)
+                && blueprintState.getBlock() instanceof FlowerPotBlock blueprintPot
+                && worldState.getBlock() instanceof FlowerPotBlock worldPot
+                && blueprintPot.getPotted() == worldPot.getPotted();
         }
     }
 
@@ -609,7 +735,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
-            return blockState.getBlock() instanceof AirBlock;
+            return blockState.is(Blocks.AIR);
         }
 
         @Override
@@ -618,8 +744,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos)
+          final IPlacementContext placementContext)
         {
             if (!world.isEmptyBlock(pos))
             {
@@ -644,9 +769,19 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+          final IPlacementContext placementContext)
         {
             return new ArrayList<>();
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
+        {
+            return worldState.is(Blocks.AIR);
         }
     }
 
@@ -664,8 +799,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos)
+          final IPlacementContext placementContext)
         {
             if (!world.setBlock(pos, Blocks.DIRT_PATH.defaultBlockState(), UPDATE_FLAG))
             {
@@ -681,54 +815,29 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+         final IPlacementContext placementContext)
         {
-            if (complete)
+            if (!placementContext.fancyPlacement())
             {
                 return Collections.singletonList(new ItemStack(blockState.getBlock()));
+            }
+
+            // It's free, if the world block is already dirt.
+            if (world.getBlockState(pos).is(Blocks.DIRT))
+            {
+                return Collections.emptyList();
             }
             return Collections.singletonList(new ItemStack(Blocks.DIRT));
         }
-    }
-
-    public static class StairBlockPlacementHandler implements IPlacementHandler
-    {
-        @Override
-        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
-        {
-            return blockState.getBlock() instanceof StairBlock
-                     && !(blockState.getBlock() instanceof EntityBlock)
-                     && world.getBlockState(pos).getBlock() instanceof StairBlock
-                     && world.getBlockState(pos).getValue(StairBlock.FACING) == blockState.getValue(StairBlock.FACING)
-                     && world.getBlockState(pos).getValue(StairBlock.HALF) == blockState.getValue(StairBlock.HALF)
-                     && blockState.getBlock() == world.getBlockState(pos).getBlock();
-        }
 
         @Override
-        public ActionProcessingResult handle(
-          final Level world,
-          final BlockPos pos,
-          final BlockState blockState,
-          @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos)
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
         {
-            return ActionProcessingResult.PASS;
-        }
-
-        @Override
-        public List<ItemStack> getRequiredItems(
-          final Level world,
-          final BlockPos pos,
-          final BlockState blockState,
-          @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
-        {
-            if (complete)
-            {
-                return Collections.singletonList(new ItemStack(blockState.getBlock()));
-            }
-            return new ArrayList<>();
+            return worldState.equals(blueprintState);
         }
     }
 
@@ -746,9 +855,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos,
-          final PlacementSettings settings)
+          final IPlacementContext placementContext)
         {
             if (world.getBlockState(pos).equals(blockState))
             {
@@ -756,7 +863,7 @@ public final class PlacementHandlers
                 world.setBlock(pos, blockState, UPDATE_FLAG);
                 if (tileEntityData != null)
                 {
-                    handleTileEntityPlacement(tileEntityData, world, pos, settings);
+                    handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
                 }
                 return ActionProcessingResult.PASS;
             }
@@ -768,7 +875,7 @@ public final class PlacementHandlers
 
             if (tileEntityData != null)
             {
-                handleTileEntityPlacement(tileEntityData, world, pos, settings);
+                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
             }
 
             return ActionProcessingResult.SUCCESS;
@@ -780,12 +887,22 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+          final IPlacementContext placementContext)
         {
             final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
+        {
+            return worldState.equals(blueprintState);
         }
     }
 
@@ -803,9 +920,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos,
-          final PlacementSettings settings)
+          final IPlacementContext placementContext)
         {
             if (!world.setBlock(pos, blockState, UPDATE_FLAG))
             {
@@ -825,7 +940,7 @@ public final class PlacementHandlers
 
             if (tileEntityData != null)
             {
-                handleTileEntityPlacement(tileEntityData, world, pos, settings);
+                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
             }
 
             return ActionProcessingResult.SUCCESS;
@@ -837,7 +952,7 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+          final IPlacementContext placementContext)
         {
             final List<ItemStack> itemList = new ArrayList<>();
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
@@ -846,6 +961,16 @@ public final class PlacementHandlers
             itemList.removeIf(ItemStackUtils::isEmpty);
 
             return itemList;
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
+        {
+            return worldState.equals(blueprintState);
         }
     }
 
@@ -865,16 +990,14 @@ public final class PlacementHandlers
             final BlockPos pos,
             final BlockState blockState,
             @Nullable final CompoundTag tileEntityData,
-            final boolean complete,
-            final BlockPos centerPos)
+            final IPlacementContext placementContext)
         {
             final boolean flag = !world.hasNeighborSignal(pos);
             return super.handle(world,
                 pos,
                 flag != blockState.getValue(HopperBlock.ENABLED) ? blockState.setValue(HopperBlock.ENABLED, flag) : blockState,
                 tileEntityData,
-                complete,
-                centerPos);
+                placementContext);
         }
     }
 
@@ -892,15 +1015,13 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos,
-          final PlacementSettings settings)
+          final IPlacementContext placementContext)
         {
             if (world.getBlockState(pos).equals(blockState))
             {
                 if (tileEntityData != null)
                 {
-                    handleTileEntityPlacement(tileEntityData, world, pos, settings);
+                    handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
                 }
                 return ActionProcessingResult.PASS;
             }
@@ -912,7 +1033,7 @@ public final class PlacementHandlers
 
             if (tileEntityData != null)
             {
-                handleTileEntityPlacement(tileEntityData, world, pos, settings);
+                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
                 blockState.getBlock().setPlacedBy(world, pos, blockState, null, BlockUtils.getItemStackFromBlockState(blockState));
             }
 
@@ -925,12 +1046,22 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+          final IPlacementContext placementContext)
         {
-            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
-            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
+            {
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
+        {
+            // Always enter banner handling logic to make sure they're updated.
+            return false;
         }
     }
 
@@ -944,18 +1075,23 @@ public final class PlacementHandlers
 
         @Override
         public ActionProcessingResult handle(
-          final Blueprint blueprint,
           final Level world,
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos,
-          final PlacementSettings settings)
+            final IPlacementContext placementContext)
         {
+            final BlockPos centerPos = placementContext.getCenterPos();
+            final Blueprint blueprint = placementContext.getBluePrint();
             if (world.getBlockState(pos).equals(blockState))
             {
                 return ActionProcessingResult.PASS;
+            }
+
+            if (blueprint == null)
+            {
+                world.setBlock(pos, blockState, UPDATE_FLAG);
+                return ActionProcessingResult.SUCCESS;
             }
 
             if (blockState.getValue(PointedDripstoneBlock.THICKNESS) != DripstoneThickness.TIP && blockState.getValue(PointedDripstoneBlock.THICKNESS) != DripstoneThickness.TIP_MERGE)
@@ -1007,12 +1143,22 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+          final IPlacementContext placementContext)
         {
             final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
             itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
+        {
+            return worldState.getBlock() == blueprintState.getBlock();
         }
     }
 
@@ -1030,10 +1176,8 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete,
-          final BlockPos centerPos)
+            final IPlacementContext placementContext)
         {
-
             return ActionProcessingResult.PASS;
         }
 
@@ -1043,9 +1187,124 @@ public final class PlacementHandlers
           final BlockPos pos,
           final BlockState blockState,
           @Nullable final CompoundTag tileEntityData,
-          final boolean complete)
+            final IPlacementContext placementContext)
         {
             return Collections.emptyList();
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final @NotNull IPlacementContext structureHandler)
+        {
+            return true;
+        }
+    }
+
+    public static class SolidSubstitutionPlacementHandler implements IPlacementHandler
+    {
+        @Override
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
+        {
+            return blockState.getBlock() == ModBlocks.blockSolidSubstitution.get();
+        }
+
+        @Override
+        public ActionProcessingResult handle(
+            final Level world,
+            final BlockPos pos,
+            final BlockState blockState,
+            @Nullable final CompoundTag tileEntityData,
+            final IPlacementContext placementContext)
+        {
+            BlockState stateToPlace = blockState;
+            if (placementContext.fancyPlacement())
+            {
+                stateToPlace = placementContext.getSolidBlockForPos(pos, placementContext.getBluePrint().getRawBlockStateFunction());
+            }
+            if (!world.setBlock(pos, stateToPlace, UPDATE_FLAG))
+            {
+                return ActionProcessingResult.PASS;
+            }
+            return ActionProcessingResult.SUCCESS;
+        }
+
+        @Override
+        public List<ItemStack> getRequiredItems(
+            final Level world,
+            final BlockPos pos,
+            final BlockState blockState,
+            @Nullable final CompoundTag tileEntityData,
+            final IPlacementContext placementContext)
+        {
+            if (placementContext.fancyPlacement())
+            {
+                return Collections.singletonList(BlockUtils.getItemStackFromBlockState(placementContext.getSolidBlockForPos(pos, placementContext.getBluePrint().getRawBlockStateFunction())));
+            }
+            else
+            {
+                return Collections.singletonList(new ItemStack(ModBlocks.blockSolidSubstitution.get()));
+            }
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final IPlacementContext placementContext)
+        {
+            return worldState.equals(blueprintState) || BlockUtils.isGoodFloorBlock(worldState);
+        }
+    }
+
+    public static class SubstitutionPlacementHandler implements IPlacementHandler
+    {
+        @Override
+        public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
+        {
+            return blockState.getBlock() == ModBlocks.blockSubstitution.get();
+        }
+
+        @Override
+        public ActionProcessingResult handle(
+            final Level world,
+            final BlockPos pos,
+            final BlockState blockState,
+            @Nullable final CompoundTag tileEntityData,
+            final IPlacementContext placementContext)
+        {
+            return ActionProcessingResult.PASS;
+        }
+
+        @Override
+        public List<ItemStack> getRequiredItems(
+            final Level world,
+            final BlockPos pos,
+            final BlockState blockState,
+            @Nullable final CompoundTag tileEntityData,
+            final IPlacementContext placementContext)
+        {
+            if (placementContext.fancyPlacement())
+            {
+                return Collections.emptyList();
+            }
+            else
+            {
+                return Collections.singletonList(new ItemStack(ModBlocks.blockSubstitution.get()));
+            }
+        }
+
+        @Override
+        public boolean doesWorldStateMatchBlueprintState(
+            final BlockState worldState,
+            final BlockState blueprintState,
+            final Tuple<BlockEntity, CompoundTag> blockEntityData,
+            final IPlacementContext placementContext)
+        {
+            return placementContext.fancyPlacement() || worldState.equals(blueprintState);
         }
     }
 
@@ -1096,13 +1355,13 @@ public final class PlacementHandlers
      * @param pos the pos to place it at.
      * @param state the state to place.
      * @param data its TE data.
-     * @param complete if complete.
+     * @param placementContext the placement context.
      * @return the required items.
      */
-    public static List<ItemStack> getRequiredItemsForState(final Level world, final BlockPos pos, final BlockState state, final CompoundTag data, final boolean complete)
+    public static List<ItemStack> getRequiredItemsForState(final Level world, final BlockPos pos, final BlockState state, final CompoundTag data, IPlacementContext placementContext)
     {
         final IPlacementHandler placementHandler = getHandler(world, pos, state);
-        return placementHandler.getRequiredItems(world, pos, state, data, complete);
+        return placementHandler.getRequiredItems(world, pos, state, data, placementContext);
     }
 
     /**
