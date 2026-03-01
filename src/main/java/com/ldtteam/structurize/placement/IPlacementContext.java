@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.placement;
 
-import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +14,7 @@ public interface IPlacementContext
      * Getter for the placement settings.
      * @return the settings object.
      */
-    RotationMirror getRotationMirror();
+    PlacementSettings getRotationMirror();
 
     /**
      * If this is supposed to be fancy placement (player facing) or builder facing (complete).

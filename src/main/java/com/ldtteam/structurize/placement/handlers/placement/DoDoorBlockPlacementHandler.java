@@ -3,10 +3,9 @@ package com.ldtteam.structurize.placement.handlers.placement;
 import com.ldtteam.domumornamentum.block.AbstractBlockDoor;
 import com.ldtteam.domumornamentum.block.IMateriallyTexturedBlock;
 import com.ldtteam.domumornamentum.util.BlockUtils;
-import com.ldtteam.structurize.api.ItemStackUtils;
-import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.placement.IPlacementContext;
-import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Tuple;
@@ -23,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.ldtteam.structurize.api.constants.Constants.UPDATE_FLAG;
+import static com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG;
 import static com.ldtteam.structurize.placement.handlers.placement.DoBlockPlacementHandler.compareBEData;
 import static com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers.handleTileEntityPlacement;
 
@@ -82,13 +81,13 @@ public class DoDoorBlockPlacementHandler implements IPlacementHandler
         if (tileEntityData != null && blockState.getValue(net.minecraft.world.level.block.DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
         {
             BlockPos blockpos = new BlockPos(tileEntityData.getInt("x"), tileEntityData.getInt("y"), tileEntityData.getInt("z"));
-            final BlockEntity tileEntity = BlockEntity.loadStatic(blockpos, blockState, tileEntityData, world.registryAccess());
+            final BlockEntity tileEntity = BlockEntity.loadStatic(blockpos, blockState, tileEntityData);
             if (tileEntity == null)
             {
                 return Collections.emptyList();
             }
 
-            itemList.add(BlockUtils.getMaterializedItemStack(tileEntity, world.registryAccess()));
+            itemList.add(BlockUtils.getMaterializedItemStack(null, tileEntity));
         }
         itemList.removeIf(ItemStackUtils::isEmpty);
         return itemList;

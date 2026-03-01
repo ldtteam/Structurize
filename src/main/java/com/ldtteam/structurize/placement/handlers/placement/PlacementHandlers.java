@@ -29,9 +29,7 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG;
 
@@ -756,7 +754,7 @@ public final class PlacementHandlers
             {
                 itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             }
-            itemList.add(new ItemStack(((FlowerPotBlock) blockState.getBlock()).getPotted()));
+            itemList.add(new ItemStack(((FlowerPotBlock) blockState.getBlock()).getContent()));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
         }
@@ -771,7 +769,7 @@ public final class PlacementHandlers
             return worldState.equals(blueprintState)
                 && blueprintState.getBlock() instanceof FlowerPotBlock blueprintPot
                 && worldState.getBlock() instanceof FlowerPotBlock worldPot
-                && blueprintPot.getPotted() == worldPot.getPotted();
+                && blueprintPot.getContent() == worldPot.getContent();
         }
     }
 
@@ -1093,7 +1091,8 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final IPlacementContext placementContext)
         {
-            {
+            final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
+            itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
             itemList.removeIf(ItemStackUtils::isEmpty);
             return itemList;
         }

@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.placement;
 
-import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -22,16 +22,16 @@ public class SimplePlacementContext implements IPlacementContext
     /**
      * Rotation mirror.
      */
-    private final RotationMirror rotationMirror;
+    private final PlacementSettings rotationMirror;
 
-    public SimplePlacementContext(final boolean fancyPlacement, final RotationMirror rotationMirror)
+    public SimplePlacementContext(final boolean fancyPlacement, final PlacementSettings rotationMirror)
     {
         this.fancyPlacement = fancyPlacement;
         this.rotationMirror = rotationMirror;
     }
 
     @Override
-    public RotationMirror getRotationMirror()
+    public PlacementSettings getRotationMirror()
     {
         return rotationMirror;
     }

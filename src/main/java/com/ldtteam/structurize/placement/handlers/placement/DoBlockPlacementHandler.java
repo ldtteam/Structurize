@@ -7,9 +7,9 @@ import com.ldtteam.domumornamentum.entity.block.MateriallyTexturedBlockEntity;
 import com.ldtteam.domumornamentum.util.BlockUtils;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.placement.IPlacementContext;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.InventoryUtils;
-import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -128,9 +128,9 @@ public class DoBlockPlacementHandler implements IPlacementHandler
     {
         if (blockEntityData != null)
         {
-            if (blockEntityData.getA() instanceof final MateriallyTexturedBlockEntity mtbe && blockEntityData.getB().contains(BLOCK_ENTITY_TEXTURE_DATA))
+            if (blockEntityData.getA() instanceof final MateriallyTexturedBlockEntity mtbe && blockEntityData.getB().contains("textureData"))
             {
-                return mtbe.getTextureData().equals(MaterialTextureData.CODEC.decode(NbtOps.INSTANCE, blockEntityData.getB().get(BLOCK_ENTITY_TEXTURE_DATA)).getOrThrow().getFirst());
+                return mtbe.getTextureData().equals(MaterialTextureData.deserializeFromNBT(blockEntityData.getB().getCompound("textureData")));
             }
         }
         return false;

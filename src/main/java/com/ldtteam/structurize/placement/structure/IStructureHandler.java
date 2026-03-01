@@ -3,6 +3,7 @@ package com.ldtteam.structurize.placement.structure;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.placement.IPlacementContext;
 import com.ldtteam.structurize.util.InventoryUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.world.level.block.state.BlockState;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * A handler for structures.
@@ -58,12 +60,6 @@ public interface IStructureHandler extends IPlacementContext
      * @return the world.
      */
     Level getWorld();
-
-    /**
-     * Get the world position this is placed at.
-     * @return the position.
-     */
-    BlockPos getWorldPos();
 
     /**
      * Getter for the placement settings.
