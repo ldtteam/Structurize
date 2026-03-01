@@ -3,6 +3,7 @@ package com.ldtteam.structurize.placement.structure;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.placement.IPlacementContext;
 import com.ldtteam.structurize.util.InventoryUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,7 +19,7 @@ import java.util.function.Function;
  * A handler for structures.
  * Handlers hold necessary and specific information about the entity/block/etc that is executing the placement.
  */
-public interface IStructureHandler
+public interface IStructureHandler extends IPlacementContext
 {
     /**
      * Set the blueprint.
@@ -55,22 +56,10 @@ public interface IStructureHandler
     }
 
     /**
-     * Get the bluerint from the handler.
-     * @return the blueprint
-     */
-    Blueprint getBluePrint();
-
-    /**
      * Get the world from the handler.
      * @return the world.
      */
     Level getWorld();
-
-    /**
-     * Get the world position this is placed at.
-     * @return the position.
-     */
-    BlockPos getWorldPos();
 
     /**
      * Getter for the placement settings.
@@ -152,17 +141,12 @@ public interface IStructureHandler
     boolean replaceWithSolidBlock(BlockState blockState);
 
     /**
-     * If this is supposed to be fancy placement (player facing) or builder facing (complete).
-     * @return true if fancy placement.
-     */
-    boolean fancyPlacement();
-
-    /**
      * Special equal condition check.
      * @param state the first state.
      * @param state1 the second state.
      * @return true if considered equal and block should be skipped.
      */
+    @Deprecated
     boolean shouldBlocksBeConsideredEqual(BlockState state, BlockState state1);
 
     /**
@@ -197,7 +181,7 @@ public interface IStructureHandler
      */
     default BlockPos getProgressPosInWorld(final BlockPos localPos)
     {
-        return getWorldPos().subtract(getBluePrint().getPrimaryBlockOffset()).offset(localPos);
+        return getCenterPos().subtract(getBluePrint().getPrimaryBlockOffset()).offset(localPos);
     }
 
     /**
@@ -207,7 +191,7 @@ public interface IStructureHandler
      */
     default BlockPos getStructurePosFromWorld(final BlockPos worldPos)
     {
-        return getBluePrint().getPrimaryBlockOffset().offset(worldPos.subtract(getWorldPos()));
+        return getBluePrint().getPrimaryBlockOffset().offset(worldPos.subtract(getCenterPos()));
     }
 
     /**

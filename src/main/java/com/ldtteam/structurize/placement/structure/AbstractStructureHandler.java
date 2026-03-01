@@ -144,13 +144,19 @@ public abstract class AbstractStructureHandler implements IStructureHandler
     }
 
     @Override
-    public BlockPos getWorldPos()
+    public BlockPos getCenterPos()
     {
-        return this.worldPos;
+        return worldPos;
     }
 
     @Override
     public PlacementSettings getSettings()
+    {
+        return this.settings;
+    }
+
+    @Override
+    public PlacementSettings getRotationMirror()
     {
         return this.settings;
     }

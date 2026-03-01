@@ -12,10 +12,12 @@ import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE
 import com.ldtteam.structurize.client.gui.util.InputFilters;
 import com.ldtteam.structurize.client.gui.util.ItemPositionsStorage;
 import com.ldtteam.structurize.network.messages.*;
+import com.ldtteam.structurize.placement.SimplePlacementContext;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
+import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.ScanToolData;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -514,7 +516,7 @@ public class WindowScan extends AbstractWindowSkeleton
                     else
                     {
                         final IPlacementHandler handler = PlacementHandlers.getHandler(world, BlockPos.ZERO, blockState);
-                        final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+                        final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), new SimplePlacementContext(false, new PlacementSettings()));
                         for (final ItemStack stack : itemList)
                         {
                             addNeededResource(stack, visible, here);

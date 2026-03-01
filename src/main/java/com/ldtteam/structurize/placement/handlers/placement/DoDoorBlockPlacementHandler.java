@@ -1,0 +1,130 @@
+package com.ldtteam.structurize.placement.handlers.placement;
+
+import com.ldtteam.domumornamentum.block.AbstractBlockDoor;
+import com.ldtteam.domumornamentum.block.IMateriallyTexturedBlock;
+import com.ldtteam.domumornamentum.util.BlockUtils;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.placement.IPlacementContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.Property;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG;
+import static com.ldtteam.structurize.placement.handlers.placement.DoBlockPlacementHandler.compareBEData;
+import static com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers.handleTileEntityPlacement;
+
+public class DoDoorBlockPlacementHandler implements IPlacementHandler
+{
+    @Override
+    public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+    {
+        return blockState.getBlock() instanceof IMateriallyTexturedBlock && blockState.getBlock() instanceof AbstractBlockDoor<?>;
+    }
+
+    @Override
+    public ActionProcessingResult handle(
+        @NotNull final Level world,
+        @NotNull final BlockPos pos,
+        @NotNull final BlockState blockState,
+        @Nullable final CompoundTag tileEntityData,
+        @NotNull final IPlacementContext placementContext)
+    {
+        if (blockState.getValue(net.minecraft.world.level.block.DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
+        {
+            if (world.getBlockState(pos).equals(blockState))
+            {
+                world.removeBlock(pos, false);
+                world.removeBlock(pos.above(), false);
+            }
+
+            world.setBlock(pos, blockState.setValue(net.minecraft.world.level.block.DoorBlock.HALF, DoubleBlockHalf.LOWER), UPDATE_FLAG);
+            world.setBlock(pos.above(), blockState.setValue(net.minecraft.world.level.block.DoorBlock.HALF, DoubleBlockHalf.UPPER), UPDATE_FLAG);
+
+            if (tileEntityData != null)
+            {
+                try
+                {
+                    handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
+                    handleTileEntityPlacement(tileEntityData, world, pos.above(), placementContext.getRotationMirror());
+                }
+                catch (final Exception ex)
+                {
+                    Log.getLogger().warn("Unable to place TileEntity");
+                }
+            }
+        }
+        return ActionProcessingResult.SUCCESS;
+    }
+
+    @Override
+    public List<ItemStack> getRequiredItems(
+        @NotNull final Level world,
+        @NotNull final BlockPos pos,
+        @NotNull final BlockState blockState,
+        @Nullable final CompoundTag tileEntityData,
+        @NotNull final IPlacementContext placementContext)
+    {
+        final List<ItemStack> itemList = new ArrayList<>();
+        if (tileEntityData != null && blockState.getValue(net.minecraft.world.level.block.DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
+        {
+            BlockPos blockpos = new BlockPos(tileEntityData.getInt("x"), tileEntityData.getInt("y"), tileEntityData.getInt("z"));
+            final BlockEntity tileEntity = BlockEntity.loadStatic(blockpos, blockState, tileEntityData);
+            if (tileEntity == null)
+            {
+                return Collections.emptyList();
+            }
+
+            itemList.add(BlockUtils.getMaterializedItemStack(null, tileEntity));
+        }
+        itemList.removeIf(ItemStackUtils::isEmpty);
+        return itemList;
+    }
+
+    @Override
+    public boolean doesWorldStateMatchBlueprintState(
+        final BlockState worldState,
+        final BlockState blueprintState,
+        final Tuple<BlockEntity, CompoundTag> blockEntityData,
+        final @NotNull IPlacementContext structureHandler)
+    {
+        if (worldState.getBlock() == blueprintState.getBlock())
+        {
+            if (structureHandler.fancyPlacement())
+            {
+                for (Property<?> property : worldState.getProperties())
+                {
+                    // Compare properties, but if just open or powered don't match, ignore.
+                    if (!blueprintState.hasProperty(property) ||
+                        (blueprintState.getValue(property) != worldState.getValue(property)
+                            && property != net.minecraft.world.level.block.DoorBlock.OPEN)
+                            && property != net.minecraft.world.level.block.DoorBlock.POWERED)
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                if (!worldState.equals(blueprintState))
+                {
+                    return false;
+                }
+            }
+        }
+        return compareBEData(blockEntityData);
+    }
+}
+
