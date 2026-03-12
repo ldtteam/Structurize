@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.component;
 
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.mojang.serialization.Codec;
@@ -75,9 +76,10 @@ public record CapturedBlock(BlockState blockState, Optional<CompoundTag> seriali
             return new CapturedBlock(rotatedState, serializedBE, itemStack);
         }
 
-        // If the rotated state cannot host a BE, drop any BE tag (prevents renderer/loader issues).
+        // If the rotated state does not host a BE, drop any BE tag (prevents renderer/loader issues).
         if (!rotatedState.hasBlockEntity())
         {
+             Log.getLogger().warn("Block {} is not empty, but has no block entity.", rotatedState);
             return new CapturedBlock(rotatedState, Optional.empty(), itemStack);
         }
 
