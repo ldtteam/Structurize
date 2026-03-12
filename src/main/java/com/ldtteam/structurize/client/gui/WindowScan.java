@@ -6,11 +6,13 @@ import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.api.ItemStorage;
+import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.client.gui.util.InputFilters;
 import com.ldtteam.structurize.client.gui.util.ItemPositionsStorage;
 import com.ldtteam.structurize.network.messages.*;
+import com.ldtteam.structurize.placement.SimplePlacementContext;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -33,7 +35,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.Shapes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -490,8 +491,9 @@ public class WindowScan extends AbstractWindowSkeleton
                     for (final Direction dir : Direction.values())
                     {
                         BlockPos offsetPos = here.relative(dir);
-                        if (!boundingBox.isInside(offsetPos)
-                            || world.getBlockState(offsetPos).canOcclude() && world.getBlockState(offsetPos).getShape(world, offsetPos) != Shapes.block())
+                        if (!(offsetPos.getX() >= minX && offsetPos.getX() <= maxX && offsetPos.getY() >= minY && offsetPos.getY() <= maxY && offsetPos.getZ() >= minZ
+                            && offsetPos.getZ() <= maxZ)
+                            || !world.getBlockState(offsetPos).canOcclude())
                         {
                             visible = true;
                             break;
@@ -507,7 +509,8 @@ public class WindowScan extends AbstractWindowSkeleton
                     {
                         final IPlacementHandler handler = PlacementHandlers.getHandler(world, BlockPos.ZERO, blockState);
                         final List<ItemStack> itemList =
-                            handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(world.registryAccess()), true);
+                            handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(world.registryAccess()),
+                                new SimplePlacementContext(false, RotationMirror.NONE));
                         for (final ItemStack stack : itemList)
                         {
                             addNeededResource(stack, visible, here);

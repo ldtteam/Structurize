@@ -217,6 +217,7 @@ public class WindowSelectRes extends AbstractWindowSkeleton
     @Override
     public void onOpened()
     {
+        Pane.setFocus(this.findPaneOfTypeByID(INPUT_RESOURCES, TextField.class));
         this.updateResources();
     }
 
