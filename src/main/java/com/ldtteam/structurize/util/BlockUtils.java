@@ -5,6 +5,7 @@ import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.placement.SimplePlacementContext;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.tag.ModTags;
@@ -538,7 +539,7 @@ public final class BlockUtils
         {
             final IPlacementHandler handler = PlacementHandlers.getHandler(world, BlockPos.ZERO, blockState);
             final List<ItemStack> itemList =
-              handler.getRequiredItems(world, position, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+              handler.getRequiredItems(world, position, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), new SimplePlacementContext(false, new PlacementSettings()));
             if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), block))
             {
                 isMatch = true;
@@ -739,7 +740,7 @@ public final class BlockUtils
     {
         private OurWorldGenRegion(ServerLevel p_143484_, List<ChunkAccess> p_143485_)
         {
-            super(p_143484_, p_143485_, null, -1);
+            super(p_143484_, p_143485_, ChunkStatus.SURFACE, -1);
         }
 
         @Override

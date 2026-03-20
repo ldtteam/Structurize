@@ -6,6 +6,7 @@ import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.network.messages.UpdateClientRender;
 import com.ldtteam.structurize.operations.ITickedWorldOperation;
 import com.ldtteam.structurize.placement.BlockPlacementResult;
+import com.ldtteam.structurize.placement.SimplePlacementContext;
 import com.ldtteam.structurize.placement.StructurePhasePlacementResult;
 import com.ldtteam.structurize.placement.StructurePlacer;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
@@ -312,7 +313,7 @@ public class TickedWorldOperation implements ITickedWorldOperation
                     {
                         final IPlacementHandler handler = PlacementHandlers.getHandler(world, BlockPos.ZERO, blockState);
                         final List<ItemStack> itemList =
-                          handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+                          handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), new SimplePlacementContext(this.placer.getHandler().fancyPlacement(), this.placer.getHandler().getRotationMirror()));
                         if (!itemList.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(itemList.get(0), firstBlock))
                         {
                             isMatch = true;

@@ -15,6 +15,7 @@ import com.ldtteam.structurize.client.rendertask.RenderTaskManager;
 import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewData;
 import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewRenderTask;
 import com.ldtteam.structurize.network.messages.*;
+import com.ldtteam.structurize.placement.SimplePlacementContext;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.util.ScanToolData;
@@ -506,7 +507,7 @@ public class WindowScan extends AbstractWindowSkeleton
                     else
                     {
                         final IPlacementHandler handler = PlacementHandlers.getHandler(world, BlockPos.ZERO, blockState);
-                        final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), true);
+                        final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(), new SimplePlacementContext(false, new PlacementSettings()));
                         for (final ItemStack stack : itemList)
                         {
                             addNeededResource(stack, visible, here);
