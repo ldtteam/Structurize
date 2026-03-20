@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.commands;
 
 import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewData;
 import com.ldtteam.structurize.items.ItemScanTool;
-import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.ScanToolData;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.StringReader;
@@ -11,12 +11,12 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

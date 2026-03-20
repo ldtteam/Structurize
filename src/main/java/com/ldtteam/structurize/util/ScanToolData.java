@@ -1,6 +1,6 @@
 package com.ldtteam.structurize.util;
 
-import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
+import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;

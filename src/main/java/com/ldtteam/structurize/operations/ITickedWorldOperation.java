@@ -1,5 +1,6 @@
-package com.ldtteam.structurize.util;
+package com.ldtteam.structurize.operations;
 
+import com.ldtteam.structurize.util.ChangeStorage;
 import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.NotNull;
 

@@ -13,6 +13,9 @@ import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.client.BlueprintRenderer.TransparencyHack;
 import com.ldtteam.structurize.client.ModKeyMappings;
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
+import com.ldtteam.structurize.client.rendercontext.WorldEventRenderContext;
+import com.ldtteam.structurize.client.rendertask.RenderTaskManager;
+import com.ldtteam.structurize.client.rendertask.util.WorldRenderMacros;
 import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
@@ -20,8 +23,6 @@ import com.ldtteam.structurize.network.messages.ItemMiddleMouseMessage;
 import com.ldtteam.structurize.network.messages.ScanToolTeleportMessage;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
-import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
-import com.ldtteam.structurize.util.WorldRenderMacros;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -44,7 +45,6 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -69,6 +69,7 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public static void renderWorldLastEvent(final RenderLevelStageEvent event)
     {
+        WorldEventRenderContext.INSTANCE.renderWorldLastEvent(event);
         final double alpha = Structurize.getConfig().getClient().rendererTransparency.get();
         boolean isAlphaApplied = alpha > 0 && alpha < TransparencyHack.THRESHOLD;
 
@@ -100,7 +101,6 @@ public class ClientEventSubscriber
 
         if (event.getStage() == Stage.AFTER_BLOCK_ENTITIES)
         {
-            renderBoxes(mc, matrixStack, bufferSource, viewPosition);
             renderTagTool(mc, matrixStack, bufferSource, viewPosition);
         }
 
@@ -144,31 +144,6 @@ public class ClientEventSubscriber
 
                 mc.getProfiler().pop();
             }
-        }
-    }
-
-    private static void renderBoxes(final Minecraft mc,
-        final PoseStack matrixStack,
-        final MultiBufferSource.BufferSource bufferSource,
-        final Vec3 viewPosition)
-    {
-        for (final BoxPreviewData previewData : RenderingCache.getBoxesToRender())
-        {
-            mc.getProfiler().push("struct_box");
-
-            final BlockPos root = previewData.getPos1();
-            final Vec3 realRenderRootVecd = Vec3.atLowerCornerOf(root).subtract(viewPosition);
-
-            matrixStack.pushPose();
-            matrixStack.translate(realRenderRootVecd.x(), realRenderRootVecd.y(), realRenderRootVecd.z());
-
-            // Used to render a red box around a scan's Primary offset (primary block)
-            WorldRenderMacros.renderWhiteLineBox(bufferSource, matrixStack, BlockPos.ZERO, previewData.getPos2().subtract(root), 0.025f);
-            previewData.getAnchor().map(pos -> pos.subtract(root)).ifPresent(pos -> WorldRenderMacros.renderRedGlintLineBox(bufferSource, matrixStack, pos, pos, 0.025f));
-
-            matrixStack.popPose();
-
-            mc.getProfiler().pop();
         }
     }
 
@@ -250,6 +225,8 @@ public class ClientEventSubscriber
     {
         if (event.phase != Phase.START) return;
 
+        RenderTaskManager.onClientTick();
+
         final Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.screen != null || mc.level == null) return;
 
@@ -280,15 +257,6 @@ public class ClientEventSubscriber
             else
             {
                 ++mc.options.keyPickItem.clickCount;
-            }
-        }
-
-        for (Iterator<Map.Entry<String, BoxPreviewData>> iterator = RenderingCache.boxRenderingCache.entrySet().iterator(); iterator.hasNext(); )
-        {
-            final var entry = iterator.next();
-            if (entry.getValue().isExpired())
-            {
-                iterator.remove();
             }
         }
     }

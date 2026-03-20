@@ -1,7 +1,6 @@
 package com.ldtteam.structurize.operations;
 
 import com.ldtteam.structurize.util.ChangeStorage;
-import com.ldtteam.structurize.util.ITickedWorldOperation;
 import org.jetbrains.annotations.NotNull;
 
 /**

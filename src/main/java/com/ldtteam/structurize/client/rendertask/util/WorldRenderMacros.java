@@ -1,30 +1,27 @@
-package com.ldtteam.structurize.util;
+package com.ldtteam.structurize.client.rendertask.util;
 
 import com.ldtteam.blockui.UiRenderMacros;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
-import net.minecraft.client.renderer.RenderStateShard.DepthTestStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
-import java.util.LinkedList;
-import java.util.List;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.phys.AABB;
+import org.joml.Matrix4f;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class WorldRenderMacros extends UiRenderMacros
 {
@@ -976,7 +973,7 @@ public class WorldRenderMacros extends UiRenderMacros
             matrixStack.mulPose(erm.cameraOrientation());
             matrixStack.scale(-0.014f, -0.014f, 0.014f);
 
-            final float backgroundTextOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
+            final float backgroundTextOpacity = 0f;
             final int alphaMask = (int) (backgroundTextOpacity * 255.0F) << 24;
 
             final Matrix4f rawPosMatrix = matrixStack.last().pose();
@@ -1008,153 +1005,95 @@ public class WorldRenderMacros extends UiRenderMacros
         }
     }
 
-    private static final class RenderTypes extends RenderType
+    /**
+     * Render a wireframe box.
+     *
+     * @param poseStack         pose stack
+     * @param bufferSource      buffer source
+     * @param bounds            bounding box to draw
+     * @param width             line width
+     * @param color             line color (ARGB)
+     * @param showThroughBlocks true to render through existing blocks, false to only render in air
+     */
+    public static void renderLineBox(
+        final PoseStack poseStack, final MultiBufferSource.BufferSource bufferSource,
+        final AABB bounds, final float width, final int color, final boolean showThroughBlocks)
     {
-        private RenderTypes(final String nameIn,
-            final VertexFormat formatIn,
-            final VertexFormat.Mode drawModeIn,
-            final int bufferSizeIn,
-            final boolean useDelegateIn,
-            final boolean needsSortingIn,
-            final Runnable setupTaskIn,
-            final Runnable clearTaskIn)
+        final float halfLine = width / 2.0f;
+        final float minX = (float) (bounds.minX - halfLine);
+        final float minY = (float) (bounds.minY - halfLine);
+        final float minZ = (float) (bounds.minZ - halfLine);
+        final float minX2 = minX + width;
+        final float minY2 = minY + width;
+        final float minZ2 = minZ + width;
+
+        final float maxX = (float) (bounds.maxX + halfLine);
+        final float maxY = (float) (bounds.maxY + halfLine);
+        final float maxZ = (float) (bounds.maxZ + halfLine);
+        final float maxX2 = maxX - width;
+        final float maxY2 = maxY - width;
+        final float maxZ2 = maxZ - width;
+
+        final int red = FastColor.ARGB32.red(color);
+        final int green = FastColor.ARGB32.green(color);
+        final int blue = FastColor.ARGB32.blue(color);
+        final int alpha = FastColor.ARGB32.alpha(color);
+
+        if (showThroughBlocks)
         {
-            super(nameIn, formatIn, drawModeIn, bufferSizeIn, useDelegateIn, needsSortingIn, setupTaskIn, clearTaskIn);
-            throw new IllegalStateException();
+            renderLineBox(poseStack, bufferSource.getBuffer(RenderTypes.LINES_INSIDE_BLOCKS),
+                minX, minY, minZ, minX2, minY2, minZ2, maxX, maxY, maxZ, maxX2, maxY2, maxZ2,
+                red / 2, green / 2, blue / 2, alpha / 2);
         }
 
-        private static final RenderType GLINT_LINES = create("structurize_glint_lines",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.DEBUG_LINES,
-            1 << 12,
-            false,
-            false,
-            RenderType.CompositeState.builder()
-                .setTextureState(NO_TEXTURE)
-                .setShaderState(POSITION_COLOR_SHADER)
-                .setTransparencyState(GLINT_TRANSPARENCY)
-                .setDepthTestState(NO_DEPTH_TEST)
-                .setCullState(NO_CULL)
-                .setLightmapState(NO_LIGHTMAP)
-                .setOverlayState(NO_OVERLAY)
-                .setLayeringState(NO_LAYERING)
-                .setOutputState(MAIN_TARGET)
-                .setTexturingState(DEFAULT_TEXTURING)
-                .setWriteMaskState(COLOR_WRITE)
-                .createCompositeState(false));
-
-        private static final RenderType GLINT_LINES_WITH_WIDTH = create("structurize_glint_lines_with_width",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.TRIANGLES,
-            1 << 13,
-            false,
-            false,
-            RenderType.CompositeState.builder()
-                .setTextureState(NO_TEXTURE)
-                .setShaderState(POSITION_COLOR_SHADER)
-                .setTransparencyState(GLINT_TRANSPARENCY)
-                .setDepthTestState(AlwaysDepthTestStateShard.ALWAYS_DEPTH_TEST)
-                .setCullState(CULL)
-                .setLightmapState(NO_LIGHTMAP)
-                .setOverlayState(NO_OVERLAY)
-                .setLayeringState(NO_LAYERING)
-                .setOutputState(MAIN_TARGET)
-                .setTexturingState(DEFAULT_TEXTURING)
-                .setWriteMaskState(COLOR_DEPTH_WRITE)
-                .createCompositeState(false));
-
-        private static final RenderType LINES = create("structurize_lines",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.DEBUG_LINES,
-            1 << 14,
-            false,
-            false,
-            RenderType.CompositeState.builder()
-                .setTextureState(NO_TEXTURE)
-                .setShaderState(POSITION_COLOR_SHADER)
-                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setDepthTestState(LEQUAL_DEPTH_TEST)
-                .setCullState(NO_CULL)
-                .setLightmapState(NO_LIGHTMAP)
-                .setOverlayState(NO_OVERLAY)
-                .setLayeringState(NO_LAYERING)
-                .setOutputState(MAIN_TARGET)
-                .setTexturingState(DEFAULT_TEXTURING)
-                .setWriteMaskState(COLOR_WRITE)
-                .createCompositeState(false));
-
-        private static final RenderType LINES_WITH_WIDTH = create("structurize_lines_with_width",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.TRIANGLES,
-            1 << 13,
-            false,
-            false,
-            RenderType.CompositeState.builder()
-                .setTextureState(NO_TEXTURE)
-                .setShaderState(POSITION_COLOR_SHADER)
-                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setDepthTestState(LEQUAL_DEPTH_TEST)
-                .setCullState(CULL)
-                .setLightmapState(NO_LIGHTMAP)
-                .setOverlayState(NO_OVERLAY)
-                .setLayeringState(NO_LAYERING)
-                .setOutputState(MAIN_TARGET)
-                .setTexturingState(DEFAULT_TEXTURING)
-                .setWriteMaskState(COLOR_DEPTH_WRITE)
-                .createCompositeState(false));
-
-        private static final RenderType COLORED_TRIANGLES = create("structurize_colored_triangles",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.TRIANGLES,
-            1 << 13,
-            false,
-            false,
-            RenderType.CompositeState.builder()
-                .setTextureState(NO_TEXTURE)
-                .setShaderState(POSITION_COLOR_SHADER)
-                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setDepthTestState(LEQUAL_DEPTH_TEST)
-                .setCullState(CULL)
-                .setLightmapState(NO_LIGHTMAP)
-                .setOverlayState(NO_OVERLAY)
-                .setLayeringState(NO_LAYERING)
-                .setOutputState(MAIN_TARGET)
-                .setTexturingState(DEFAULT_TEXTURING)
-                .setWriteMaskState(COLOR_DEPTH_WRITE)
-                .createCompositeState(false));
-
-        private static final RenderType COLORED_TRIANGLES_NC_ND = create("structurize_colored_triangles_nc_nd",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.TRIANGLES,
-            1 << 12,
-            false,
-            false,
-            RenderType.CompositeState.builder()
-                .setTextureState(NO_TEXTURE)
-                .setShaderState(POSITION_COLOR_SHADER)
-                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setDepthTestState(NO_DEPTH_TEST)
-                .setCullState(NO_CULL)
-                .setLightmapState(NO_LIGHTMAP)
-                .setOverlayState(NO_OVERLAY)
-                .setLayeringState(NO_LAYERING)
-                .setOutputState(MAIN_TARGET)
-                .setTexturingState(DEFAULT_TEXTURING)
-                .setWriteMaskState(COLOR_WRITE)
-                .createCompositeState(false));
+        renderLineBox(poseStack, bufferSource.getBuffer(RenderTypes.LINES_OUTSIDE_BLOCKS),
+            minX, minY, minZ, minX2, minY2, minZ2, maxX, maxY, maxZ, maxX2, maxY2, maxZ2,
+            red, green, blue, alpha);
     }
-    
-    public static class AlwaysDepthTestStateShard extends DepthTestStateShard
-    {
-        public static final DepthTestStateShard ALWAYS_DEPTH_TEST = new AlwaysDepthTestStateShard();
 
-        private AlwaysDepthTestStateShard()
-        {
-            super("true_always", -1);
-            setupState = () -> {
-                RenderSystem.enableDepthTest();
-                RenderSystem.depthFunc(GL11.GL_ALWAYS);
-            };
-        }
+    /**
+     * Call after a series of {@link #renderLineBox(PoseStack, MultiBufferSource.BufferSource, AABB, float, int, boolean)}
+     *
+     * @param bufferSource buffer source
+     */
+    public static void endRenderLineBox(final MultiBufferSource.BufferSource bufferSource)
+    {
+        bufferSource.endBatch(RenderTypes.LINES_INSIDE_BLOCKS);
+        bufferSource.endBatch(RenderTypes.LINES_OUTSIDE_BLOCKS);
+    }
+
+    /**
+     * Render a wireframe box.
+     *
+     * @param poseStack pose stack
+     * @param buffer    buffer
+     * @param minX      min X
+     * @param minY      min Y
+     * @param minZ      min Z
+     * @param minX2     min X + width
+     * @param minY2     min Y + width
+     * @param minZ2     min Z + width
+     * @param maxX      max X
+     * @param maxY      max Y
+     * @param maxZ      max Z
+     * @param maxX2     max X - width
+     * @param maxY2     max Y - width
+     * @param maxZ2     max Z - width
+     * @param red       red
+     * @param green     green
+     * @param blue      blue
+     * @param alpha     alpha
+     */
+    private static void renderLineBox(
+        final PoseStack poseStack, final VertexConsumer buffer,
+        final float minX, final float minY, final float minZ,
+        final float minX2, final float minY2, final float minZ2,
+        final float maxX, final float maxY, final float maxZ,
+        final float maxX2, final float maxY2, final float maxZ2,
+        final int red, final int green, final int blue, final int alpha)
+    {
+        buffer.defaultColor(red, green, blue, alpha);
+        WorldRenderMacros.populateRenderLineBox(minX, minY, minZ, minX2, minY2, minZ2, maxX, maxY, maxZ, maxX2, maxY2, maxZ2, poseStack.last().pose(), buffer);
+        buffer.unsetDefaultColor();
     }
 }

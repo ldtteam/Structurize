@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewData;
 import com.ldtteam.structurize.items.ItemScanTool;
-import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.ScanToolData;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
