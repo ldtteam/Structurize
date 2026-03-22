@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.component;
 
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.mojang.serialization.Codec;
@@ -67,21 +68,40 @@ public record CapturedBlock(BlockState blockState, Optional<CompoundTag> seriali
      */
     public CapturedBlock applyRotationMirror(final RotationMirror rotationMirror, final Level level)
     {
+        final BlockState rotatedState = rotationMirror.applyToBlockState(blockState);
+
+        // No BE data: just rotate the state.
         if (serializedBE.isEmpty())
         {
-            return new CapturedBlock(rotationMirror.applyToBlockState(blockState), serializedBE, itemStack);
+            return new CapturedBlock(rotatedState, serializedBE, itemStack);
         }
 
+        // If the rotated state does not host a BE, drop any BE tag (prevents renderer/loader issues).
+        if (!rotatedState.hasBlockEntity())
+        {
+             Log.getLogger().warn("Block {} is not empty, but has no block entity.", rotatedState);
+            return new CapturedBlock(rotatedState, Optional.empty(), itemStack);
+        }
+
+        // Rotate/migrate the BE tag using the Blueprint rotation logic
         final Blueprint blueprint = new Blueprint((short) 1, (short) 1, (short) 1, level.registryAccess());
-        blueprint.addBlockState(BlockPos.ZERO, blockState);
+        blueprint.addBlockState(BlockPos.ZERO, rotatedState);
         blueprint.getTileEntities()[0][0][0] = serializedBE.get();
         blueprint.setCachePrimaryOffset(BlockPos.ZERO);
         blueprint.setRotationMirrorRelative(rotationMirror, level);
 
-        return new CapturedBlock(blueprint.getPalette()[blueprint.getPalleteSize()],
-            Optional.of(blueprint.getTileEntities()[0][0][0]),
-            itemStack);
+        final CompoundTag rotatedTag = blueprint.getTileEntities()[0][0][0];
+        Optional<CompoundTag> beTag = Optional.ofNullable(rotatedTag);
+
+        // Drop invalid/empty BE tags.
+        if (beTag.isEmpty() || beTag.get().isEmpty() || !beTag.get().contains("id"))
+        {
+            beTag = Optional.empty();
+        }
+
+        return new CapturedBlock(rotatedState, beTag, itemStack);
     }
+
 
     public boolean hasBlockEntity()
     {
