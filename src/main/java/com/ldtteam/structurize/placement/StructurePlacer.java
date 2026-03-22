@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
@@ -291,8 +292,8 @@ public class StructurePlacer
         if (!(worldState.getBlock() instanceof AirBlock))
         {
             if (!sameBlockInWorld
-                  && !worldState.isAir()
-                  && !(worldState.getBlock() instanceof DoublePlantBlock && worldState.getValue(DoublePlantBlock.HALF).equals(DoubleBlockHalf.UPPER)))
+                    && !worldState.isAir()
+                    && (!localState.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF) || localState.getValue(DoublePlantBlock.HALF).equals(DoubleBlockHalf.LOWER)))
             {
                 removalHandler.handleRemoval(handler, world, worldPos, tileEntityData);
             }

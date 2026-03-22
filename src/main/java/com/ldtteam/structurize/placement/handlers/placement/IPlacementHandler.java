@@ -47,10 +47,6 @@ public interface IPlacementHandler
             blockEntityData = new Tuple<>(blockEntity, blockInfo.getTileEntityData());
         }
 
-        //todo domum blocks on minecol side
-        //todo minecolonies racks on minecol side
-        //todo minecolonies allow conversion of dirt like to dirt
-
         return placementHandler.doesWorldStateMatchBlueprintState(structureHandler.getWorld().getBlockState(worldPos), blockInfo.getState(), blockEntityData, structureHandler);
     }
 
