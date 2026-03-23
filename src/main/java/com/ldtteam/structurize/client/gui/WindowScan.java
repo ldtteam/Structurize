@@ -11,12 +11,13 @@ import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.client.gui.util.InputFilters;
 import com.ldtteam.structurize.client.gui.util.ItemPositionsStorage;
+import com.ldtteam.structurize.client.rendertask.RenderTaskManager;
+import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewData;
+import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewRenderTask;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.placement.SimplePlacementContext;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
-import com.ldtteam.structurize.storage.rendering.RenderingCache;
-import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.ScanToolData;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -313,7 +314,7 @@ public class WindowScan extends AbstractWindowSkeleton
     @Override
     public void onClosed()
     {
-        if (RenderingCache.getBoxPreviewData("scan") != null)   // not confirmed/cancelled
+        if (RenderTaskManager.getTasksByGroup("scan") != null)   // not confirmed/cancelled
         {
             updateBounds();
         }
@@ -341,16 +342,8 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private void discardClicked()
     {
-        RenderingCache.removeBox("scan");
-
-        for (Iterator<Map.Entry<String, BoxPreviewData>> iterator = RenderingCache.boxRenderingCache.entrySet().iterator(); iterator.hasNext(); )
-        {
-            final var entry = iterator.next();
-            if (entry.getKey().contains("clickedResource"))
-            {
-                iterator.remove();
-            }
-        }
+        RenderTaskManager.removeTaskGroup("scan");
+        RenderTaskManager.removeTaskGroup("clickedResource");
         close();
     }
 
@@ -363,7 +356,7 @@ public class WindowScan extends AbstractWindowSkeleton
 
         final ScanToolData.Slot slot = data.getCurrentSlotData();
         Network.getNetwork().sendToServer(new ScanOnServerMessage(slot, true));
-        RenderingCache.removeBox("scan");
+        RenderTaskManager.removeTaskGroup("scan");
         close();
     }
 
@@ -395,7 +388,7 @@ public class WindowScan extends AbstractWindowSkeleton
         pos2y.setText(String.valueOf(slot.getBox().getPos2().getY()));
         pos2z.setText(String.valueOf(slot.getBox().getPos2().getZ()));
 
-        RenderingCache.queue("scan", slot.getBox());
+        RenderTaskManager.addRenderTask("scan", new BoxPreviewRenderTask("scan", slot.getBox(), 60 * 10));
 
         findPaneOfTypeByID(NAME_LABEL, TextField.class).setText("");
         if (!slot.getName().isEmpty())
@@ -438,8 +431,7 @@ public class WindowScan extends AbstractWindowSkeleton
         final String name = findPaneOfTypeByID(NAME_LABEL, TextField.class).getText();
         final ScanToolData.Slot slot = data.getCurrentSlotData();
         data.setCurrentSlotData(new ScanToolData.Slot(name, new BoxPreviewData(pos1, pos2, slot.getBox().getAnchor())));
-
-        RenderingCache.queue("scan", slot.getBox());
+        RenderTaskManager.addRenderTask("scan", new BoxPreviewRenderTask("scan", data.getCurrentSlotData().getBox(), 60 * 10));
         Network.getNetwork().sendToServer(new UpdateScanToolMessage(data));
     }
 
@@ -686,9 +678,9 @@ public class WindowScan extends AbstractWindowSkeleton
                 final ItemPositionsStorage itemPositionsStorage = allResources.get(block);
                 for (final BlockPos position : itemPositionsStorage.positions)
                 {
-                    BoxPreviewData previewData = new BoxPreviewData(position, position, Optional.empty());
-                    previewData.setExpireTime(30);
-                    RenderingCache.queue("clickedResource" + position.toShortString(), previewData);
+                    BoxPreviewRenderTask previewData =
+                        new BoxPreviewRenderTask("clickedResource" + position.toShortString(), new BoxPreviewData(position, position, Optional.empty()), 30);
+                    RenderTaskManager.addRenderTask("clickedResource", previewData);
                 }
                 window.close();
             }

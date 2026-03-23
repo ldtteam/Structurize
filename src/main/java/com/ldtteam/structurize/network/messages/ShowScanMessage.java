@@ -1,7 +1,8 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.storage.rendering.RenderingCache;
-import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
+import com.ldtteam.structurize.client.rendertask.RenderTaskManager;
+import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewData;
+import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewRenderTask;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.LogicalSide;
@@ -66,6 +67,6 @@ public class ShowScanMessage implements IMessage
     @Override
     public void onExecute(@NotNull final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
     {
-        RenderingCache.queue("scan", this.box);
+        RenderTaskManager.addRenderTask("scan", new BoxPreviewRenderTask("scan", this.box, 60 * 10));
     }
 }

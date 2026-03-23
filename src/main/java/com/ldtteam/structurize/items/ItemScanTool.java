@@ -3,18 +3,19 @@ package com.ldtteam.structurize.items;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.util.IScrollableItem;
+import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.client.gui.WindowScan;
+import com.ldtteam.structurize.client.rendertask.RenderTaskManager;
+import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewData;
+import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewRenderTask;
 import com.ldtteam.structurize.commands.ScanCommand;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
 import com.ldtteam.structurize.network.messages.ShowScanMessage;
-import com.ldtteam.structurize.storage.rendering.RenderingCache;
-import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.ScanToolData;
 import com.mojang.brigadier.CommandDispatcher;
@@ -41,7 +42,10 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
@@ -209,21 +213,22 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         final BlockEntity te = worldIn.getBlockEntity(pos);
         if (te instanceof IBlueprintDataProviderBE && !((IBlueprintDataProviderBE) te).getSchematicName().isEmpty())
         {
-            if (worldIn.isClientSide && RenderingCache.getBoxPreviewData("scan") != null)
-            {
-                RenderingCache.getBoxPreviewData("scan").setAnchor(Optional.of(pos));
-            }
-
             final BlockPos start = ((IBlueprintDataProviderBE) te).getInWorldCorners().getA();
             final BlockPos end = ((IBlueprintDataProviderBE) te).getInWorldCorners().getB();
 
             if (!(start.equals(pos)) && !(end.equals(pos)))
             {
-                if (worldIn.isClientSide)
-                {
-                    RenderingCache.queue("scan", new BoxPreviewData(((IBlueprintDataProviderBE) te).getInWorldCorners().getA(), ((IBlueprintDataProviderBE) te).getInWorldCorners().getB(), Optional.of(pos)));
-                }
                 setBounds(itemstack, start, end);
+            }
+
+            if (worldIn.isClientSide)
+            {
+                RenderTaskManager.addRenderTask("scan",
+                    new BoxPreviewRenderTask("scan",
+                        new BoxPreviewData(((IBlueprintDataProviderBE) te).getInWorldCorners().getA(),
+                            ((IBlueprintDataProviderBE) te).getInWorldCorners().getB(),
+                            Optional.of(pos)),
+                        60 * 10));
             }
         }
 

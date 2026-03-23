@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.operations.ITickedWorldOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
