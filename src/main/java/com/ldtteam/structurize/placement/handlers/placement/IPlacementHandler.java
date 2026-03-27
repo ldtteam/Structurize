@@ -24,17 +24,6 @@ public interface IPlacementHandler
 {
     static boolean doesWorldStateMatchBlueprintState(@NotNull BlockInfo blockInfo, @NotNull BlockPos worldPos, @NotNull IStructureHandler structureHandler)
     {
-        // If we're doing full paste, do a more simple comparison. That saves us a lot of logic in the placement handlers.
-        if (!structureHandler.fancyPlacement())
-        {
-            if (blockInfo.hasTileEntityData())
-            {
-                // Always update tile entities in here.
-                return false;
-            }
-            return blockInfo.getState().equals(structureHandler.getWorld().getBlockState(blockInfo.getPos()));
-        }
-
         final IPlacementHandler placementHandler = PlacementHandlers.getHandler(structureHandler.getWorld(), worldPos, blockInfo.getState());
         Tuple<BlockEntity, CompoundTag> blockEntityData = null;
         if (blockInfo.hasTileEntityData())
