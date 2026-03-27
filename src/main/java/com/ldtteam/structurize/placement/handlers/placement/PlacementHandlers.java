@@ -475,7 +475,11 @@ public final class PlacementHandlers
             final Tuple<BlockEntity, CompoundTag> blockEntityData,
             final @NotNull IPlacementContext placementContext)
         {
-            return worldState.is(BlockTags.DIRT);
+            if (placementContext.fancyPlacement())
+            {
+                return worldState.is(BlockTags.DIRT);
+            }
+            return worldState.equals(blueprintState);
         }
     }
 
