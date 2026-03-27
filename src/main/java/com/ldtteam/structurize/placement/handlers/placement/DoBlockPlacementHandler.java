@@ -3,6 +3,7 @@ package com.ldtteam.structurize.placement.handlers.placement;
 import com.ldtteam.domumornamentum.block.IMateriallyTexturedBlock;
 import com.ldtteam.domumornamentum.block.decorative.PillarBlock;
 import com.ldtteam.domumornamentum.client.model.data.MaterialTextureData;
+import com.ldtteam.domumornamentum.entity.block.IMateriallyTexturedBlockEntity;
 import com.ldtteam.domumornamentum.entity.block.MateriallyTexturedBlockEntity;
 import com.ldtteam.domumornamentum.util.BlockUtils;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
