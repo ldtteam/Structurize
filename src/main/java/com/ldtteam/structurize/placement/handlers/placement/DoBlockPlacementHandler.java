@@ -3,6 +3,7 @@ package com.ldtteam.structurize.placement.handlers.placement;
 import com.ldtteam.domumornamentum.block.IMateriallyTexturedBlock;
 import com.ldtteam.domumornamentum.block.decorative.PillarBlock;
 import com.ldtteam.domumornamentum.client.model.data.MaterialTextureData;
+import com.ldtteam.domumornamentum.entity.block.IMateriallyTexturedBlockEntity;
 import com.ldtteam.domumornamentum.entity.block.MateriallyTexturedBlockEntity;
 import com.ldtteam.domumornamentum.util.BlockUtils;
 import com.ldtteam.structurize.api.ItemStackUtils;
@@ -129,7 +130,7 @@ public class DoBlockPlacementHandler implements IPlacementHandler
     {
         if (blockEntityData != null)
         {
-            if (blockEntityData.getA() instanceof final MateriallyTexturedBlockEntity mtbe && blockEntityData.getB().contains(BLOCK_ENTITY_TEXTURE_DATA))
+            if (blockEntityData.getA() instanceof final IMateriallyTexturedBlockEntity mtbe && blockEntityData.getB().contains(BLOCK_ENTITY_TEXTURE_DATA))
             {
                 return mtbe.getTextureData().equals(MaterialTextureData.CODEC.decode(NbtOps.INSTANCE, blockEntityData.getB().get(BLOCK_ENTITY_TEXTURE_DATA)).getOrThrow().getFirst());
             }
