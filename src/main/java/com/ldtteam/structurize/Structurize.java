@@ -14,6 +14,7 @@ import com.ldtteam.structurize.event.ClientEventSubscriber;
 import com.ldtteam.structurize.event.ClientLifecycleSubscriber;
 import com.ldtteam.structurize.event.EventSubscriber;
 import com.ldtteam.structurize.event.LifecycleSubscriber;
+import com.ldtteam.structurize.index.packtypes.PackTypesRegistry;
 import com.ldtteam.structurize.items.ModItemGroups;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
@@ -58,6 +59,7 @@ public class Structurize
         ModItems.ITEMS.register(modBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modBus);
         ModItemGroups.TAB_REG.register(modBus);
+        PackTypesRegistry.DEFERRED_REGISTER.register(modBus);
 
         modBus.register(LifecycleSubscriber.class);
         forgeBus.register(EventSubscriber.class);

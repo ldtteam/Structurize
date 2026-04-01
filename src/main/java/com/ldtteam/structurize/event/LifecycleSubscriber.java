@@ -2,6 +2,7 @@ package com.ldtteam.structurize.event;
 
 import com.ldtteam.common.language.LanguageHandler;
 import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.network.messages.SyncPackManagerMessage;
 import com.ldtteam.structurize.datagen.BlockEntityTagProvider;
 import com.ldtteam.structurize.datagen.BlockTagProvider;
 import com.ldtteam.structurize.datagen.EntityTagProvider;
@@ -22,11 +23,15 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
+import net.neoforged.neoforge.registries.RegistryBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Set;
+
+import static com.ldtteam.structurize.api.Registries.SCHEMATIC_INDEX_PACK_TYPES;
 
 public class LifecycleSubscriber
 {
@@ -54,6 +59,7 @@ public class LifecycleSubscriber
         ScanToolTeleportMessage.TYPE.register(registry);
         SetTagInTool.TYPE.register(registry);
         ShowScanMessage.TYPE.register(registry);
+        SyncPackManagerMessage.TYPE.register(registry);
         SyncPreviewCacheToClient.TYPE.register(registry);
         SyncPreviewCacheToServer.TYPE.register(registry);
         SyncSettingsToServer.TYPE.register(registry);
@@ -101,5 +107,11 @@ public class LifecycleSubscriber
             }
         }
         PlacementHandlers.ContainerPlacementHandler.CONTAINERS = containerBlocks;
+    }
+
+    @SubscribeEvent
+    public static void registerNewRegistries(final NewRegistryEvent event)
+    {
+        event.create(new RegistryBuilder<>(SCHEMATIC_INDEX_PACK_TYPES).sync(true));
     }
 }
