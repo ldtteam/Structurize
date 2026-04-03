@@ -30,7 +30,7 @@ public class ItemPackIndexDebug extends Item
     {
         final List<Pack> packs = level.isClientSide
             ? PackManager.getClientPacks()
-            : PackManager.getServerPacks(level.getServer().getLevel(Level.OVERWORLD));
+            : PackManager.getServerPacks();
 
         final String side = level.isClientSide ? "CLIENT" : "SERVER";
 
@@ -45,20 +45,19 @@ public class ItemPackIndexDebug extends Item
             {
                 LOGGER.info("[PackIndex][{}]   Pack: '{}' | type: {}",
                     side,
-                    pack.getName(),
-                    pack.getType().unwrapKey().map(k -> k.location().toString()).orElse("unknown"));
+                    pack.name(),
+                    pack.type().unwrapKey().map(k -> k.location().toString()).orElse("unknown"));
 
-                for (final PackSchematic schematic : pack.getSchematics())
+                for (final PackSchematic schematic : pack.schematics())
                 {
-                    LOGGER.info("[PackIndex][{}]     Schematic: '{}' | path: {} | level: {} | world: {} | pos1: {} | pos2: {} | anchor: {}",
+                    LOGGER.info("[PackIndex][{}]     Schematic: '{}' | path: {} | level: {} | pos1: {} | pos2: {} | anchor: {}",
                         side,
-                        schematic.getName(),
-                        schematic.getPath(),
-                        schematic.getLevel(),
-                        schematic.getWorld().location(),
-                        schematic.getPos1(),
-                        schematic.getPos2(),
-                        schematic.getAnchor());
+                        schematic.name(),
+                        schematic.path(),
+                        schematic.level(),
+                        schematic.pos1(),
+                        schematic.pos2(),
+                        schematic.anchor());
                 }
             }
         }

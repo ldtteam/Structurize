@@ -14,18 +14,21 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFixedCodec;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class Pack
+public record Pack(
+    @NotNull String id,
+    @NotNull String name,
+    @NotNull Holder<PackType> type,
+    @NotNull Set<PackSchematic> schematics)
 {
+    private static final Codec<Set<PackSchematic>> SCHEMATICS_CODEC = PackSchematic.CODEC.listOf().xmap(HashSet::new, ArrayList::new);
+
     public static final Codec<Pack> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        Codec.STRING.fieldOf("id").forGetter(p -> p.id),
-        Codec.STRING.fieldOf("name").forGetter(p -> p.name),
-        RegistryFixedCodec.create(Registries.SCHEMATIC_INDEX_PACK_TYPES).fieldOf("type").forGetter(p -> p.type),
-        PackSchematic.CODEC.listOf().fieldOf("schematics").forGetter(p -> p.schematics)
+        Codec.STRING.fieldOf("id").forGetter(Pack::id),
+        Codec.STRING.fieldOf("name").forGetter(Pack::name),
+        RegistryFixedCodec.create(Registries.SCHEMATIC_INDEX_PACK_TYPES).fieldOf("type").forGetter(Pack::type),
+        SCHEMATICS_CODEC.fieldOf("schematics").forGetter(Pack::schematics)
     ).apply(instance, Pack::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, Pack> STREAM_CODEC =
@@ -34,32 +37,14 @@ public class Pack
     public static final StreamCodec<RegistryFriendlyByteBuf, Map<String, Pack>> MAP_STREAM_CODEC =
         ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, STREAM_CODEC);
 
-    @NotNull
-    private final String id;
-
-    @NotNull
-    private final String name;
-
-    @NotNull
-    private final Holder<PackType> type;
-
-    @NotNull
-    private final List<PackSchematic> schematics;
-
-    public Pack(final @NotNull String id, final @NotNull String name, final @NotNull Holder<PackType> type)
+    public Pack(@NotNull final String id, @NotNull final String name, @NotNull final Holder<PackType> type)
     {
-        this.id = id;
-        this.name = name;
-        this.type = type;
-        this.schematics = new ArrayList<>();
+        this(id, name, type, Collections.emptySet());
     }
 
-    private Pack(final @NotNull String id, final @NotNull String name, final @NotNull Holder<PackType> type, final @NotNull List<PackSchematic> schematics)
+    public Pack
     {
-        this.id = id;
-        this.name = name;
-        this.type = type;
-        this.schematics = new ArrayList<>(schematics);
+        schematics = Set.copyOf(schematics);
     }
 
     public static Pack load(final @NotNull CompoundTag compound, final @NotNull HolderLookup.Provider provider)
@@ -72,32 +57,14 @@ public class Pack
         return (CompoundTag) CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), this).getOrThrow();
     }
 
-    @NotNull
-    public String getId()
+    /**
+     * Returns a new {@link Pack} with the given schematic added, replacing any existing schematic with the same identity.
+     */
+    public Pack withSchematic(final @NotNull PackSchematic schematic)
     {
-        return id;
-    }
-
-    @NotNull
-    public String getName()
-    {
-        return name;
-    }
-
-    @NotNull
-    public Holder<PackType> getType()
-    {
-        return type;
-    }
-
-    @NotNull
-    public List<PackSchematic> getSchematics()
-    {
-        return schematics;
-    }
-
-    public void addSchematic(final @NotNull PackSchematic schematic)
-    {
-        schematics.add(schematic);
+        final Set<PackSchematic> updated = new HashSet<>(schematics);
+        updated.remove(schematic);
+        updated.add(schematic);
+        return new Pack(id, name, type, updated);
     }
 }

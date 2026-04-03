@@ -10,8 +10,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands.CommandSelection;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,33 +32,21 @@ public class PackIndexCommand extends AbstractCommand
                     .then(newArgument("packName", StringArgumentType.word())
                         .executes(ctx -> addPack(ctx.getSource(), StringArgumentType.getString(ctx, "packName")))))
                 .then(newLiteral("schematic")
-                    .then(newArgument("packName", StringArgumentType.word())
+                    .then(newArgument("packId", StringArgumentType.word())
                         .then(newArgument("schematicName", StringArgumentType.word())
                             .then(newArgument("path", StringArgumentType.word())
                                 .then(newArgument("level", IntegerArgumentType.integer(0))
                                     .executes(ctx -> addSchematic(
                                         ctx.getSource(),
-                                        StringArgumentType.getString(ctx, "packName"),
+                                        StringArgumentType.getString(ctx, "packId"),
                                         StringArgumentType.getString(ctx, "schematicName"),
                                         StringArgumentType.getString(ctx, "path"),
                                         IntegerArgumentType.getInteger(ctx, "level")))))))));
     }
 
-    private static ServerLevel getOverworld(final CommandSourceStack source)
-    {
-        return source.getServer().getLevel(Level.OVERWORLD);
-    }
-
     private static int addPack(final CommandSourceStack source, final String packName)
     {
-        final ServerLevel overworld = getOverworld(source);
-        if (overworld == null)
-        {
-            return 0;
-        }
-
-        final PackManager manager = overworld.getDataStorage().computeIfAbsent(PackManager.FACTORY, PackManager.DATA_NAME);
-        final String newId = manager.addPack(packName, PackTypesRegistry.DEFAULT_PACK_TYPE);
+        final String newId = PackManager.addPack(packName, PackTypesRegistry.DEFAULT_PACK_TYPE);
 
         if (newId != null)
         {
@@ -77,37 +63,22 @@ public class PackIndexCommand extends AbstractCommand
 
     private static int addSchematic(
         final CommandSourceStack source,
-        final String packName,
+        final String packId,
         final String schematicName,
         final String path,
         final int level)
     {
-        final ServerLevel overworld = getOverworld(source);
-        if (overworld == null)
+        if (PackManager.getPack(packId) == null)
         {
+            source.sendFailure(net.minecraft.network.chat.Component.literal("Pack not found: " + packId));
             return 0;
         }
 
-        if (PackManager.getServerPacks(overworld).stream().noneMatch(p -> p.getName().equals(packName)))
-        {
-            source.sendFailure(net.minecraft.network.chat.Component.literal("Pack not found: " + packName));
-            return 0;
-        }
+        final PackSchematic schematic = new PackSchematic(path, schematicName, level, BlockPos.ZERO, BlockPos.ZERO, null);
+        PackManager.addSchematic(packId, schematic);
 
-        final PackSchematic schematic = new PackSchematic(
-            path,
-            schematicName,
-            level,
-            BlockPos.ZERO,
-            BlockPos.ZERO,
-            null,
-            source.getLevel().dimension());
-
-        overworld.getDataStorage().computeIfAbsent(PackManager.FACTORY, PackManager.DATA_NAME)
-            .addSchematic(packName, schematic);
-
-        LOGGER.info("[PackIndex] Added schematic '{}' to pack '{}'", schematicName, packName);
-        source.sendSuccess(() -> net.minecraft.network.chat.Component.literal("Added schematic '" + schematicName + "' to pack '" + packName + "'"), false);
+        LOGGER.info("[PackIndex] Added schematic '{}' to pack '{}'", schematicName, packId);
+        source.sendSuccess(() -> net.minecraft.network.chat.Component.literal("Added schematic '" + schematicName + "' to pack '" + packId + "'"), false);
         return 1;
     }
 }
