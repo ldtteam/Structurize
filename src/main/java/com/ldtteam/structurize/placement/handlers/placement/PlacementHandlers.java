@@ -433,7 +433,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
-            return blockState.getBlock() == Blocks.GRASS_BLOCK;
+            return blockState.getBlock() == Blocks.GRASS_BLOCK || blockState.getBlock() == Blocks.DIRT;
         }
 
         @Override
