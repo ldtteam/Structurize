@@ -130,9 +130,22 @@ public class DoBlockPlacementHandler implements IPlacementHandler
     {
         if (blockEntityData != null)
         {
-            if (blockEntityData.getA() instanceof final IMateriallyTexturedBlockEntity mtbe && blockEntityData.getB().contains(BLOCK_ENTITY_TEXTURE_DATA))
+            if (blockEntityData.getA() instanceof final IMateriallyTexturedBlockEntity mtbe)
             {
-                return mtbe.getTextureData().equals(MaterialTextureData.CODEC.decode(NbtOps.INSTANCE, blockEntityData.getB().get(BLOCK_ENTITY_TEXTURE_DATA)).getOrThrow().getFirst());
+                final String source;
+                if (blockEntityData.getB().contains(BLOCK_ENTITY_TEXTURE_DATA))
+                {
+                     source = BLOCK_ENTITY_TEXTURE_DATA;
+                }
+                else if (blockEntityData.getB().contains("originalTextureData"))
+                {
+                    source = "originalTextureData";
+                }
+                else
+                {
+                    source = null;
+                }
+                return source != null && mtbe.getTextureData().equals(MaterialTextureData.CODEC.decode(NbtOps.INSTANCE, blockEntityData.getB().get(source)).getOrThrow().getFirst());
             }
         }
         return false;
