@@ -35,7 +35,8 @@ public class BlockSubstitution extends Block
             .sound(SoundType.WOOD)
             .instabreak() // must be before explosionResistance
             .explosionResistance(Blocks.OAK_PLANKS.getExplosionResistance())
-            .noOcclusion();
+            .noOcclusion()
+            .forceSolidOff();
     }
 
     @Override
