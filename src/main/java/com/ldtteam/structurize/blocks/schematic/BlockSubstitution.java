@@ -57,4 +57,11 @@ public class BlockSubstitution extends Block
 
         return super.getCollisionShape(state,blockGetter,blockPos,context);
     }
+
+    @Override
+    public VoxelShape getBlockSupportShape(BlockState state, BlockGetter worldIn, BlockPos pos)
+    {
+        // Allow torches etc to be placed on the faces regardless of collision shape
+        return Shapes.block();
+    }
 }
