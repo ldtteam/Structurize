@@ -4,11 +4,14 @@ import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.AbstractGlassBlock;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.EntityCollisionContext;
@@ -19,14 +22,15 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * This block is used as a substitution block for the Builder. Every solid block can be substituted by this block in schematics. This helps make schematics independent from
  * location and ground.
  */
-public class BlockSubstitution extends Block
+public class BlockSubstitution extends Block implements LiquidBlockContainer
 {
     /**
      * Constructor for the Substitution block. sets the creative tab, as well as the resistance and the hardness.
      */
     public BlockSubstitution()
     {
-        super(defaultSubstitutionProperties());
+        super(defaultSubstitutionProperties()
+                .forceSolidOff());  // don't kill farmland and path blocks underneath
     }
 
     public static Properties defaultSubstitutionProperties()
@@ -36,8 +40,7 @@ public class BlockSubstitution extends Block
             .sound(SoundType.WOOD)
             .instabreak() // must be before explosionResistance
             .explosionResistance(Blocks.OAK_PLANKS.getExplosionResistance())
-            .noOcclusion()
-            .forceSolidOff();
+            .noOcclusion();
     }
 
     @Override
@@ -65,5 +68,18 @@ public class BlockSubstitution extends Block
     {
         // Allow torches etc to be placed on the faces regardless of collision shape
         return Shapes.block();
+    }
+
+    @Override
+    public boolean canPlaceLiquid(BlockGetter worldIn, BlockPos pos, BlockState state, Fluid fluid)
+    {
+        // Don't allow water to flow inside despite being non-solid
+        return false;
+    }
+
+    @Override
+    public boolean placeLiquid(LevelAccessor worldIn, BlockPos pos, BlockState state, FluidState fluid)
+    {
+        return false;
     }
 }
