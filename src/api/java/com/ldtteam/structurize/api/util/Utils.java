@@ -8,6 +8,8 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.text.Normalizer;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -72,5 +74,22 @@ public final class Utils
             }
         }
         return true;
+    }
+
+    /**
+     * Get a filename that's probably safe from a player name that might contain problematic characters.
+     * @param input a player name or other possibly unsafe text.
+     * @return the safe filename.
+     *
+     * @implNote This doesn't protect against Windows reserved filenames. Most servers are Linux anyway
+     *           so this only hurts SP players who will have a lot of Windows things break on them too.
+     */
+    public static String getSafePackName(String input)
+    {
+        String s = Normalizer.normalize(input, Normalizer.Form.NFC);
+        s = s.replaceAll("[\\\\/:*?\"<>|]", "_");
+        s = s.replaceAll("\\p{Cntrl}", "");
+        s = s.trim();
+        return s;
     }
 }
