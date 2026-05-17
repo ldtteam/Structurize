@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.placement.handlers.placement;
 
+import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.placement.IPlacementContext;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockInfo;
@@ -30,7 +31,7 @@ public interface IPlacementHandler
         if (blockInfo.hasTileEntityData())
         {
             final BlockEntity blockEntity = structureHandler.getWorld().getBlockEntity(worldPos);
-            if (blockEntity == null)
+            if (blockEntity == null && blockInfo.getState().getBlock() != ModBlocks.blockTagSubstitution.get())
             {
                 return false;
             }
