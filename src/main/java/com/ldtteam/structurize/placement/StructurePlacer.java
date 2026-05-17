@@ -316,19 +316,6 @@ public class StructurePlacer
             }
         }
 
-        if (localState.getBlock() == ModBlocks.blockTagSubstitution.get() && handler.fancyPlacement())
-        {
-            if (tileEntityData != null && BlockEntity.loadStatic(localPos, localState, tileEntityData) instanceof BlockEntityTagSubstitution tagEntity)
-            {
-                localState = tagEntity.getReplacement().getBlockState();
-                tileEntityData = tagEntity.getReplacement().getBlockEntityTag();
-            }
-            else
-            {
-                localState = Blocks.AIR.defaultBlockState();
-            }
-        }
-
         if (IPlacementHandler.doesWorldStateMatchBlueprintState(blockInfo, worldPos, this.handler))
         {
             return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
@@ -611,19 +598,6 @@ public class StructurePlacer
                 {
                     Log.getLogger().info("Couldn't restore entity", e);
                 }
-            }
-        }
-
-        if (localState.getBlock() == ModBlocks.blockTagSubstitution.get() && handler.fancyPlacement())
-        {
-            if (tileEntityData != null && BlockEntity.loadStatic(localPos, localState, tileEntityData) instanceof BlockEntityTagSubstitution tagEntity)
-            {
-                localState = tagEntity.getReplacement().getBlockState();
-                tileEntityData = tagEntity.getReplacement().getBlockEntityTag();
-            }
-            else
-            {
-                localState = Blocks.AIR.defaultBlockState();
             }
         }
 
