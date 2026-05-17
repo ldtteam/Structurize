@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.placement.handlers.placement;
 
-import com.ldtteam.structurize.api.util.ItemStackUtils;
-import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.ItemStackUtils;
+import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.placement.IPlacementContext;
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG;
+import static com.ldtteam.structurize.api.constants.Constants.UPDATE_FLAG;
 import static com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers.getItemsFromTileEntity;
 import static com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers.handleTileEntityPlacement;
 
@@ -45,12 +45,12 @@ public class BlockTagSubstitutionPlacementHandler implements IPlacementHandler
     {
         if (placementContext.fancyPlacement())
         {
-            if (tileEntityData != null && BlockEntity.loadStatic(pos, blockState, tileEntityData) instanceof BlockEntityTagSubstitution tagEntity)
+            if (tileEntityData != null && BlockEntity.loadStatic(pos, blockState, tileEntityData, world.registryAccess()) instanceof BlockEntityTagSubstitution tagEntity)
             {
-                final IPlacementHandler placementHandler = PlacementHandlers.getHandler(world, pos, tagEntity.getReplacement().getBlockState());
+                final IPlacementHandler placementHandler = PlacementHandlers.getHandler(world, pos, tagEntity.getReplacement().blockState());
                 if (placementHandler != this)
                 {
-                    return placementHandler.handle(world, pos, tagEntity.getReplacement().getBlockState(), tagEntity.getReplacement().getBlockEntityTag(), placementContext);
+                    return placementHandler.handle(world, pos, tagEntity.getReplacement().blockState(), tagEntity.getReplacement().serializedBE().orElse(null), placementContext);
                 }
                 else
                 {
@@ -97,21 +97,21 @@ public class BlockTagSubstitutionPlacementHandler implements IPlacementHandler
     {
         if (placementContext.fancyPlacement())
         {
-            if (blockEntityData != null && BlockEntity.loadStatic(BlockPos.ZERO, blueprintState, blockEntityData.getB()) instanceof BlockEntityTagSubstitution tagEntity)
+            if (blockEntityData != null && BlockEntity.loadStatic(BlockPos.ZERO, blueprintState, blockEntityData.getB(), placementContext.getBluePrint().getRegistryAccess()) instanceof BlockEntityTagSubstitution tagEntity)
             {
                 try
                 {
-                    final IPlacementHandler placementHandler = PlacementHandlers.getHandler(null, BlockPos.ZERO, tagEntity.getReplacement().getBlockState());
+                    final IPlacementHandler placementHandler = PlacementHandlers.getHandler(null, BlockPos.ZERO, tagEntity.getReplacement().blockState());
                     if (placementHandler != this)
                     {
-                        final CompoundTag tileEntityData = tagEntity.getReplacement().getBlockEntityTag();
+                        final CompoundTag tileEntityData = tagEntity.getReplacement().serializedBE().orElse(null);
                         Tuple<BlockEntity, CompoundTag> updatedTETuple = null;
-                        if (!tileEntityData.isEmpty())
+                        if (tileEntityData != null && !tileEntityData.isEmpty())
                         {
                             updatedTETuple = new Tuple<>(blockEntityData.getA(), tileEntityData);
                         }
 
-                        return placementHandler.doesWorldStateMatchBlueprintState(worldState, tagEntity.getReplacement().getBlockState(), updatedTETuple, placementContext);
+                        return placementHandler.doesWorldStateMatchBlueprintState(worldState, tagEntity.getReplacement().blockState(), updatedTETuple, placementContext);
                     }
                     else
                     {
@@ -146,12 +146,12 @@ public class BlockTagSubstitutionPlacementHandler implements IPlacementHandler
     {
         if (placementContext.fancyPlacement())
         {
-            if (tileEntityData != null && BlockEntity.loadStatic(pos, blockState, tileEntityData) instanceof BlockEntityTagSubstitution tagEntity)
+            if (tileEntityData != null && BlockEntity.loadStatic(pos, blockState, tileEntityData, world.registryAccess()) instanceof BlockEntityTagSubstitution tagEntity)
             {
-                final IPlacementHandler placementHandler = PlacementHandlers.getHandler(world, pos, tagEntity.getReplacement().getBlockState());
+                final IPlacementHandler placementHandler = PlacementHandlers.getHandler(world, pos, tagEntity.getReplacement().blockState());
                 if (placementHandler != this)
                 {
-                    return placementHandler.getRequiredItems(world, pos, tagEntity.getReplacement().getBlockState(), tagEntity.getReplacement().getBlockEntityTag(), placementContext);
+                    return placementHandler.getRequiredItems(world, pos, tagEntity.getReplacement().blockState(), tagEntity.getReplacement().serializedBE().orElse(null), placementContext);
                 }
                 else
                 {
@@ -166,7 +166,7 @@ public class BlockTagSubstitutionPlacementHandler implements IPlacementHandler
             }
         }
 
-        final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState));
+        final List<ItemStack> itemList = new ArrayList<>(getItemsFromTileEntity(tileEntityData, blockState, world));
         itemList.add(BlockUtils.getItemStackFromBlockState(blockState));
         itemList.removeIf(ItemStackUtils::isEmpty);
         return itemList;
