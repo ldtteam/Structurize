@@ -50,8 +50,7 @@ public class BlockTagSubstitutionPlacementHandler implements IPlacementHandler
                 final IPlacementHandler placementHandler = PlacementHandlers.getHandler(world, pos, tagEntity.getReplacement().getBlockState());
                 if (placementHandler != this)
                 {
-                    return PlacementHandlers.getHandler(world, pos, tagEntity.getReplacement().getBlockState())
-                        .handle(world, pos, tagEntity.getReplacement().getBlockState(), tagEntity.getReplacement().getBlockEntityTag(), placementContext);
+                    return placementHandler.handle(world, pos, tagEntity.getReplacement().getBlockState(), tagEntity.getReplacement().getBlockEntityTag(), placementContext);
                 }
                 else
                 {
