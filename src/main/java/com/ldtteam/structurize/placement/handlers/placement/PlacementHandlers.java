@@ -75,6 +75,7 @@ public final class PlacementHandlers
         handlers.add(new DoBlockPlacementHandler());
         handlers.add(new DoDoorBlockPlacementHandler());
         handlers.add(new ContainerPlacementHandler());
+        handlers.add(new BlockTagSubstitutionPlacementHandler());
         handlers.add(new GeneralBlockPlacementHandler());
     }
 
