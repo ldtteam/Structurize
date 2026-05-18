@@ -81,8 +81,8 @@ public final class Utils
      * @param input a player name or other possibly unsafe text.
      * @return the safe filename.
      *
-     * @implNote This doesn't protect against Windows reserved filenames. Most servers are Linux anyway
-     *           so this only hurts SP players who will have a lot of Windows things break on them too.
+     * This doesn't protect against Windows reserved filenames. Most servers are Linux anyway
+     * so this only hurts SP players who will have a lot of Windows things break on them too.
      */
     public static String getSafePackName(String input)
     {
