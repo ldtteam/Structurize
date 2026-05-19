@@ -8,6 +8,7 @@ import com.ldtteam.blockui.views.DropDownList;
 import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.api.Shape;
+import com.ldtteam.structurize.api.Utils;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
@@ -332,13 +333,13 @@ public class WindowShapeTool extends AbstractBlueprintManipulationWindow
         final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("shapes");
         if (previewData.getBlueprint() != null)
         {
-            final String packName = Minecraft.getInstance().getUser().getName();
+            final String packName = Utils.getSafePackName(Minecraft.getInstance().getUser().getName());
             final Path subpath = Path.of(
                 SHAPES_FOLDER,
                 shape.toString().toLowerCase(Locale.ROOT),
                 mainBlock.getItem().toString().replace(':', '_'),
                 secondaryBlock.getItem().toString().replace(':', '_'),
-                String.format("%dx%dx%dx%d_%c.blueprint", length, width, height, frequency, hollow ? 'h' : 'f'));
+                String.format("%sx%sx%sx%s_%c.blueprint", length, width, height, frequency, hollow ? 'h' : 'f'));
             final Path path = Minecraft.getInstance().gameDirectory.toPath()
                 .resolve(BLUEPRINT_FOLDER)
                 .resolve(packName.toLowerCase(Locale.US))
