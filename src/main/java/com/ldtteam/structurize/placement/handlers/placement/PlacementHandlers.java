@@ -55,6 +55,7 @@ public final class PlacementHandlers
         handlers.add(new AirPlacementHandler());
         handlers.add(new SolidSubstitutionPlacementHandler());
         handlers.add(new SubstitutionPlacementHandler());
+        handlers.add(new BlockTagSubstitutionPlacementHandler());
         handlers.add(new BlackListedBlockPlacementHandler());
         handlers.add(new FluidSubstitutionPlacementHandler());
         handlers.add(new FirePlacementHandler());
@@ -72,7 +73,6 @@ public final class PlacementHandlers
         handlers.add(new DoBlockPlacementHandler());
         handlers.add(new DoDoorBlockPlacementHandler());
         handlers.add(new ContainerPlacementHandler());
-        handlers.add(new BlockTagSubstitutionPlacementHandler());
         handlers.add(new GeneralBlockPlacementHandler());
     }
 
