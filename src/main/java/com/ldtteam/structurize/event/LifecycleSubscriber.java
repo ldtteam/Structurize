@@ -60,6 +60,10 @@ public class LifecycleSubscriber
         SetTagInTool.TYPE.register(registry);
         ShowScanMessage.TYPE.register(registry);
         SyncPackManagerMessage.TYPE.register(registry);
+        ValidatePackMessage.TYPE.register(registry);
+        ValidateSchematicMessage.TYPE.register(registry);
+        CreatePackMessage.TYPE.register(registry);
+        AddSchematicToPackMessage.TYPE.register(registry);
         SyncPreviewCacheToClient.TYPE.register(registry);
         SyncPreviewCacheToServer.TYPE.register(registry);
         SyncSettingsToServer.TYPE.register(registry);

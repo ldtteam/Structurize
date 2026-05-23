@@ -1,0 +1,50 @@
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/ldtteam/BlockUI/version/main/src/main/resources/assets/blockui/gui/block_ui.xsd" size="420 240"
+        pause="false" lightbox="false">
+    <image size="100% 100%" source="structurize:builderhut/builder_paper"/>
+
+    <view pos="10 5" size="400 230">
+        <!-- Main header -->
+        <view size="100% 15">
+            <text id="page-title" size="360 15" textalign="MIDDLE_LEFT" color="black"/>
+
+            <button id="btn-validate" pos="345 0" size="15 15" source="structurize:builderhut/button_validate"/>
+            <button id="btn-back" pos="365 0" size="15 15" source="structurize:builderhut/button_arrow_left"/>
+            <button id="btn-close" pos="385 0" size="15 15" source="structurize:builderhut/button_x"/>
+        </view>
+
+        <!-- Subheader -->
+        <view pos="0 20" size="100% 15">
+            <input id="schematic-search" size="320 15"/>
+
+            <button pos="330 0" size="15 15" source="structurize:builderhut/button_info"/>
+            <button pos="350 0" size="15 15" source="structurize:builderhut/button_warn"/>
+            <button pos="370 0" size="15 15" source="structurize:builderhut/button_error"/>
+        </view>
+
+        <box pos="0 40" size="100% 1" linewidth="1" color="gray"/>
+
+        <!-- Content -->
+        <list id="schematics" pos="0 45" size="100% 185" emptytext="$(com.ldtteam.structurize.gui.schematicindex.schematic_overview.list_empty)" emptycolor="black">
+            <view size="392 23">
+                <!-- Existing schematic group row -->
+                <view id="view-schematic" size="390 20">
+                    <button id="schematic-navigate" pos="5 3" size="15 15" source="structurize:builderhut/button_arrow_right"/>
+
+                    <text id="schematic-label" pos="25 0" size="280 100%" color="black"/>
+
+                    <button id="schematic-validate" pos="310 3" size="15 15" source="structurize:builderhut/button_validate"/>
+                    <button id="schematic-info-count" pos="330 3" size="15 15" color="black" textalign="MIDDLE" source="structurize:builderhut/builder_button_mini"/>
+                    <button id="schematic-warn-count" pos="350 3" size="15 15" color="black" textalign="MIDDLE" source="structurize:builderhut/builder_button_mini"/>
+                    <button id="schematic-error-count" pos="370 3" size="15 15" color="black" textalign="MIDDLE" source="structurize:builderhut/builder_button_mini"/>
+                </view>
+                <!-- Unmet requirement row -->
+                <view id="view-requirement" size="390 20">
+                    <image id="requirement-icon-error" pos="7 5" size="10 10" source="structurize:builderhut/icon_error"/>
+                    <image id="requirement-icon-info"  pos="7 5" size="10 10" source="structurize:builderhut/icon_info"/>
+                    <text id="requirement-label" pos="25 0" size="360 100%" color="black"/>
+                </view>
+            </view>
+        </list>
+    </view>
+</window>

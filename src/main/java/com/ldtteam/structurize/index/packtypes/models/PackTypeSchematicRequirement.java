@@ -1,17 +1,16 @@
 package com.ldtteam.structurize.index.packtypes.models;
 
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
 
 import static com.ldtteam.structurize.api.constants.Constants.GROUNDLEVEL_TAG;
+import static com.ldtteam.structurize.api.constants.TranslationConstants.PACK_TYPE_VALIDATION_ANCHOR_NO_GROUND_LEVEL;
+import static com.ldtteam.structurize.api.constants.TranslationConstants.PACK_TYPE_VALIDATION_MULTIPLE_ANCHORS;
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**
@@ -21,39 +20,70 @@ import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataPro
  * <ul>
  *     <li>Schematic name</li>
  *     <li>Schematic path</li>
+ *     <li>Schematic level</li>
  *     <li>Anchor block type</li>
- *     <li>One or more tags</li>
+ *     <li>One or more tags on the anchor block</li>
+ *     <li>Any number of custom {@link SchematicPredicate}s</li>
  * </ul>
  *
  * <p>Matched schematics are then validated against:
  * <ul>
  *     <li>One or more required tags on the anchor block</li>
  *     <li>One or more blocks that must be present in the schematic</li>
- *     <li>Any number of custom predicates operating on the full {@link Blueprint} data</li>
+ *     <li>Any number of custom {@link SchematicPredicate}s</li>
  * </ul>
+ *
+ * <p>Each check carries an optional {@link Component} message override. If absent, a default
+ * message is generated (e.g. including the tag name or block name). For additional checks
+ * the message is mandatory since no meaningful default can be generated.
  *
  * <p>Each requirement carries a {@link PackTypeSchematicRequirementSeverity severity level} indicating
  * how problematic a violation is.
  */
 public class PackTypeSchematicRequirement
 {
-    public static final PackTypeSchematicRequirement ANCHOR_NO_GROUND_LEVEL = new PackTypeSchematicRequirement.Builder().addRequiredTag(GROUNDLEVEL_TAG)
-        .addAdditionalBlueprintCheck(blueprint -> blueprint.getBlockInfoAsList()
+    /**
+     * Fires when a schematic has an anchor block but is missing the {@code groundlevel} tag.
+     * The ground level will default to the block below the anchor, which may not be intended.
+     */
+    public static final PackTypeSchematicRequirement ANCHOR_NO_GROUND_LEVEL = new PackTypeSchematicRequirement.Builder()
+        .matchesAdditionalCheck((blueprint, details) -> blueprint.getBlockInfoAsList()
             .stream()
-            .filter(blockInfo -> blockInfo.hasTileEntityData() && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA))
-            .toList()
-            .size() > 1)
-        .markAsIssue()
+            .anyMatch(blockInfo -> blockInfo.getTileEntityData() != null && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA)))
+        .requiresTag(GROUNDLEVEL_TAG, Component.translatable(PACK_TYPE_VALIDATION_ANCHOR_NO_GROUND_LEVEL))
         .build();
 
-    public static final PackTypeSchematicRequirement MULTIPLE_ANCHORS = new PackTypeSchematicRequirement.Builder().addRequiredTag(GROUNDLEVEL_TAG)
-        .addAdditionalBlueprintCheck(blueprint -> blueprint.getBlockInfoAsList()
-            .stream()
-            .filter(blockInfo -> blockInfo.hasTileEntityData() && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA))
-            .toList()
-            .size() > 1)
-        .markAsIssue()
+    /**
+     * Fires when a schematic has more than one anchor block and no explicit anchor position is set,
+     * making the anchor ambiguous.
+     */
+    public static final PackTypeSchematicRequirement MULTIPLE_ANCHORS = new PackTypeSchematicRequirement.Builder()
+        .requiresAdditionalCheck(
+            (blueprint, details) -> details.getAnchor() != null || blueprint.getBlockInfoAsList()
+                .stream()
+                .filter(blockInfo -> blockInfo.getTileEntityData() != null && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA))
+                .count() <= 1,
+            Component.translatable(PACK_TYPE_VALIDATION_MULTIPLE_ANCHORS))
+        .markAsError()
         .build();
+
+    /**
+     * A required anchor tag paired with an optional message override.
+     * If {@code message} is {@code null} a default is generated from the tag name.
+     */
+    public record TagCheck(@NotNull String tag, @Nullable Component message) {}
+
+    /**
+     * A required block paired with its minimum count and an optional message override.
+     * If {@code message} is {@code null} a default is generated from the block name and counts.
+     */
+    public record BlockCheck(@NotNull BlockState block, int count, @Nullable Component message) {}
+
+    /**
+     * A required additional check paired with a mandatory failure message, since no meaningful
+     * default can be generated for an arbitrary predicate.
+     */
+    public record AdditionalCheck(@NotNull SchematicPredicate predicate, @NotNull Component message) {}
 
     /**
      * If non-null, this requirement only applies to schematics whose name matches this value.
@@ -68,35 +98,48 @@ public class PackTypeSchematicRequirement
     private final String matchesPath;
 
     /**
+     * If non-null, this requirement only applies to schematics whose level matches this value.
+     */
+    @Nullable
+    private final Integer matchesLevel;
+
+    /**
      * If non-null, this requirement only applies to schematics with this anchor block type.
      */
     @Nullable
     private final BlockState matchesAnchor;
 
     /**
-     * If non-null, this requirement only applies to schematics that have all of these tags.
+     * If non-empty, this requirement only applies to schematics that have all of these tags on their anchor block.
      */
-    @Nullable
+    @NotNull
     private final List<String> matchesTags;
+
+    /**
+     * If non-empty, this requirement only applies to schematics for which all of these predicates
+     * return {@code true}. This is the blueprint-level equivalent of the tag/name/path/level/anchor
+     * filter criteria, for cases that cannot be expressed with those simpler filters.
+     */
+    @NotNull
+    private final List<SchematicPredicate> matchesAdditionalChecks;
 
     /**
      * Tags that must be present on the anchor block of any matched schematic.
      */
     @NotNull
-    private final List<String> requiredTags;
+    private final List<TagCheck> requiredTags;
 
     /**
-     * Blocks that must be present in any matched schematic, mapped to their minimum required count.
+     * Blocks that must be present in any matched schematic, with their minimum required counts.
      */
     @NotNull
-    private final Map<BlockState, Integer> requiredBlocks;
+    private final List<BlockCheck> requiredBlocks;
 
     /**
-     * Additional custom predicates evaluated against the full {@link Blueprint} of any matched schematic.
-     * All predicates must return {@code true} for the schematic to be considered valid.
+     * Custom predicates evaluated against any matched schematic, each with a mandatory failure message.
      */
     @NotNull
-    private final List<Predicate<Blueprint>> additionalBlueprintChecks;
+    private final List<AdditionalCheck> requiredAdditionalChecks;
 
     /**
      * The severity of a violation of this requirement.
@@ -106,21 +149,84 @@ public class PackTypeSchematicRequirement
     private PackTypeSchematicRequirement(
         final @Nullable String matchesName,
         final @Nullable String matchesPath,
+        final @Nullable Integer matchesLevel,
         final @Nullable BlockState matchesAnchor,
-        final @Nullable List<String> matchesTags,
-        final @NotNull List<String> requiredTags,
-        final @NotNull Map<BlockState, Integer> requiredBlocks,
-        final @NotNull List<Predicate<Blueprint>> additionalBlueprintChecks,
+        final @NotNull List<String> matchesTags,
+        final @NotNull List<SchematicPredicate> matchesAdditionalChecks,
+        final @NotNull List<TagCheck> requiredTags,
+        final @NotNull List<BlockCheck> requiredBlocks,
+        final @NotNull List<AdditionalCheck> requiredAdditionalChecks,
         final PackTypeSchematicRequirementSeverity warningSeverity)
     {
         this.matchesName = matchesName;
         this.matchesPath = matchesPath;
+        this.matchesLevel = matchesLevel;
         this.matchesAnchor = matchesAnchor;
         this.matchesTags = matchesTags;
+        this.matchesAdditionalChecks = matchesAdditionalChecks;
         this.requiredTags = requiredTags;
         this.requiredBlocks = requiredBlocks;
-        this.additionalBlueprintChecks = additionalBlueprintChecks;
+        this.requiredAdditionalChecks = requiredAdditionalChecks;
         this.warningSeverity = warningSeverity;
+    }
+
+    @Nullable
+    public String getMatchesName()
+    {
+        return matchesName;
+    }
+
+    @Nullable
+    public String getMatchesPath()
+    {
+        return matchesPath;
+    }
+
+    @Nullable
+    public Integer getMatchesLevel()
+    {
+        return matchesLevel;
+    }
+
+    @Nullable
+    public BlockState getMatchesAnchor()
+    {
+        return matchesAnchor;
+    }
+
+    @NotNull
+    public List<String> getMatchesTags()
+    {
+        return matchesTags;
+    }
+
+    @NotNull
+    public List<SchematicPredicate> getMatchesAdditionalChecks()
+    {
+        return matchesAdditionalChecks;
+    }
+
+    @NotNull
+    public List<TagCheck> getRequiredTags()
+    {
+        return requiredTags;
+    }
+
+    @NotNull
+    public List<BlockCheck> getRequiredBlocks()
+    {
+        return requiredBlocks;
+    }
+
+    @NotNull
+    public List<AdditionalCheck> getRequiredAdditionalChecks()
+    {
+        return requiredAdditionalChecks;
+    }
+
+    public PackTypeSchematicRequirementSeverity getWarningSeverity()
+    {
+        return warningSeverity;
     }
 
     /**
@@ -128,58 +234,37 @@ public class PackTypeSchematicRequirement
      */
     public static class Builder
     {
-        /**
-         * @see PackTypeSchematicRequirement#matchesName
-         */
         @Nullable
         private String matchesName;
 
-        /**
-         * @see PackTypeSchematicRequirement#matchesPath
-         */
         @Nullable
         private String matchesPath;
 
-        /**
-         * @see PackTypeSchematicRequirement#matchesAnchor
-         */
+        @Nullable
+        private Integer matchesLevel;
+
         @Nullable
         private BlockState matchesAnchor;
 
-        /**
-         * @see PackTypeSchematicRequirement#matchesTags
-         */
         @NotNull
         private final List<String> matchesTags = new ArrayList<>();
 
-        /**
-         * @see PackTypeSchematicRequirement#requiredTags
-         */
         @NotNull
-        private final List<String> requiredTags = new ArrayList<>();
+        private final List<SchematicPredicate> matchesAdditionalChecks = new ArrayList<>();
 
-        /**
-         * @see PackTypeSchematicRequirement#requiredBlocks
-         */
         @NotNull
-        private final Map<BlockState, Integer> requiredBlocks = new HashMap<>();
+        private final List<TagCheck> requiredTags = new ArrayList<>();
 
-        /**
-         * @see PackTypeSchematicRequirement#additionalBlueprintChecks
-         */
         @NotNull
-        private final List<Predicate<Blueprint>> additionalBlueprintChecks = new ArrayList<>();
+        private final List<BlockCheck> requiredBlocks = new ArrayList<>();
 
-        /**
-         * @see PackTypeSchematicRequirement#warningSeverity
-         */
+        @NotNull
+        private final List<AdditionalCheck> requiredAdditionalChecks = new ArrayList<>();
+
         private PackTypeSchematicRequirementSeverity warningSeverity = PackTypeSchematicRequirementSeverity.INFORMATIONAL;
 
         /**
          * Restricts this requirement to schematics whose name matches the given value.
-         *
-         * @param name the schematic name to match
-         * @return this builder
          */
         public Builder matchesName(final String name)
         {
@@ -189,9 +274,6 @@ public class PackTypeSchematicRequirement
 
         /**
          * Restricts this requirement to schematics whose path matches the given value.
-         *
-         * @param path the schematic path to match
-         * @return this builder
          */
         public Builder matchesPath(final String path)
         {
@@ -200,10 +282,16 @@ public class PackTypeSchematicRequirement
         }
 
         /**
+         * Restricts this requirement to schematics whose level matches the given value.
+         */
+        public Builder matchesLevel(final Integer level)
+        {
+            this.matchesLevel = level;
+            return this;
+        }
+
+        /**
          * Restricts this requirement to schematics that use the given anchor block type.
-         *
-         * @param anchor the anchor block state to match
-         * @return this builder
          */
         public Builder matchesAnchor(final BlockState anchor)
         {
@@ -212,61 +300,93 @@ public class PackTypeSchematicRequirement
         }
 
         /**
-         * Requires the anchor block of a matched schematic to have the given tag.
-         * May be called multiple times to require several tags.
-         *
-         * @param tag the tag that must be present on the anchor block
-         * @return this builder
+         * Restricts this requirement to schematics that have the given tag on their anchor block.
+         * May be called multiple times; all tags must be present for the requirement to apply.
          */
-        public Builder addRequiredTag(final String tag)
+        public Builder matchesTag(final String tag)
         {
-            this.requiredTags.add(tag);
+            this.matchesTags.add(tag);
+            return this;
+        }
+
+        /**
+         * Restricts this requirement to schematics for which the given predicate returns {@code true}.
+         * May be called multiple times; all predicates must match for the requirement to apply.
+         */
+        public Builder matchesAdditionalCheck(final SchematicPredicate predicate)
+        {
+            this.matchesAdditionalChecks.add(predicate);
+            return this;
+        }
+
+        /**
+         * Requires the anchor block of a matched schematic to have the given tag.
+         * Uses a default generated failure message.
+         */
+        public Builder requiresTag(final String tag)
+        {
+            return requiresTag(tag, null);
+        }
+
+        /**
+         * Requires the anchor block of a matched schematic to have the given tag.
+         * Uses the provided message on failure instead of the default generated one.
+         */
+        public Builder requiresTag(final String tag, final Component message)
+        {
+            this.requiredTags.add(new TagCheck(tag, message));
             return this;
         }
 
         /**
          * Requires at least one instance of the given block to be present in a matched schematic.
-         * Equivalent to {@code addRequiredBlock(block, 1)}.
-         *
-         * @param block the block that must be present
-         * @return this builder
+         * Uses a default generated failure message.
          */
-        public Builder addRequiredBlock(final BlockState block)
+        public Builder requiresBlock(final BlockState block)
         {
-            return addRequiredBlock(block, 1);
+            return requiresBlock(block, 1, null);
+        }
+
+        /**
+         * Requires at least one instance of the given block to be present in a matched schematic.
+         * Uses the provided message on failure instead of the default generated one.
+         */
+        public Builder requiresBlock(final BlockState block, final Component message)
+        {
+            return requiresBlock(block, 1, message);
         }
 
         /**
          * Requires at least {@code count} instances of the given block to be present in a matched schematic.
-         *
-         * @param block the block that must be present
-         * @param count the minimum number of occurrences required
-         * @return this builder
+         * Uses a default generated failure message.
          */
-        public Builder addRequiredBlock(final BlockState block, final int count)
+        public Builder requiresBlock(final BlockState block, final int count)
         {
-            this.requiredBlocks.put(block, count);
+            return requiresBlock(block, count, null);
+        }
+
+        /**
+         * Requires at least {@code count} instances of the given block to be present in a matched schematic.
+         * Uses the provided message on failure instead of the default generated one.
+         */
+        public Builder requiresBlock(final BlockState block, final int count, final @Nullable Component message)
+        {
+            this.requiredBlocks.add(new BlockCheck(block, count, message));
             return this;
         }
 
         /**
-         * Adds a custom predicate evaluated against the full {@link Blueprint} of any matched schematic.
-         * All added predicates must return {@code true} for the schematic to be considered valid.
-         * May be called multiple times to add several checks.
-         *
-         * @param additionalCheck a predicate receiving the full blueprint data
-         * @return this builder
+         * Adds a custom predicate evaluated against any matched schematic.
+         * The message is mandatory since no meaningful default can be generated for an arbitrary predicate.
          */
-        public Builder addAdditionalBlueprintCheck(final Predicate<Blueprint> additionalCheck)
+        public Builder requiresAdditionalCheck(final SchematicPredicate predicate, final Component message)
         {
-            this.additionalBlueprintChecks.add(additionalCheck);
+            this.requiredAdditionalChecks.add(new AdditionalCheck(predicate, message));
             return this;
         }
 
         /**
          * Sets the warning severity to {@link PackTypeSchematicRequirementSeverity#ISSUE}.
-         *
-         * @return this builder
          */
         public Builder markAsIssue()
         {
@@ -276,8 +396,6 @@ public class PackTypeSchematicRequirement
 
         /**
          * Sets the warning severity to {@link PackTypeSchematicRequirementSeverity#ERROR}.
-         *
-         * @return this builder
          */
         public Builder markAsError()
         {
@@ -287,18 +405,19 @@ public class PackTypeSchematicRequirement
 
         /**
          * Builds the {@link PackTypeSchematicRequirement}.
-         *
-         * @return the constructed requirement
          */
         public PackTypeSchematicRequirement build()
         {
-            return new PackTypeSchematicRequirement(matchesName,
+            return new PackTypeSchematicRequirement(
+                matchesName,
                 matchesPath,
+                matchesLevel,
                 matchesAnchor,
                 matchesTags,
+                matchesAdditionalChecks,
                 requiredTags,
                 requiredBlocks,
-                additionalBlueprintChecks,
+                requiredAdditionalChecks,
                 warningSeverity);
         }
     }

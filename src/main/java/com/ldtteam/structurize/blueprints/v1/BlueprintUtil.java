@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.SharedConstants;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -195,6 +196,29 @@ public class BlueprintUtil
         }
 
         return schem;
+    }
+
+    /**
+     * Generates a {@link Blueprint} from the world region described by the given {@link IBlueprintDetails}.
+     *
+     * @param details the source providing bounding box, path, and anchor
+     * @param world   the world to scan from
+     * @return the generated blueprint
+     */
+    public static Blueprint createBlueprint(final IBlueprintDetails details, final ServerLevel world)
+    {
+        final BoundingBox box = BoundingBox.fromCorners(details.getPos1(), details.getPos2());
+        final BlockPos min = new BlockPos(box.minX(), box.minY(), box.minZ());
+
+        return createBlueprint(
+            world,
+            min,
+            false,
+            (short) box.getXSpan(),
+            (short) box.getYSpan(),
+            (short) box.getZSpan(),
+            details.getFullSchematicPath() + ".blueprint",
+            Optional.ofNullable(details.getAnchor()));
     }
 
     /**

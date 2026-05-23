@@ -1,0 +1,40 @@
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/ldtteam/BlockUI/version/main/src/main/resources/assets/blockui/gui/block_ui.xsd" size="420 240"
+        pause="false" lightbox="false">
+    <image size="100% 100%" source="structurize:builderhut/builder_paper"/>
+
+    <view pos="10 5" size="400 230">
+        <!-- Main header -->
+        <view size="100% 15">
+            <text size="360 15" text="$(com.ldtteam.structurize.gui.schematicindex.pack_create.title)" textalign="MIDDLE_LEFT" color="black"/>
+
+            <button id="btn-back" pos="365 0" size="15 15" source="structurize:builderhut/button_arrow_left"/>
+            <button id="btn-close" pos="385 0" size="15 15" source="structurize:builderhut/button_x"/>
+        </view>
+
+        <!-- Content -->
+        <view pos="0 20" size="100% 185">
+            <text size="100% 15" text="$(com.ldtteam.structurize.gui.schematicindex.pack_create.inputs.name)" color="black"/>
+
+            <input id="pack-name-input" pos="0 20" size="100% 15"/>
+
+            <text pos="0 40" size="100% 15" text="$(com.ldtteam.structurize.gui.schematicindex.pack_create.inputs.type)" color="black"/>
+
+            <dropdown id="pack-type-input" size="171 15" pos="0 60" maxContentHeight="75" dropDownSize="171 75" source="structurize:builderhut/builder_button_large"
+                      textcolor="black">
+                <view size="100% 15">
+                    <text id="id" size="100% 100%" label="" pos="0 0" textalign="MIDDLE" color="black"/>
+                    <button id="button" size="100% 100%" pos="0 0" source="structurize:builderhut/builder_button_large" color="black"/>
+                </view>
+            </dropdown>
+        </view>
+
+        <!-- Footer -->
+        <view pos="0 210" size="100% 20">
+            <button id="btn-cancel" pos="223 2" size="86 17" text="$(com.ldtteam.structurize.gui.schematicindex.pack_create.button.cancel)" color="black" textalign="MIDDLE"
+                    source="structurize:builderhut/builder_button_medium"/>
+            <button id="btn-create" pos="314 2" size="86 17" text="$(com.ldtteam.structurize.gui.schematicindex.pack_create.button.create)" color="black" textalign="MIDDLE"
+                    source="structurize:builderhut/builder_button_medium"/>
+        </view>
+    </view>
+</window>

@@ -3,6 +3,7 @@ package com.ldtteam.structurize.commands;
 
 import com.ldtteam.structurize.index.PackManager;
 import com.ldtteam.structurize.index.models.PackSchematic;
+import com.ldtteam.structurize.index.models.PackSchematicValidationState;
 import com.ldtteam.structurize.index.packtypes.PackTypesRegistry;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -10,6 +11,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands.CommandSelection;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,12 +32,12 @@ public class PackIndexCommand extends AbstractCommand
         return newLiteral(NAME)
             .then(newLiteral("add")
                 .then(newLiteral("pack")
-                    .then(newArgument("packName", StringArgumentType.word())
-                        .executes(ctx -> addPack(ctx.getSource(), StringArgumentType.getString(ctx, "packName")))))
+                    .then(newArgument("packName", StringArgumentType.string())
+                        .executes(ctx -> addPack(ctx.getSource(), StringArgumentType.getString(ctx, "packName"), ctx.getSource().getLevel()))))
                 .then(newLiteral("schematic")
-                    .then(newArgument("packId", StringArgumentType.word())
-                        .then(newArgument("schematicName", StringArgumentType.word())
-                            .then(newArgument("path", StringArgumentType.word())
+                    .then(newArgument("packId", StringArgumentType.string())
+                        .then(newArgument("schematicName", StringArgumentType.string())
+                            .then(newArgument("path", StringArgumentType.string())
                                 .then(newArgument("level", IntegerArgumentType.integer(0))
                                     .executes(ctx -> addSchematic(
                                         ctx.getSource(),
@@ -44,9 +47,9 @@ public class PackIndexCommand extends AbstractCommand
                                         IntegerArgumentType.getInteger(ctx, "level")))))))));
     }
 
-    private static int addPack(final CommandSourceStack source, final String packName)
+    private static int addPack(final CommandSourceStack source, final String packName, final ServerLevel level)
     {
-        final String newId = PackManager.addPack(packName, PackTypesRegistry.DEFAULT_PACK_TYPE);
+        final String newId = PackManager.addPack(packName, PackTypesRegistry.DEFAULT_PACK_TYPE, level);
 
         if (newId != null)
         {
@@ -74,7 +77,7 @@ public class PackIndexCommand extends AbstractCommand
             return 0;
         }
 
-        final PackSchematic schematic = new PackSchematic(path, schematicName, level, BlockPos.ZERO, BlockPos.ZERO, null);
+        final PackSchematic schematic = new PackSchematic(path, schematicName, level, BlockPos.ZERO, BlockPos.ZERO, null, new PackSchematicValidationState());
         PackManager.addSchematic(packId, schematic);
 
         LOGGER.info("[PackIndex] Added schematic '{}' to pack '{}'", schematicName, packId);

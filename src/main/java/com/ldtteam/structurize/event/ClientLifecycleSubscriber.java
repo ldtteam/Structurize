@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.event;
 
+import com.ldtteam.blockui.AtlasManager;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.client.*;
@@ -46,6 +47,7 @@ public class ClientLifecycleSubscriber
     @SubscribeEvent
     public static void onRegisterReloadListeners(final RegisterClientReloadListenersEvent event)
     {
+        AtlasManager.INSTANCE.addAtlas(event::registerReloadListener, Constants.MOD_ID);
         event.registerReloadListener(new SimplePreparableReloadListener<>()
         {
             @Override

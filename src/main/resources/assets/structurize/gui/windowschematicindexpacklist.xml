@@ -1,0 +1,40 @@
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/ldtteam/BlockUI/version/main/src/main/resources/assets/blockui/gui/block_ui.xsd" size="420 240"
+        pause="false" lightbox="false">
+    <image size="100% 100%" source="structurize:builderhut/builder_paper"/>
+
+    <view pos="10 5" size="400 230">
+        <!-- Main header -->
+        <view size="100% 15">
+            <text size="360 15" text="$(com.ldtteam.structurize.gui.schematicindex.pack_overview.title)" textalign="MIDDLE_LEFT" color="black"/>
+
+            <button id="btn-add" pos="365 0" size="15 15" source="structurize:builderhut/button_plus"/>
+            <button id="btn-close" pos="385 0" size="15 15" source="structurize:builderhut/button_x"/>
+        </view>
+
+        <!-- Subheader -->
+        <view pos="0 20" size="100% 15">
+            <input id="pack-search" size="320 15"/>
+
+            <button pos="330 0" size="15 15" source="structurize:builderhut/button_info"/>
+            <button pos="350 0" size="15 15" source="structurize:builderhut/button_warn"/>
+            <button pos="370 0" size="15 15" source="structurize:builderhut/button_error"/>
+        </view>
+
+        <box pos="0 40" size="100% 1" linewidth="1" color="gray"/>
+
+        <!-- Content -->
+        <list id="packs" pos="0 45" size="100% 185" emptytext="$(com.ldtteam.structurize.gui.schematicindex.pack_overview.list_empty)" emptycolor="black">
+            <view size="392 23">
+                <button id="pack-navigate" pos="5 3" size="15 15" source="structurize:builderhut/button_arrow_right"/>
+
+                <text id="pack-name" pos="25 0" size="280 20" text="Packname" color="black"/>
+
+                <button id="pack-validate" pos="310 3" size="15 15" source="structurize:builderhut/button_validate"/>
+                <button id="pack-info-count" pos="330 3" size="15 15" color="black" textalign="MIDDLE" source="structurize:builderhut/builder_button_mini"/>
+                <button id="pack-warn-count" pos="350 3" size="15 15" color="black" textalign="MIDDLE" source="structurize:builderhut/builder_button_mini"/>
+                <button id="pack-error-count" pos="370 3" size="15 15" color="black" textalign="MIDDLE" source="structurize:builderhut/builder_button_mini"/>
+            </view>
+        </list>
+    </view>
+</window>

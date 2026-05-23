@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A hilbert space-filling curve, generalised to any dimensions.
+ * A hilbert space-filling curve, generalized to any dimensions.
  */
 public class BlueprintIteratorHilbert extends AbstractBlueprintIterator
 {
