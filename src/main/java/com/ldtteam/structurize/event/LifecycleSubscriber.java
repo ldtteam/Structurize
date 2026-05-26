@@ -6,27 +6,17 @@ import com.ldtteam.structurize.datagen.BlockEntityTagProvider;
 import com.ldtteam.structurize.datagen.BlockTagProvider;
 import com.ldtteam.structurize.datagen.EntityTagProvider;
 import com.ldtteam.structurize.network.messages.*;
-import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.storage.ServerStructurePackLoader;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.world.level.block.Block;
-import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.Set;
 
 public class LifecycleSubscriber
 {
@@ -87,19 +77,5 @@ public class LifecycleSubscriber
         generator.addProvider(event.includeServer(), new BlockEntityTagProvider(event.getGenerator().getPackOutput(), Registries.BLOCK_ENTITY_TYPE, event.getLookupProvider(), event.getExistingFileHelper()));
         generator.addProvider(event.includeServer(), new BlockTagProvider(event.getGenerator().getPackOutput(), Registries.BLOCK, event.getLookupProvider(), event.getExistingFileHelper()));
         generator.addProvider(event.includeClient(), new EntityTagProvider(event.getGenerator().getPackOutput(), Registries.ENTITY_TYPE, event.getLookupProvider(), event.getExistingFileHelper()));
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void registerCaps(final RegisterCapabilitiesEvent event)
-    {
-        final Set<Block> containerBlocks = Collections.newSetFromMap(new IdentityHashMap<>());
-        for (final Block block : BuiltInRegistries.BLOCK)
-        {
-            if (event.isBlockRegistered(Capabilities.ItemHandler.BLOCK, block))
-            {
-                containerBlocks.add(block);
-            }
-        }
-        PlacementHandlers.ContainerPlacementHandler.CONTAINERS = containerBlocks;
     }
 }
