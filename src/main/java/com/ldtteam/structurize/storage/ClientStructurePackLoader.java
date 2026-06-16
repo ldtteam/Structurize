@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.Utils;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.network.messages.NotifyServerAboutStructurePacksMessage;
 import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
@@ -101,7 +102,7 @@ public class ClientStructurePackLoader
                     Files.createDirectory(outputPath);
                 }
 
-                final Path clientPackPath = outputPath.resolve(Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US));
+                final Path clientPackPath = outputPath.resolve(Utils.getSafePackName(Minecraft.getInstance().getUser().getName()).toLowerCase(Locale.US));
                 if (!Files.exists(clientPackPath))
                 {
                     Files.createDirectory(clientPackPath);
@@ -345,12 +346,12 @@ public class ClientStructurePackLoader
      */
     public static void handleSaveScanMessage(final CompoundTag compound, final String fileName, final HolderLookup.Provider provider)
     {
-        final String packName = Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US);
-        StructurePacks.switchSelectedPack(StructurePacks.getStructurePack(Minecraft.getInstance().getUser().getName()));
+        final String packName = Utils.getSafePackName(Minecraft.getInstance().getUser().getName());
+        StructurePacks.switchSelectedPack(StructurePacks.getStructurePack(Utils.getSafePackName(Minecraft.getInstance().getUser().getName())));
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprintFuture(
           StructurePacks.storeBlueprint(packName, compound, Minecraft.getInstance().gameDirectory.toPath()
             .resolve(BLUEPRINT_FOLDER)
-            .resolve(Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US))
+            .resolve(packName.toLowerCase(Locale.US))
             .resolve(SCANS_FOLDER).resolve(fileName), provider));
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setPos(null);
         Minecraft.getInstance().player.displayClientMessage(Component.translatable("Scan successfully saved as %s", fileName), false);

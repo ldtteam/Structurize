@@ -250,19 +250,6 @@ public class StructurePlacer
             return entityResult;
         }
 
-        if (localState.getBlock() == ModBlocks.blockTagSubstitution.get() && handler.fancyPlacement())
-        {
-            if (tileEntityData != null && BlockEntity.loadStatic(localPos, localState, tileEntityData, world.registryAccess()) instanceof BlockEntityTagSubstitution tagEntity)
-            {
-                localState = tagEntity.getReplacement().blockState();
-                tileEntityData = tagEntity.getReplacement().serializedBE().orElseGet(CompoundTag::new);
-            }
-            else
-            {
-                localState = Blocks.AIR.defaultBlockState();
-            }
-        }
-
         if (IPlacementHandler.doesWorldStateMatchBlueprintState(blockInfo, worldPos, this.handler))
         {
             return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
@@ -511,19 +498,6 @@ public class StructurePlacer
         if (result.getResult().equals(BlockPlacementResult.Result.MISSING_ITEMS))
         {
             requiredItems.addAll(result.getRequiredItems());
-        }
-
-        if (localState.getBlock() == ModBlocks.blockTagSubstitution.get() && handler.fancyPlacement())
-        {
-            if (tileEntityData != null && BlockEntity.loadStatic(localPos, localState, tileEntityData, world.registryAccess()) instanceof BlockEntityTagSubstitution tagEntity)
-            {
-                localState = tagEntity.getReplacement().blockState();
-                tileEntityData = tagEntity.getReplacement().serializedBE().orElseGet(CompoundTag::new);
-            }
-            else
-            {
-                localState = Blocks.AIR.defaultBlockState();
-            }
         }
 
         if (IPlacementHandler.doesWorldStateMatchBlueprintState(new BlockInfo(localPos, localState, handler.getBluePrint().getTileEntityData(worldPos, localPos)), worldPos, this.handler))
