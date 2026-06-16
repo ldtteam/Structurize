@@ -21,10 +21,6 @@ import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.Set;
-
 import static com.ldtteam.structurize.api.Registries.SCHEMATIC_INDEX_PACK_TYPES;
 
 public class LifecycleSubscriber
@@ -91,20 +87,6 @@ public class LifecycleSubscriber
         generator.addProvider(event.includeServer(), new BlockEntityTagProvider(event.getGenerator().getPackOutput(), Registries.BLOCK_ENTITY_TYPE, event.getLookupProvider(), event.getExistingFileHelper()));
         generator.addProvider(event.includeServer(), new BlockTagProvider(event.getGenerator().getPackOutput(), Registries.BLOCK, event.getLookupProvider(), event.getExistingFileHelper()));
         generator.addProvider(event.includeClient(), new EntityTagProvider(event.getGenerator().getPackOutput(), Registries.ENTITY_TYPE, event.getLookupProvider(), event.getExistingFileHelper()));
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void registerCaps(final RegisterCapabilitiesEvent event)
-    {
-        final Set<Block> containerBlocks = Collections.newSetFromMap(new IdentityHashMap<>());
-        for (final Block block : BuiltInRegistries.BLOCK)
-        {
-            if (event.isBlockRegistered(Capabilities.ItemHandler.BLOCK, block))
-            {
-                containerBlocks.add(block);
-            }
-        }
-        PlacementHandlers.ContainerPlacementHandler.CONTAINERS = containerBlocks;
     }
 
     @SubscribeEvent
