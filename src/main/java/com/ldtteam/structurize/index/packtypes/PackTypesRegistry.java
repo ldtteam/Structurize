@@ -16,7 +16,7 @@ import static com.ldtteam.structurize.api.Registries.SCHEMATIC_INDEX_PACK_TYPES;
  * Holds the deferred register and built-in {@link PackType} registrations for the schematic index system.
  *
  * <p>Third-party mods can register additional pack types by calling
- * {@link #register(ResourceLocation, Function)} after obtaining a reference to this class,
+ * {@link #register(ResourceLocation, Function)} after getting a reference to this class,
  * provided they do so before the registry freezes.
  */
 public class PackTypesRegistry

@@ -1,0 +1,50 @@
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/ldtteam/BlockUI/version/main/src/main/resources/assets/blockui/gui/block_ui.xsd" size="420 240"
+        pause="true" lightbox="true">
+    <image size="100% 100%" source="structurize:builderhut/builder_paper"/>
+
+    <view pos="10 5" size="400 230">
+        <!-- Main header -->
+        <view size="100% 15">
+            <text id="page-title" size="340 15" textalign="MIDDLE_LEFT" color="black"/>
+
+            <button id="btn-back" pos="365 0" size="15 15" source="structurize:builderhut/button_arrow_left"/>
+            <button id="btn-close" pos="385 0" size="15 15" source="structurize:builderhut/button_x"/>
+        </view>
+
+        <!-- Subheader -->
+        <view pos="0 20" size="100% 15">
+            <button id="btn-validate-all" pos="265 0" size="15 15" source="structurize:builderhut/button_validate"/>
+            <button id="btn-save-all" pos="285 0" size="15 15" source="structurize:builderhut/button_save"/>
+            <button id="btn-delete-all" pos="305 0" size="15 15" source="structurize:builderhut/button_delete"/>
+
+            <button id="btn-filter-info" pos="330 0" size="15 15" source="structurize:builderhut/button_info"/>
+            <button id="btn-filter-warn" pos="350 0" size="15 15" source="structurize:builderhut/button_warn"/>
+            <button id="btn-filter-error" pos="370 0" size="15 15" source="structurize:builderhut/button_error"/>
+        </view>
+
+        <box pos="0 40" size="100% 1" linewidth="1" color="gray"/>
+
+        <!-- Content -->
+        <list id="levels" pos="0 45" size="100% 185" emptycolor="black">
+            <view size="392 61">
+                <text id="level-label" pos="5 3" size="195 13" color="black"/>
+
+                <button id="level-highlight" pos="205 3" size="15 15" source="structurize:builderhut/button_highlight"/>
+                <button id="level-teleport" pos="225 3" size="15 15" source="structurize:builderhut/button_teleport"/>
+                <button id="level-relocate" pos="245 3" size="15 15" source="structurize:builderhut/button_relocate"/>
+                <button id="level-validate" pos="265 3" size="15 15" source="structurize:builderhut/button_validate"/>
+                <button id="level-save" pos="285 3" size="15 15" source="structurize:builderhut/button_save"/>
+                <button id="level-delete" pos="305 3" size="15 15" source="structurize:builderhut/button_delete"/>
+
+                <button id="level-info-count" pos="330 3" size="15 15" color="black" textalign="MIDDLE" source="structurize:builderhut/builder_button_mini"/>
+                <button id="level-warn-count" pos="350 3" size="15 15" color="black" textalign="MIDDLE" source="structurize:builderhut/builder_button_mini"/>
+                <button id="level-error-count" pos="370 3" size="15 15" color="black" textalign="MIDDLE" source="structurize:builderhut/builder_button_mini"/>
+
+                <text id="level-pos1" pos="5 20" size="380 13" color="black"/>
+                <text id="level-pos2" pos="5 33" size="380 13" color="black"/>
+                <text id="level-anchor" pos="5 46" size="380 13" color="black"/>
+            </view>
+        </list>
+    </view>
+</window>

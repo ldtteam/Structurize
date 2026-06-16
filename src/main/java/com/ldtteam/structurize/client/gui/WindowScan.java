@@ -355,7 +355,7 @@ public class WindowScan extends AbstractWindowSkeleton
     {
         updateBounds();
 
-        new ScanOnServerMessage(data.currentSlot(), true).sendToServer();
+        new ScanOnServerMessage(data.currentSlot()).sendToServer();
         // TODO: Remove before publication — debug hook, adds every scan to the "colonial" pack for testing
         new AddSchematicToPackMessage("colonial", data.currentSlot()).sendToServer();
         RenderingCache.removeBox("scan");

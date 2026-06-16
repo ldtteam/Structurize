@@ -1,10 +1,17 @@
 package com.ldtteam.structurize.index;
 
+import com.ldtteam.structurize.api.constants.TranslationConstants;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
+import com.ldtteam.structurize.blueprints.v1.ScanUtil;
 import com.ldtteam.structurize.index.models.Pack;
 import com.ldtteam.structurize.index.models.PackSchematic;
 import com.ldtteam.structurize.index.packtypes.models.PackType;
+import com.ldtteam.structurize.index.packtypes.models.PackTypeSchematicRequirementSeverity;
 import com.ldtteam.structurize.network.messages.SyncPackManagerMessage;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,12 +28,12 @@ import java.util.*;
 /**
  * Static utility managing the global merged pack list across all loaded levels.
  * Each {@link ServerLevel} owns a {@link LevelPackData} that loads/saves its packs independently;
- * this class merges them into a single in-memory view and handles client synchronisation.
+ * this class merges them into a single in-memory view and handles client synchronization.
  */
 public final class PackManager
 {
     /**
-     * Callback invoked on the client whenever the pack list is synchronised from the server.
+     * Callback invoked on the client whenever the pack list is synchronized from the server.
      * Registered via {@link #addSyncListener}; held weakly so closed windows are collected automatically.
      */
     @FunctionalInterface
@@ -36,7 +43,7 @@ public final class PackManager
     }
 
     /**
-     * Weakly-referenced sync listeners. Dead references are pruned on each sync.
+     * Weakly referenced sync listeners. Dead references are pruned on each sync.
      */
     private static final List<WeakReference<PackSyncListener>> syncListeners = new ArrayList<>();
 
@@ -181,7 +188,7 @@ public final class PackManager
     }
 
     /**
-     * Registers a listener that is notified whenever the client pack list is synchronised.
+     * Registers a listener notified whenever the client pack list is synchronized.
      * The listener is held via a {@link WeakReference}, so it does not need to be manually removed —
      * once the caller is garbage-collected the reference will be pruned on the next sync.
      */
@@ -274,11 +281,11 @@ public final class PackManager
 
     /**
      * Runs per-schematic validation for schematics within the given pack that match the provided
-     * path, name, and optionally level. After updating the affected schematics the pack is synced
+     * path, name, and optionally level. After updating the affected schematics, the pack is synced
      * to all players.
      *
      * <p>When {@code level} is {@code null} all schematics sharing the given path and name are
-     * validated (every level of that schematic group). When a specific level is supplied only the
+     * validated (every level of that schematic group). When a specific level is supplied, only the
      * schematic entry for that level is validated.
      *
      * @param packId        the pack identifier
@@ -306,8 +313,155 @@ public final class PackManager
     }
 
     /**
+     * Saves all schematics within a pack by creating their blueprint and sending it to the
+     * requesting player if validation passes. The stored validation state of each schematic is
+     * updated regardless of whether the scan proceeds.
+     *
+     * @param packId      the pack identifier
+     * @param serverLevel the server level used to scan the world and resolve anchor block types
+     * @param player      the player to send successfully scanned blueprints to
+     */
+    public static void savePack(final @NotNull String packId, final @NotNull ServerLevel serverLevel, final @NotNull ServerPlayer player)
+    {
+        final LevelPackData data = getLevelPackData(packId);
+        final Pack pack = getPack(packId);
+        if (data == null || pack == null)
+        {
+            return;
+        }
+
+        int succeeded = 0;
+        int failed = 0;
+        int errors = 0;
+        int warnings = 0;
+        int infos = 0;
+
+        for (final PackSchematic schematic : pack.schematics())
+        {
+            final PackSchematicValidationCollector result = saveSchematicEntry(schematic, pack, data, serverLevel, player);
+            final List<Component> schematicErrors = result.getIssues().getOrDefault(PackTypeSchematicRequirementSeverity.ERROR, List.of());
+            if (schematicErrors.isEmpty())
+            {
+                succeeded++;
+            }
+            else
+            {
+                failed++;
+            }
+            errors += schematicErrors.size();
+            warnings += result.getIssues().getOrDefault(PackTypeSchematicRequirementSeverity.ISSUE, List.of()).size();
+            infos += result.getIssues().getOrDefault(PackTypeSchematicRequirementSeverity.INFORMATIONAL, List.of()).size();
+        }
+
+        sendSaveSummary(player, pack.name(), succeeded, failed, errors, warnings, infos);
+    }
+
+    /**
+     * Saves all levels of a schematic group within a pack by creating their blueprint and sending
+     * it to the requesting player if validation passes. The stored validation state of each matched
+     * schematic is updated regardless of whether the scan proceeds.
+     *
+     * @param packId         the pack identifier
+     * @param schematicPath  the relative folder path of the schematic (may be empty for root-level)
+     * @param schematicName  the schematic file name (without extension)
+     * @param schematicLevel the specific level to save (1-based), or {@code null} for all levels
+     * @param serverLevel    the server level used to scan the world and resolve anchor block types
+     * @param player         the player to send successfully scanned blueprints to
+     */
+    public static void saveSchematic(
+        final @NotNull String packId,
+        final @NotNull String schematicPath,
+        final @NotNull String schematicName,
+        final @Nullable Integer schematicLevel,
+        final @NotNull ServerLevel serverLevel,
+        final @NotNull ServerPlayer player)
+    {
+        final LevelPackData data = getLevelPackData(packId);
+        final Pack pack = getPack(packId);
+        if (data == null || pack == null)
+        {
+            return;
+        }
+
+        int succeeded = 0;
+        int failed = 0;
+        int errors = 0;
+        int warnings = 0;
+        int infos = 0;
+
+        for (final PackSchematic schematic : pack.schematics())
+        {
+            if (!schematic.path().equals(schematicPath) || !schematic.name().equals(schematicName))
+            {
+                continue;
+            }
+            if (schematicLevel != null && schematic.level() != schematicLevel)
+            {
+                continue;
+            }
+            final PackSchematicValidationCollector result = saveSchematicEntry(schematic, pack, data, serverLevel, player);
+            final List<Component> schematicErrors = result.getIssues().getOrDefault(PackTypeSchematicRequirementSeverity.ERROR, List.of());
+            if (schematicErrors.isEmpty())
+            {
+                succeeded++;
+            }
+            else
+            {
+                failed++;
+            }
+            errors += schematicErrors.size();
+            warnings += result.getIssues().getOrDefault(PackTypeSchematicRequirementSeverity.ISSUE, List.of()).size();
+            infos += result.getIssues().getOrDefault(PackTypeSchematicRequirementSeverity.INFORMATIONAL, List.of()).size();
+        }
+
+        sendSaveSummary(player, pack.name(), succeeded, failed, errors, warnings, infos);
+    }
+
+    /**
+     * Creates the blueprint for a single schematic entry, validates it, updates the stored
+     * validation state, and — if there are no blocking errors — sends the blueprint to the player.
+     *
+     * @return the validation collector so the caller can aggregate results for a summary message
+     */
+    private static PackSchematicValidationCollector saveSchematicEntry(
+        final @NotNull PackSchematic schematic,
+        final @NotNull Pack pack,
+        final @NotNull LevelPackData data,
+        final @NotNull ServerLevel serverLevel,
+        final @NotNull ServerPlayer player)
+    {
+        final Blueprint blueprint = BlueprintUtil.createBlueprint(schematic, serverLevel);
+        final PackSchematicValidationCollector result = ScanUtil.scan(schematic, blueprint, pack.type(), serverLevel, player);
+
+        schematic.validationState().apply(result);
+        data.setDirty();
+        return result;
+    }
+
+    private static void sendSaveSummary(
+        final @NotNull ServerPlayer player,
+        final @NotNull String packName,
+        final int succeeded,
+        final int failed,
+        final int errors,
+        final int warnings,
+        final int infos)
+    {
+        player.sendSystemMessage(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_SAVE_SUMMARY_HEADER, packName));
+        player.sendSystemMessage(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_SAVE_SUMMARY_INTRO));
+        player.sendSystemMessage(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_SAVE_SUMMARY_SUCCEEDED, succeeded).withStyle(ChatFormatting.DARK_GREEN));
+        player.sendSystemMessage(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_SAVE_SUMMARY_FAILED, failed).withStyle(ChatFormatting.DARK_RED));
+        player.sendSystemMessage(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_SAVE_SUMMARY_SEPARATOR));
+        player.sendSystemMessage(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_SAVE_SUMMARY_ERRORS, errors).withStyle(ChatFormatting.DARK_RED));
+        player.sendSystemMessage(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_SAVE_SUMMARY_WARNINGS, warnings).withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_SAVE_SUMMARY_INFORMATIONAL, infos).withStyle(ChatFormatting.AQUA));
+        player.sendSystemMessage(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_SAVE_SUMMARY_SEPARATOR));
+        player.sendSystemMessage(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_SAVE_SUMMARY_FOOTER));
+    }
+
+    /**
      * Adds or replaces a schematic in the given pack and marks that pack's owning level dirty.
-     * If a schematic with the same path, name, and level already exists it is replaced.
+     * If a schematic with the same path, name, and level already exists, it is replaced.
      */
     public static void addSchematic(final @NotNull String packId, final @NotNull PackSchematic schematic)
     {

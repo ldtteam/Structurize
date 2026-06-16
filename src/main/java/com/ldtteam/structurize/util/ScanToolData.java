@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.util;
 
+import com.ldtteam.structurize.blueprints.v1.IBlueprintDetails;
 import com.ldtteam.structurize.component.ModDataComponents;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.mojang.serialization.Codec;
@@ -29,8 +30,11 @@ import java.util.function.UnaryOperator;
  * @param commandPos the location of the linked command block.
  * @param dimension the dimension of the linked command block.
  */
-public record ScanToolData(List<Slot> slots, int currentSlotId,
-                           @Nullable BlockPos commandPos, @Nullable ResourceKey<Level> dimension)
+public record ScanToolData(
+    List<Slot> slots,
+    int currentSlotId,
+    @Nullable BlockPos commandPos,
+    @Nullable ResourceKey<Level> dimension)
 {
     /**
      * The number of scan slots.  We keep 10 so that we can map them to 0-9 keys.
@@ -176,7 +180,7 @@ public record ScanToolData(List<Slot> slots, int currentSlotId,
     /**
      * Data for one scan slot
      */
-    public record Slot(@NotNull String name, @NotNull BoxPreviewData box)
+    public record Slot(@NotNull String name, @NotNull BoxPreviewData box) implements IBlueprintDetails
     {
         public static final Slot EMPTY = new Slot("", new BoxPreviewData(BlockPos.ZERO, BlockPos.ZERO, Optional.empty()));
         
@@ -189,6 +193,65 @@ public record ScanToolData(List<Slot> slots, int currentSlotId,
                         ByteBufCodecs.STRING_UTF8, Slot::name,
                         BoxPreviewData.STREAM_CODEC, Slot::box,
                         Slot::new);
+
+        @Override
+        public BlockPos getPos1()
+        {
+            return box.pos1();
+        }
+
+        @Override
+        public BlockPos getPos2()
+        {
+            return box.pos2();
+        }
+
+        @Override
+        public String getSchematicPath()
+        {
+            final int lastSlash = name.lastIndexOf('/');
+            return lastSlash >= 0 ? name.substring(0, lastSlash) : "";
+        }
+
+        @Override
+        public String getSchematicName()
+        {
+            final String filePart = getFilePart();
+            final int split = trailingDigitStart(filePart);
+            return split < filePart.length() ? filePart.substring(0, split) : filePart;
+        }
+
+        @Override
+        @Nullable
+        public Integer getSchematicLevel()
+        {
+            final String filePart = getFilePart();
+            final int split = trailingDigitStart(filePart);
+            return split < filePart.length() ? Integer.parseInt(filePart.substring(split)) : null;
+        }
+
+        @Override
+        @Nullable
+        public BlockPos getAnchor()
+        {
+            return box.anchor().orElse(null);
+        }
+
+        private String getFilePart()
+        {
+            final int lastSlash = name.lastIndexOf('/');
+            return lastSlash >= 0 ? name.substring(lastSlash + 1) : name;
+        }
+
+        private static int trailingDigitStart(final String s)
+        {
+            int i = s.length();
+            while (i > 0 && Character.isDigit(s.charAt(i - 1)))
+            {
+                i--;
+            }
+            return i;
+        }
 
         /**
          * Updates the name of the slot.

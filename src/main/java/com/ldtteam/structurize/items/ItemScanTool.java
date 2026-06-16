@@ -8,14 +8,16 @@ import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
+import com.ldtteam.structurize.blueprints.v1.ScanUtil;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.commands.ScanCommand;
 import com.ldtteam.structurize.component.ModDataComponents;
-import com.ldtteam.structurize.network.messages.SaveScanMessage;
+import com.ldtteam.structurize.index.PackSchematicValidationCollector;
+import com.ldtteam.structurize.index.packtypes.PackTypesRegistry;
+import com.ldtteam.structurize.index.packtypes.models.PackTypeSchematicRequirementSeverity;
 import com.ldtteam.structurize.network.messages.ShowScanMessage;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
-import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.ScanToolData;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
@@ -56,14 +58,9 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
-import static com.ldtteam.structurize.api.constants.TranslationConstants.ANCHOR_POS_OUTSIDE_SCHEMATIC;
-import static com.ldtteam.structurize.api.constants.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
-import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**
  * Item used to scan structures.
@@ -102,7 +99,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         {
             if (playerIn.isShiftKeyDown())
             {
-                saveStructure(worldIn, playerIn, data.currentSlot(), true);
+                saveStructure(worldIn, playerIn, data.currentSlot());
             }
         }
         else
@@ -125,64 +122,33 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
     /**
      * Scan the structure and save it to the disk.
      *
-     * @param world        Current world.
-     * @param player       causing this action.
-     * @param slot         the scan data.
-     * @param saveEntities whether to scan in entities
+     * @param world  Current world.
+     * @param player causing this action.
+     * @param slot   the scan data.
      */
-    public static void saveStructure(
-      final Level world,
-      final Player player,
-      final ScanToolData.Slot slot,
-      final boolean saveEntities)
+    public static void saveStructure(final Level world, final Player player, final ScanToolData.Slot slot)
     {
-        if (slot.box().anchor().isPresent())
-        {
-            if (!BlockPosUtil.isInbetween(slot.box().anchor().get(), slot.box().pos1(), slot.box().pos2()))
-            {
-                player.displayClientMessage(Component.translatable(ANCHOR_POS_OUTSIDE_SCHEMATIC), false);
-                return;
-            }
-        }
+        final ServerLevel serverLevel = (ServerLevel) world;
+        final ServerPlayer serverPlayer = (ServerPlayer) player;
+
+        final String fileName = slot.name().isEmpty()
+            ? Component.translatable("item.sceptersteel.scanformat", new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date.from(Instant.now()))).getString()
+            : slot.name();
 
         final BoundingBox box = BoundingBox.fromCorners(slot.box().pos1(), slot.box().pos2());
-        if (box.getXSpan() * box.getYSpan() * box.getZSpan() > Structurize.getConfig().getServer().schematicBlockLimit.get())
-        {
-            player.displayClientMessage(Component.translatable(MAX_SCHEMATIC_SIZE_REACHED, Structurize.getConfig().getServer().schematicBlockLimit.get()), false);
-            return;
-        }
+        final BlockPos zero = new BlockPos(box.minX(), box.minY(), box.minZ());
+        final Blueprint bp = BlueprintUtil.createBlueprint(world, zero, (short) box.getXSpan(), (short) box.getYSpan(), (short) box.getZSpan(), fileName, slot.box().anchor());
 
-        String fileName;
-        if (slot.name().isEmpty())
+        final PackSchematicValidationCollector collector = ScanUtil.scan(slot, bp, PackTypesRegistry.DEFAULT_PACK_TYPE, serverLevel, serverPlayer);
+        final List<Component> errors = collector.getIssues().getOrDefault(PackTypeSchematicRequirementSeverity.ERROR, List.of());
+        if (errors.isEmpty())
         {
-            fileName = Component.translatable("item.sceptersteel.scanformat", new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date.from(Instant.now()))).getString();
+            serverPlayer.sendSystemMessage(Component.translatable("item.sceptersteel.scansuccess", bp.getName()));
         }
         else
         {
-            fileName = slot.name();
+            errors.forEach(player::sendSystemMessage);
         }
-
-        if (!fileName.contains(".blueprint"))
-        {
-            fileName+= ".blueprint";
-        }
-
-        final BlockPos zero = new BlockPos(box.minX(), box.minY(), box.minZ());
-        final Blueprint bp = BlueprintUtil.createBlueprint(world, zero, saveEntities, (short) box.getXSpan(), (short) box.getYSpan(), (short) box.getZSpan(), fileName, slot.box().anchor());
-
-        if (slot.box().anchor().isEmpty() && bp.getPrimaryBlockOffset().equals(new BlockPos(bp.getSizeX() / 2, 0, bp.getSizeZ() / 2)))
-        {
-            final List<BlockInfo> list = bp.getBlockInfoAsList().stream()
-              .filter(blockInfo -> blockInfo.hasTileEntityData() && blockInfo.getTileEntityData().contains(TAG_BLUEPRINTDATA))
-              .collect(Collectors.toList());
-
-            if (list.size() > 1)
-            {
-                player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.scanbadanchor", fileName), false);
-            }
-        }
-
-        new SaveScanMessage(BlueprintUtil.writeBlueprintToNBT(bp), fileName).sendToPlayer((ServerPlayer) player);
     }
 
     @Override

@@ -10,19 +10,19 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Sent from the client to the server to request re-validation of a specific schematic within a pack.
+ * Sent from the client to the server to save (validate and scan) a schematic within a pack.
  *
- * <p>The server runs {@link PackManager#validateSchematic} for all matching schematics (filtered
- * by path, name, and optionally level) and broadcasts the updated pack state to all players via a
- * {@link SyncPackManagerMessage}.
+ * <p>The server creates a blueprint from the schematic's stored bounding box, validates it against
+ * the pack type's requirements, and — if no blocking errors are found — sends the resulting
+ * blueprint back to the requesting player via {@link SaveScanMessage}. The stored validation state
+ * is updated in either case.
  *
- * <p>When {@code level} is {@code null} the validation covers every level of the schematic at once.
- * When a specific level is provided, only that single-level entry is validated — this is intended
- * for use by the per-level inspector screen that will be added later.
+ * <p>When {@code level} is {@code null} all levels of the schematic group are processed. When a
+ * specific level is provided, only that single entry is saved.
  */
-public class ValidateSchematicMessage extends AbstractServerPlayMessage
+public class SaveSchematicMessage extends AbstractServerPlayMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "validate_schematic", ValidateSchematicMessage::new);
+    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "save_schematic", SaveSchematicMessage::new);
 
     private final String  packId;
     private final String  schematicPath;
@@ -31,13 +31,13 @@ public class ValidateSchematicMessage extends AbstractServerPlayMessage
     private final Integer level;
 
     /**
-     * Validates all levels of the given schematic group within the pack.
+     * Saves all levels of the given schematic group within the pack.
      *
      * @param packId        the pack identifier
      * @param schematicPath the relative folder path of the schematic (may be empty for root-level)
      * @param schematicName the schematic file name (without extension)
      */
-    public ValidateSchematicMessage(final String packId, final String schematicPath, final String schematicName)
+    public SaveSchematicMessage(final String packId, final String schematicPath, final String schematicName)
     {
         super(TYPE);
         this.packId = packId;
@@ -47,14 +47,14 @@ public class ValidateSchematicMessage extends AbstractServerPlayMessage
     }
 
     /**
-     * Validates a single level of the given schematic within the pack.
+     * Saves a single level of the given schematic within the pack.
      *
      * @param packId        the pack identifier
      * @param schematicPath the relative folder path of the schematic (may be empty for root-level)
      * @param schematicName the schematic file name (without extension)
-     * @param level         the specific level to validate (1-based), or {@code null} for all levels
+     * @param level         the specific level to save (1-based)
      */
-    public ValidateSchematicMessage(final String packId, final String schematicPath, final String schematicName, final @Nullable Integer level)
+    public SaveSchematicMessage(final String packId, final String schematicPath, final String schematicName, final int level)
     {
         super(TYPE);
         this.packId = packId;
@@ -63,7 +63,7 @@ public class ValidateSchematicMessage extends AbstractServerPlayMessage
         this.level = level;
     }
 
-    protected ValidateSchematicMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    protected SaveSchematicMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.packId = buf.readUtf();
@@ -88,6 +88,6 @@ public class ValidateSchematicMessage extends AbstractServerPlayMessage
     @Override
     protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
-        PackManager.validateSchematic(packId, schematicPath, schematicName, level, player.serverLevel());
+        PackManager.saveSchematic(packId, schematicPath, schematicName, level, player.serverLevel(), player);
     }
 }

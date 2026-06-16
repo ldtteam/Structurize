@@ -1,14 +1,20 @@
 package com.ldtteam.structurize.index.packtypes.models;
 
+import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.api.BlockPosUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.ldtteam.structurize.api.constants.Constants.GROUNDLEVEL_TAG;
+import static com.ldtteam.structurize.api.constants.TranslationConstants.ANCHOR_POS_OUTSIDE_SCHEMATIC;
+import static com.ldtteam.structurize.api.constants.TranslationConstants.MAX_SCHEMATIC_SIZE_REACHED;
 import static com.ldtteam.structurize.api.constants.TranslationConstants.PACK_TYPE_VALIDATION_ANCHOR_NO_GROUND_LEVEL;
 import static com.ldtteam.structurize.api.constants.TranslationConstants.PACK_TYPE_VALIDATION_MULTIPLE_ANCHORS;
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
@@ -68,6 +74,30 @@ public class PackTypeSchematicRequirement
         .build();
 
     /**
+     * Fires when a schematic has an explicit anchor position that lies outside its bounding box.
+     */
+    public static final PackTypeSchematicRequirement ANCHOR_OUTSIDE_BOUNDS = new PackTypeSchematicRequirement.Builder()
+        .requiresAdditionalCheck(
+            (blueprint, details) -> details.getAnchor() == null
+                || BlockPosUtil.isInbetween(details.getAnchor(), details.getPos1(), details.getPos2()),
+            Component.translatable(ANCHOR_POS_OUTSIDE_SCHEMATIC))
+        .markAsError()
+        .build();
+
+    /**
+     * Fires when a schematic's bounding box exceeds the configured {@code schematicBlockLimit}.
+     */
+    public static final PackTypeSchematicRequirement EXCEEDS_BLOCK_LIMIT = new PackTypeSchematicRequirement.Builder()
+        .requiresAdditionalCheck(
+            (blueprint, details) -> {
+                final BoundingBox box = BoundingBox.fromCorners(details.getPos1(), details.getPos2());
+                return (long) box.getXSpan() * box.getYSpan() * box.getZSpan() <= Structurize.getConfig().getServer().schematicBlockLimit.get();
+            },
+            () -> Component.translatable(MAX_SCHEMATIC_SIZE_REACHED, Structurize.getConfig().getServer().schematicBlockLimit.get()))
+        .markAsError()
+        .build();
+
+    /**
      * A required anchor tag paired with an optional message override.
      * If {@code message} is {@code null} a default is generated from the tag name.
      */
@@ -83,7 +113,7 @@ public class PackTypeSchematicRequirement
      * A required additional check paired with a mandatory failure message, since no meaningful
      * default can be generated for an arbitrary predicate.
      */
-    public record AdditionalCheck(@NotNull SchematicPredicate predicate, @NotNull Component message) {}
+    public record AdditionalCheck(@NotNull SchematicPredicate predicate, @NotNull Supplier<Component> message) {}
 
     /**
      * If non-null, this requirement only applies to schematics whose name matches this value.
@@ -380,6 +410,17 @@ public class PackTypeSchematicRequirement
          * The message is mandatory since no meaningful default can be generated for an arbitrary predicate.
          */
         public Builder requiresAdditionalCheck(final SchematicPredicate predicate, final Component message)
+        {
+            this.requiredAdditionalChecks.add(new AdditionalCheck(predicate, () -> message));
+            return this;
+        }
+
+        /**
+         * Adds a custom predicate evaluated against any matched schematic, with a lazily-evaluated
+         * message supplier. Use this when the message content depends on runtime state (e.g. config values)
+         * that is not available at class initialization time.
+         */
+        public Builder requiresAdditionalCheck(final SchematicPredicate predicate, final Supplier<Component> message)
         {
             this.requiredAdditionalChecks.add(new AdditionalCheck(predicate, message));
             return this;

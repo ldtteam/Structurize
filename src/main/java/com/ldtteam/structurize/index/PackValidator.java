@@ -254,7 +254,7 @@ public final class PackValidator
         {
             if (!check.predicate().test(blueprint, details))
             {
-                collector.addIssue(severity, check.message());
+                collector.addIssue(severity, check.message().get());
             }
         }
     }
@@ -305,7 +305,7 @@ public final class PackValidator
         {
             return false;
         }
-        if (requirement.getMatchesLevel() != null && requirement.getMatchesLevel() != details.getSchematicLevel())
+        if (requirement.getMatchesLevel() != null && !requirement.getMatchesLevel().equals(details.getSchematicLevel()))
         {
             return false;
         }

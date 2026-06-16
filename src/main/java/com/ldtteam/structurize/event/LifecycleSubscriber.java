@@ -52,6 +52,8 @@ public class LifecycleSubscriber
         SyncPackManagerMessage.TYPE.register(registry);
         ValidatePackMessage.TYPE.register(registry);
         ValidateSchematicMessage.TYPE.register(registry);
+        SavePackMessage.TYPE.register(registry);
+        SaveSchematicMessage.TYPE.register(registry);
         CreatePackMessage.TYPE.register(registry);
         AddSchematicToPackMessage.TYPE.register(registry);
         SyncPreviewCacheToClient.TYPE.register(registry);

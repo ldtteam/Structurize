@@ -104,7 +104,7 @@ public class ScanCommand extends AbstractCommand
             return 0;
         }
 
-        ItemScanTool.saveStructure(world, player, new ScanToolData.Slot(name, new BoxPreviewData(from, to, anchorPos)), true);
+        ItemScanTool.saveStructure(world, player, new ScanToolData.Slot(name, new BoxPreviewData(from, to, anchorPos)));
         source.sendFailure(Component.translatable(SCAN_SUCCESS_MESSAGE));
         return 1;
     }

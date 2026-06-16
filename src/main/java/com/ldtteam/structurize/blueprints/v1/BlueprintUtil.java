@@ -25,6 +25,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.neoforged.fml.ModList;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -59,13 +60,18 @@ public class BlueprintUtil
     public static Blueprint createBlueprint(
       Level world,
       BlockPos pos,
-      final boolean saveEntities,
       short sizeX,
       short sizeY,
       short sizeZ,
-      String name,
+      @NotNull String name,
       Optional<BlockPos> anchorPos)
     {
+        while (name.endsWith(".blueprint"))
+        {
+            name = name.substring(0, name.length() - ".blueprint".length());
+        }
+        name += ".blueprint";
+
         final List<BlockState> pallete = new ArrayList<>();
         // Allways add AIR to Pallete
         pallete.add(Blocks.AIR.defaultBlockState());
@@ -120,12 +126,8 @@ public class BlueprintUtil
 
         final List<CompoundTag> entitiesTag = new ArrayList<>();
 
-        List<Entity> entities = new ArrayList<>();
-        if (saveEntities)
-        {
-            entities = world.getEntities(null,
-              new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
-        }
+        final List<Entity> entities = world.getEntities(null,
+            new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + sizeX, pos.getY() + sizeY, pos.getZ() + sizeZ));
 
         for (final Entity entity : entities)
         {
@@ -213,11 +215,10 @@ public class BlueprintUtil
         return createBlueprint(
             world,
             min,
-            false,
             (short) box.getXSpan(),
             (short) box.getYSpan(),
             (short) box.getZSpan(),
-            details.getFullSchematicPath() + ".blueprint",
+            details.getFullSchematicPath(),
             Optional.ofNullable(details.getAnchor()));
     }
 

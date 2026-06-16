@@ -1,8 +1,6 @@
 package com.ldtteam.structurize.client.gui.index;
 
 import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.AbstractTextBuilder;
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.controls.TextField;
@@ -12,7 +10,6 @@ import com.ldtteam.structurize.client.gui.AbstractWindowSkeleton;
 import com.ldtteam.structurize.index.PackManager;
 import com.ldtteam.structurize.index.models.Pack;
 import com.ldtteam.structurize.index.packtypes.models.PackTypeSchematicRequirementSeverity;
-import com.ldtteam.structurize.network.messages.ValidatePackMessage;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -21,8 +18,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
-import static com.ldtteam.structurize.api.constants.TranslationConstants.PACK_TYPE_VALIDATION_TOOLTIP_MORE;
-import static com.ldtteam.structurize.client.gui.index.SchematicIndexWindowUtils.buildFilteredText;
+import static com.ldtteam.structurize.api.constants.TranslationConstants.*;
+import static com.ldtteam.structurize.client.gui.index.SchematicIndexWindowUtils.*;
 
 /**
  * GUI window that displays the list of schematic packs known to the client.
@@ -38,11 +35,16 @@ public class WindowSchematicIndexPackList extends AbstractWindowSkeleton impleme
 {
     private static final String ID_ADD_BUTTON         = "btn-add";
     private static final String ID_CLOSE_BUTTON       = "btn-close";
+    private static final String ID_BTN_FILTER_INFO    = "btn-filter-info";
+    private static final String ID_BTN_FILTER_WARN    = "btn-filter-warn";
+    private static final String ID_BTN_FILTER_ERROR   = "btn-filter-error";
     private static final String ID_INPUT_SEARCH_PACKS = "pack-search";
     private static final String ID_PACKS_LIST         = "packs";
     private static final String ID_PACK_NAVIGATE      = "pack-navigate";
     private static final String ID_PACK_NAME          = "pack-name";
     private static final String ID_PACK_VALIDATE      = "pack-validate";
+    private static final String ID_PACK_SAVE          = "pack-save";
+    private static final String ID_PACK_DELETE        = "pack-delete";
     private static final String ID_PACK_INFO_COUNT    = "pack-info-count";
     private static final String ID_PACK_WARN_COUNT    = "pack-warn-count";
     private static final String ID_PACK_ERROR_COUNT   = "pack-error-count";
@@ -63,14 +65,28 @@ public class WindowSchematicIndexPackList extends AbstractWindowSkeleton impleme
         super(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowschematicindexpacklist.xml"));
         this.filteredPacks = PackManager.getClientPacks();
 
+        // Header
         registerButton(ID_ADD_BUTTON, () -> new WindowSchematicIndexPackCreate().openAsLayer());
         registerButton(ID_CLOSE_BUTTON, this::close);
 
-        registerButton(ID_PACK_NAVIGATE, this::handlePackNavigation);
-        registerButton(ID_PACK_VALIDATE, this::handlePackValidation);
-
+        // Subheader
         this.searchInput = findPaneOfTypeByID(ID_INPUT_SEARCH_PACKS, TextField.class);
         this.searchInput.setHandler(input -> this.updatePacks());
+        tooltipWithDescription(findPaneOfTypeByID(ID_BTN_FILTER_INFO, Button.class),
+            Component.translatable(SCHEMATIC_INDEX_SEVERITY_INFO_TITLE),
+            Component.translatable(SCHEMATIC_INDEX_SEVERITY_INFO_DESC));
+        tooltipWithDescription(findPaneOfTypeByID(ID_BTN_FILTER_WARN, Button.class),
+            Component.translatable(SCHEMATIC_INDEX_SEVERITY_WARN_TITLE),
+            Component.translatable(SCHEMATIC_INDEX_SEVERITY_WARN_DESC));
+        tooltipWithDescription(findPaneOfTypeByID(ID_BTN_FILTER_ERROR, Button.class),
+            Component.translatable(SCHEMATIC_INDEX_SEVERITY_ERROR_TITLE),
+            Component.translatable(SCHEMATIC_INDEX_SEVERITY_ERROR_DESC));
+
+        // List items
+        registerButton(ID_PACK_NAVIGATE, this::handlePackNavigation);
+        registerButton(ID_PACK_VALIDATE, this::handlePackValidation);
+        registerButton(ID_PACK_SAVE, this::handlePackSave);
+        registerButton(ID_PACK_DELETE, this::handlePackDelete);
 
         this.packsList = findPaneOfTypeByID(ID_PACKS_LIST, ScrollingList.class);
         this.packsList.setDataProvider(new ScrollingList.DataProvider()
@@ -88,9 +104,22 @@ public class WindowSchematicIndexPackList extends AbstractWindowSkeleton impleme
 
                 rowPane.findPaneOfTypeByID(ID_PACK_NAME, Text.class).setText(buildFilteredText(pack.name(), searchInput.getText()));
 
-                renderPackRequirementButton(rowPane, ID_PACK_INFO_COUNT, aggregatePackIssues(pack, PackTypeSchematicRequirementSeverity.INFORMATIONAL));
-                renderPackRequirementButton(rowPane, ID_PACK_WARN_COUNT, aggregatePackIssues(pack, PackTypeSchematicRequirementSeverity.ISSUE));
-                renderPackRequirementButton(rowPane, ID_PACK_ERROR_COUNT, aggregatePackIssues(pack, PackTypeSchematicRequirementSeverity.ERROR));
+                simpleTooltip(rowPane.findPaneOfTypeByID(ID_PACK_VALIDATE, Button.class), Component.translatable(SCHEMATIC_INDEX_PACK_BUTTON_VALIDATE));
+                simpleTooltip(rowPane.findPaneOfTypeByID(ID_PACK_SAVE, Button.class), Component.translatable(SCHEMATIC_INDEX_PACK_BUTTON_SAVE));
+                simpleTooltip(rowPane.findPaneOfTypeByID(ID_PACK_DELETE, Button.class), Component.translatable(SCHEMATIC_INDEX_PACK_BUTTON_DELETE));
+
+                renderValidationCountButton(rowPane.findPaneOfTypeByID(ID_PACK_INFO_COUNT, Button.class),
+                    PackTypeSchematicRequirementSeverity.INFORMATIONAL,
+                    aggregatePackIssues(pack, PackTypeSchematicRequirementSeverity.INFORMATIONAL),
+                    MAX_DISPLAY_VALIDATION_WARNINGS);
+                renderValidationCountButton(rowPane.findPaneOfTypeByID(ID_PACK_WARN_COUNT, Button.class),
+                    PackTypeSchematicRequirementSeverity.ISSUE,
+                    aggregatePackIssues(pack, PackTypeSchematicRequirementSeverity.ISSUE),
+                    MAX_DISPLAY_VALIDATION_WARNINGS);
+                renderValidationCountButton(rowPane.findPaneOfTypeByID(ID_PACK_ERROR_COUNT, Button.class),
+                    PackTypeSchematicRequirementSeverity.ERROR,
+                    aggregatePackIssues(pack, PackTypeSchematicRequirementSeverity.ERROR),
+                    MAX_DISPLAY_VALIDATION_WARNINGS);
             }
         });
 
@@ -106,7 +135,19 @@ public class WindowSchematicIndexPackList extends AbstractWindowSkeleton impleme
     private void handlePackValidation(final Button button)
     {
         final Pack pack = this.filteredPacks.get(this.packsList.getListElementIndexByPane(button));
-        new ValidatePackMessage(pack.id()).sendToServer();
+        SchematicIndexActions.validatePack(pack.id());
+    }
+
+    private void handlePackSave(final Button button)
+    {
+        final Pack pack = this.filteredPacks.get(this.packsList.getListElementIndexByPane(button));
+        SchematicIndexActions.savePack(pack.id());
+    }
+
+    private void handlePackDelete(final Button button)
+    {
+        final Pack pack = this.filteredPacks.get(this.packsList.getListElementIndexByPane(button));
+        SchematicIndexActions.deletePack(pack.id());
     }
 
     private List<Component> aggregatePackIssues(final Pack pack, final PackTypeSchematicRequirementSeverity severity)
@@ -118,25 +159,9 @@ public class WindowSchematicIndexPackList extends AbstractWindowSkeleton impleme
             case ERROR -> pack.validationState().getRequiredErrors().stream();
         };
 
-        final Stream<Component> schematicIssues = pack.schematics().stream()
-            .flatMap(s -> s.validationState().getIssues(severity).stream());
+        final Stream<Component> schematicIssues = pack.schematics().stream().flatMap(s -> s.validationState().getIssues(severity).stream());
 
         return Stream.concat(packIssues, schematicIssues).toList();
-    }
-
-
-    private void renderPackRequirementButton(final Pane parent, final String buttonId, final List<Component> validationIssues)
-    {
-        final Button button = parent.findPaneOfTypeByID(buttonId, Button.class);
-        button.setText(Component.literal(validationIssues.isEmpty() ? "" : String.valueOf(validationIssues.size())));
-
-        final AbstractTextBuilder.TooltipBuilder tooltipBuilder = PaneBuilders.tooltipBuilder().hoverPane(button);
-        validationIssues.stream().limit(MAX_DISPLAY_VALIDATION_WARNINGS).forEach(tooltipBuilder::appendNL);
-        if (validationIssues.size() > MAX_DISPLAY_VALIDATION_WARNINGS)
-        {
-            tooltipBuilder.appendNL(Component.translatable(PACK_TYPE_VALIDATION_TOOLTIP_MORE, validationIssues.size() - MAX_DISPLAY_VALIDATION_WARNINGS));
-        }
-        tooltipBuilder.build();
     }
 
     @Override
@@ -154,10 +179,8 @@ public class WindowSchematicIndexPackList extends AbstractWindowSkeleton impleme
         }
         else
         {
-            filteredPacks = PackManager.getClientPacks()
-                .stream()
-                .filter(pack -> pack.name().toLowerCase(Locale.ROOT).contains(searchInput.getText().toLowerCase(Locale.ROOT)))
-                .toList();
+            filteredPacks =
+                PackManager.getClientPacks().stream().filter(pack -> pack.name().toLowerCase(Locale.ROOT).contains(searchInput.getText().toLowerCase(Locale.ROOT))).toList();
         }
     }
 }

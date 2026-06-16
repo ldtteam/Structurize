@@ -88,8 +88,10 @@ public class PackType
         private final List<PackTypeRequirement> packRequirements = new ArrayList<>();
 
         private final List<PackTypeSchematicRequirement> schematicRequirements = new ArrayList<>(List.of(
-            PackTypeSchematicRequirement.ANCHOR_NO_GROUND_LEVEL,
-            PackTypeSchematicRequirement.MULTIPLE_ANCHORS
+            PackTypeSchematicRequirement.ANCHOR_OUTSIDE_BOUNDS,
+            PackTypeSchematicRequirement.EXCEEDS_BLOCK_LIMIT,
+            PackTypeSchematicRequirement.MULTIPLE_ANCHORS,
+            PackTypeSchematicRequirement.ANCHOR_NO_GROUND_LEVEL
         ));
 
         /**

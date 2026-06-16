@@ -22,37 +22,29 @@ public class ScanOnServerMessage extends AbstractServerPlayMessage
     private final ScanToolData.Slot slot;
 
     /**
-     * Whether to scan entities
-     */
-    private final boolean saveEntities;
-
-    /**
      * Empty public constructor.
      */
     protected ScanOnServerMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.slot = ScanToolData.Slot.STREAM_CODEC.decode(buf);
-        this.saveEntities = buf.readBoolean();
     }
 
-    public ScanOnServerMessage(final ScanToolData.Slot slot, final boolean saveEntities)
+    public ScanOnServerMessage(final ScanToolData.Slot slot)
     {
         super(TYPE);
         this.slot = slot;
-        this.saveEntities = saveEntities;
     }
 
     @Override
     protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         ScanToolData.Slot.STREAM_CODEC.encode(buf, slot);
-        buf.writeBoolean(saveEntities);
     }
 
     @Override
     protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
-        ItemScanTool.saveStructure(player.getCommandSenderWorld(), player, this.slot, saveEntities);
+        ItemScanTool.saveStructure(player.getCommandSenderWorld(), player, this.slot);
     }
 }

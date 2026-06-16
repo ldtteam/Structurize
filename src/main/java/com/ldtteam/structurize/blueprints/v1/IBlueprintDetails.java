@@ -41,22 +41,26 @@ public interface IBlueprintDetails
     String getSchematicName();
 
     /**
-     * Returns the building level this schematic represents (1-based).
+     * Returns the building level this schematic represents, or {@code null} if no level suffix
+     * should be appended to the file name.
      *
-     * @return the schematic level
+     * @return the schematic level, or {@code null}
      */
-    int getSchematicLevel();
+    @Nullable
+    Integer getSchematicLevel();
 
     /**
-     * Returns the full schematic path including the file name (without extension).
-     * For example: {@code "huts/miner"} or just {@code "miner"} for root-level schematics.
+     * Returns the full schematic path including the file name and optional level digit (without extension).
+     * For example: {@code "huts/miner2"} for level 2, or {@code "huts/miner"} when level is {@code null}.
      *
      * @return the full schematic path
      */
     default String getFullSchematicPath()
     {
         final String path = getSchematicPath();
-        return path.isEmpty() ? getSchematicName() : path + "/" + getSchematicName();
+        final Integer level = getSchematicLevel();
+        final String nameWithLevel = level != null ? getSchematicName() + level : getSchematicName();
+        return path.isEmpty() ? nameWithLevel : path + "/" + nameWithLevel;
     }
 
     /**

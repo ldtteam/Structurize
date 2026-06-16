@@ -354,6 +354,5 @@ public class ClientStructurePackLoader
             .resolve(packName.toLowerCase(Locale.US))
             .resolve(SCANS_FOLDER).resolve(fileName), provider));
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setPos(null);
-        Minecraft.getInstance().player.displayClientMessage(Component.translatable("Scan successfully saved as %s", fileName), false);
     }
 }

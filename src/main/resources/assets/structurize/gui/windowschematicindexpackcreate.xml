@@ -1,6 +1,6 @@
 <window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/ldtteam/BlockUI/version/main/src/main/resources/assets/blockui/gui/block_ui.xsd" size="420 240"
-        pause="false" lightbox="false">
+        pause="true" lightbox="true">
     <image size="100% 100%" source="structurize:builderhut/builder_paper"/>
 
     <view pos="10 5" size="400 230">

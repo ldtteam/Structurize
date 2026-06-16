@@ -66,7 +66,7 @@ public record PackSchematic(
     }
 
     @Override
-    public int getSchematicLevel()
+    public Integer getSchematicLevel()
     {
         return level;
     }
