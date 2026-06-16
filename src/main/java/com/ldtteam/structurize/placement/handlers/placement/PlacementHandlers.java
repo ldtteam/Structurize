@@ -32,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.locks.Lock;
 
 import static com.ldtteam.structurize.api.constants.Constants.UPDATE_FLAG;
 
@@ -58,6 +57,7 @@ public final class PlacementHandlers
         handlers.add(new AirPlacementHandler());
         handlers.add(new SolidSubstitutionPlacementHandler());
         handlers.add(new SubstitutionPlacementHandler());
+        handlers.add(new BlockTagSubstitutionPlacementHandler());
         handlers.add(new BlackListedBlockPlacementHandler());
         handlers.add(new FluidSubstitutionPlacementHandler());
         handlers.add(new FirePlacementHandler());
@@ -912,12 +912,10 @@ public final class PlacementHandlers
 
     public static class ContainerPlacementHandler implements IPlacementHandler
     {
-        public static Set<Block> CONTAINERS = Set.of();
-
         @Override
         public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
-            return CONTAINERS.contains(blockState.getBlock());
+            return blockState.getBlock() instanceof BaseEntityBlock;
         }
 
         @Override
