@@ -68,16 +68,28 @@ public class LevelPackData extends SavedData
         return tag;
     }
 
+    /**
+     * Marks this data as dirty and, if dirtied, invalidates the merged pack cache and broadcasts
+     * an updated {@link SyncPackManagerMessage} to all connected players.
+     *
+     * @param value {@code true} to mark dirty and trigger a sync; {@code false} to clear the flag
+     */
     @Override
     public void setDirty(final boolean value)
     {
         super.setDirty(value);
         if (value)
         {
+            PackManager.invalidateServerPacksSorted();
             PacketDistributor.sendToAllPlayers(new SyncPackManagerMessage(PackManager.getServerPacksMap()));
         }
     }
 
+    /**
+     * Returns the dimension key that identifies the {@link net.minecraft.server.level.ServerLevel} this data belongs to.
+     *
+     * @return the dimension key
+     */
     public ResourceKey<Level> getDimension()
     {
         return dimension;

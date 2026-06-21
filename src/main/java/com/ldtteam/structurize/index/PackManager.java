@@ -35,9 +35,19 @@ public final class PackManager
     private static final Map<ResourceKey<Level>, LevelPackData> loadedLevelData = new HashMap<>();
 
     /**
+     * Cached sorted view of the server-side merged pack map, invalidated whenever packs are added or levels load/unload.
+     */
+    private static List<Pack> serverPacksSorted = List.of();
+
+    /**
      * Client-side pack list, populated via {@link SyncPackManagerMessage}.
      */
-    private static Map<String, Pack> clientPacks = new HashMap<>();
+    private static final Map<String, Pack> clientPacks = new HashMap<>();
+
+    /**
+     * Cached sorted view of {@link #clientPacks}, invalidated whenever the map changes.
+     */
+    private static List<Pack> clientPacksSorted = List.of();
 
     private PackManager() {}
 
@@ -60,6 +70,8 @@ public final class PackManager
         {
             packOwnerDimension.put(packId, dimension);
         }
+
+        invalidateServerPacksSorted();
     }
 
     /**
@@ -76,9 +88,12 @@ public final class PackManager
         loadedLevelData.remove(dimension);
         packOwnerDimension.entrySet().removeIf(entry -> entry.getValue().equals(dimension));
 
+        invalidateServerPacksSorted();
+
         if (loadedLevelData.isEmpty())
         {
             clientPacks.clear();
+            clientPacksSorted = List.of();
         }
     }
 
@@ -101,7 +116,16 @@ public final class PackManager
     @NotNull
     public static List<Pack> getServerPacks()
     {
-        return getServerPacksMap().values().stream().sorted(Comparator.comparing(Pack::name)).toList();
+        return serverPacksSorted;
+    }
+
+    /**
+     * Rebuilds the cached sorted server pack list from the current merged map.
+     * Called whenever packs are added or levels load/unload.
+     */
+    static void invalidateServerPacksSorted()
+    {
+        serverPacksSorted = getServerPacksMap().values().stream().sorted(Comparator.comparing(Pack::name)).toList();
     }
 
     /**
@@ -125,7 +149,7 @@ public final class PackManager
     @NotNull
     public static List<Pack> getClientPacks()
     {
-        return clientPacks.values().stream().sorted(Comparator.comparing(Pack::name)).toList();
+        return clientPacksSorted;
     }
 
     /**
@@ -133,7 +157,9 @@ public final class PackManager
      */
     public static void onClientSync(final @NotNull Map<String, Pack> packs)
     {
-        clientPacks = new HashMap<>(packs);
+        clientPacks.clear();
+        clientPacks.putAll(packs);
+        clientPacksSorted = clientPacks.values().stream().sorted(Comparator.comparing(Pack::name)).toList();
     }
 
     /**
@@ -171,8 +197,7 @@ public final class PackManager
     @Nullable
     public static Pack getPack(final @NotNull String packId)
     {
-        final ResourceKey<Level> owner = packOwnerDimension.get(packId);
-        final LevelPackData data = owner != null ? loadedLevelData.get(owner) : null;
+        final LevelPackData data = getLevelPackData(packId);
         return data != null ? data.getOwnedPacks().get(packId) : null;
     }
 
@@ -182,8 +207,7 @@ public final class PackManager
      */
     public static void addSchematic(final @NotNull String packId, final @NotNull PackSchematic schematic)
     {
-        final ResourceKey<Level> owner = packOwnerDimension.get(packId);
-        final LevelPackData data = owner != null ? loadedLevelData.get(owner) : null;
+        final LevelPackData data = getLevelPackData(packId);
         if (data == null)
         {
             return;
@@ -197,5 +221,12 @@ public final class PackManager
 
         data.getOwnedPacksMutable().put(packId, pack.withSchematic(schematic));
         data.setDirty();
+    }
+
+    @Nullable
+    private static LevelPackData getLevelPackData(final @NotNull String packId)
+    {
+        final ResourceKey<Level> owner = packOwnerDimension.get(packId);
+        return owner != null ? loadedLevelData.get(owner) : null;
     }
 }
