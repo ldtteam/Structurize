@@ -27,12 +27,6 @@ public final class TranslationConstants
     @NonNls
     public static final String SCHEMATIC_INDEX_PACK_BUTTON_DELETE            = "com.ldtteam.structurize.gui.schematicindex.pack_overview.button.delete";
     @NonNls
-    public static final String SCHEMATIC_INDEX_SCHEMATIC_BUTTON_VALIDATE     = "com.ldtteam.structurize.gui.schematicindex.schematic_overview.button.validate";
-    @NonNls
-    public static final String SCHEMATIC_INDEX_SCHEMATIC_BUTTON_SAVE         = "com.ldtteam.structurize.gui.schematicindex.schematic_overview.button.save";
-    @NonNls
-    public static final String SCHEMATIC_INDEX_SCHEMATIC_BUTTON_DELETE       = "com.ldtteam.structurize.gui.schematicindex.schematic_overview.button.delete";
-    @NonNls
     public static final String SCHEMATIC_INDEX_SCHEMATIC_BUTTON_VALIDATE_ALL = "com.ldtteam.structurize.gui.schematicindex.schematic_overview.button.validate_all";
     @NonNls
     public static final String SCHEMATIC_INDEX_SCHEMATIC_BUTTON_SAVE_ALL     = "com.ldtteam.structurize.gui.schematicindex.schematic_overview.button.save_all";
@@ -68,17 +62,44 @@ public final class TranslationConstants
     public static final String SCHEMATIC_INDEX_LEVEL_BUTTON_DELETE           = "com.ldtteam.structurize.gui.schematicindex.level_overview.button.delete";
 
     @NonNls
-    public static final String SCHEMATIC_INDEX_SEVERITY_INFO_TITLE          = "com.ldtteam.structurize.gui.schematicindex.severity.info.title";
+    public static final String SCHEMATIC_INDEX_SEVERITY_INFO_TITLE  = "com.ldtteam.structurize.gui.schematicindex.severity.info.title";
     @NonNls
-    public static final String SCHEMATIC_INDEX_SEVERITY_INFO_DESC           = "com.ldtteam.structurize.gui.schematicindex.severity.info.desc";
+    public static final String SCHEMATIC_INDEX_SEVERITY_INFO_DESC   = "com.ldtteam.structurize.gui.schematicindex.severity.info.desc";
     @NonNls
-    public static final String SCHEMATIC_INDEX_SEVERITY_WARN_TITLE          = "com.ldtteam.structurize.gui.schematicindex.severity.warn.title";
+    public static final String SCHEMATIC_INDEX_SEVERITY_WARN_TITLE  = "com.ldtteam.structurize.gui.schematicindex.severity.warn.title";
     @NonNls
-    public static final String SCHEMATIC_INDEX_SEVERITY_WARN_DESC           = "com.ldtteam.structurize.gui.schematicindex.severity.warn.desc";
+    public static final String SCHEMATIC_INDEX_SEVERITY_WARN_DESC   = "com.ldtteam.structurize.gui.schematicindex.severity.warn.desc";
     @NonNls
-    public static final String SCHEMATIC_INDEX_SEVERITY_ERROR_TITLE         = "com.ldtteam.structurize.gui.schematicindex.severity.error.title";
+    public static final String SCHEMATIC_INDEX_SEVERITY_ERROR_TITLE = "com.ldtteam.structurize.gui.schematicindex.severity.error.title";
     @NonNls
-    public static final String SCHEMATIC_INDEX_SEVERITY_ERROR_DESC          = "com.ldtteam.structurize.gui.schematicindex.severity.error.desc";
+    public static final String SCHEMATIC_INDEX_SEVERITY_ERROR_DESC  = "com.ldtteam.structurize.gui.schematicindex.severity.error.desc";
+
+    @NonNls
+    public static final String SCHEMATIC_INDEX_CONFIRM_DELETE_PACK      = "com.ldtteam.structurize.gui.schematicindex.confirm_delete.pack";
+    @NonNls
+    public static final String SCHEMATIC_INDEX_CONFIRM_DELETE_SCHEMATIC = "com.ldtteam.structurize.gui.schematicindex.confirm_delete.schematic";
+    @NonNls
+    public static final String SCHEMATIC_INDEX_CONFIRM_DELETE_LEVEL     = "com.ldtteam.structurize.gui.schematicindex.confirm_delete.level";
+
+    @NonNls
+    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_HEADER        = "com.ldtteam.structurize.gui.schematicindex.save_summary.header";
+    @NonNls
+    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_INTRO         = "com.ldtteam.structurize.gui.schematicindex.save_summary.intro";
+    @NonNls
+    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_SUCCEEDED     = "com.ldtteam.structurize.gui.schematicindex.save_summary.succeeded";
+    @NonNls
+    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_FAILED        = "com.ldtteam.structurize.gui.schematicindex.save_summary.failed";
+    @NonNls
+    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_SEPARATOR     = "com.ldtteam.structurize.gui.schematicindex.save_summary.separator";
+    @NonNls
+    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_ERRORS        = "com.ldtteam.structurize.gui.schematicindex.save_summary.errors";
+    @NonNls
+    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_WARNINGS      = "com.ldtteam.structurize.gui.schematicindex.save_summary.warnings";
+    @NonNls
+    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_INFORMATIONAL = "com.ldtteam.structurize.gui.schematicindex.save_summary.informational";
+    @NonNls
+    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_FOOTER        = "com.ldtteam.structurize.gui.schematicindex.save_summary.footer";
+
     @NonNls
     public static final String PACK_TYPE_VALIDATION_TOOLTIP_MORE            = "com.ldtteam.structurize.pack_type.validation.tooltip.more";
     @NonNls
@@ -103,32 +124,6 @@ public final class TranslationConstants
     public static final String PACK_TYPE_VALIDATION_ANCHOR_NO_GROUND_LEVEL  = "com.ldtteam.structurize.pack_type.validation.anchor_no_ground_level";
     @NonNls
     public static final String PACK_TYPE_VALIDATION_MULTIPLE_ANCHORS        = "com.ldtteam.structurize.pack_type.validation.multiple_anchors";
-
-    @NonNls
-    public static final String SCHEMATIC_INDEX_CONFIRM_DELETE_PACK        = "com.ldtteam.structurize.gui.schematicindex.confirm_delete.pack";
-    @NonNls
-    public static final String SCHEMATIC_INDEX_CONFIRM_DELETE_SCHEMATIC   = "com.ldtteam.structurize.gui.schematicindex.confirm_delete.schematic";
-    @NonNls
-    public static final String SCHEMATIC_INDEX_CONFIRM_DELETE_LEVEL       = "com.ldtteam.structurize.gui.schematicindex.confirm_delete.level";
-
-    @NonNls
-    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_HEADER        = "com.ldtteam.structurize.gui.schematicindex.save_summary.header";
-    @NonNls
-    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_INTRO         = "com.ldtteam.structurize.gui.schematicindex.save_summary.intro";
-    @NonNls
-    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_SUCCEEDED     = "com.ldtteam.structurize.gui.schematicindex.save_summary.succeeded";
-    @NonNls
-    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_FAILED        = "com.ldtteam.structurize.gui.schematicindex.save_summary.failed";
-    @NonNls
-    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_SEPARATOR     = "com.ldtteam.structurize.gui.schematicindex.save_summary.separator";
-    @NonNls
-    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_ERRORS        = "com.ldtteam.structurize.gui.schematicindex.save_summary.errors";
-    @NonNls
-    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_WARNINGS      = "com.ldtteam.structurize.gui.schematicindex.save_summary.warnings";
-    @NonNls
-    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_INFORMATIONAL = "com.ldtteam.structurize.gui.schematicindex.save_summary.informational";
-    @NonNls
-    public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_FOOTER        = "com.ldtteam.structurize.gui.schematicindex.save_summary.footer";
 
     private TranslationConstants()
     {
