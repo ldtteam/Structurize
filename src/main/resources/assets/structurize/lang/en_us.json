@@ -238,5 +238,13 @@
   "com.ldtteam.tag.tooltip.invisible": "Hide Blueprint in Buildtool like Integrated Buildings or Mineshafts",
   "com.ldtteam.structurize.gui.switchpack.authors": "Authors: %s",
   "com.ldtteam.structurize.gui.switchpack.list.empty": "There are no structure packs found, please install some",
-  "com.ldtteam.structurize.gui.switchpack.pack_disabled.hover_text": "This pack is disabled because it only exists on the client. In order to use this pack, the server must enable the config option '%s' on the server."
+  "com.ldtteam.structurize.gui.switchpack.pack_disabled.hover_text": "This pack is disabled because it only exists on the client. In order to use this pack, the server must enable the config option '%s' on the server.",
+
+  "com.ldtteam.structurize.pack_type.validation.missing_required_schematic": "Pack is missing required schematic with %s",
+  "com.ldtteam.structurize.pack_type.validation.missing_optional_schematic": "Pack is missing optional schematic with %s",
+  "com.ldtteam.structurize.pack_type.validation.requirement_part_name": "name \"%s\"",
+  "com.ldtteam.structurize.pack_type.validation.requirement_part_path": "path \"%s\"",
+  "com.ldtteam.structurize.pack_type.validation.requirement_part_anchor": "anchor \"%s\"",
+  "com.ldtteam.structurize.pack_type.validation.requirement_part_and": "and",
+  "com.ldtteam.structurize.pack_type.validation.missing_level": "Missing level %s for schematic with %s"
 }
