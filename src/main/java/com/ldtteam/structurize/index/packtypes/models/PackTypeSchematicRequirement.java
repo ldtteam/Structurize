@@ -321,6 +321,15 @@ public class PackTypeSchematicRequirement
         }
 
         /**
+         * Restricts this requirement to schematics whose level matches the given value.
+         */
+        public Builder matchesLevel(final Integer level)
+        {
+            this.matchesLevel = level;
+            return this;
+        }
+
+        /**
          * Restricts this requirement to schematics that use the given anchor block type.
          */
         public Builder matchesAnchor(final BlockState anchor)
