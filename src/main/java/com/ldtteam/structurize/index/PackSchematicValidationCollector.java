@@ -13,7 +13,7 @@ import java.util.Map;
  * to a {@link com.ldtteam.structurize.index.models.PackSchematicValidationState}.
  *
  * <p>The constructor is package-private, so only classes within {@code com.ldtteam.structurize.index}
- * can create instances. This prevents external code from obtaining write access to a
+ * can create instances. This prevents external code from getting write access to a
  * {@link com.ldtteam.structurize.index.models.PackSchematicValidationState}.
  */
 public final class PackSchematicValidationCollector

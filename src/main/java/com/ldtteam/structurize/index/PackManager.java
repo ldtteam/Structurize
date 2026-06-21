@@ -235,9 +235,9 @@ public final class PackManager
     }
 
     /**
-     * Adds a new pack, owned by the overworld's data file.
+     * Adds a new pack, owned by the given level's data file.
      *
-     * @return the new pack's ID, or {@code null} if a pack with that name already exists or the overworld is not loaded.
+     * @return the new pack's ID, or {@code null} if a pack with that name already exists or the level is not loaded.
      */
     @Nullable
     public static String addPack(final @NotNull String name, final @NotNull Holder<PackType> packType, final ServerLevel level)

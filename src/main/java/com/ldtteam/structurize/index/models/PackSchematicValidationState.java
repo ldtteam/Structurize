@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.index.models;
 
 import com.ldtteam.structurize.index.PackSchematicValidationCollector;
+import com.ldtteam.structurize.index.packtypes.models.PackTypeSchematicRequirement;
 import com.ldtteam.structurize.index.packtypes.models.PackTypeSchematicRequirementSeverity;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.chat.Component;
@@ -16,7 +17,7 @@ import java.util.Map;
  *
  * <p>Unlike {@link PackValidationState} (which holds pack-level warnings and errors),
  * this class captures issues found against individual schematics by
- * {@link com.ldtteam.structurize.index.packtypes.models.PackTypeSchematicRequirement}s.
+ * {@link PackTypeSchematicRequirement}s.
  *
  * <p>Instances are written to via {@link #apply(PackSchematicValidationCollector)}, which requires
  * a {@link PackSchematicValidationCollector} that can only be constructed within
