@@ -13,7 +13,6 @@ import com.ldtteam.structurize.index.PackManager;
 import com.ldtteam.structurize.index.models.Pack;
 import com.ldtteam.structurize.index.models.PackSchematic;
 import com.ldtteam.structurize.index.packtypes.models.PackTypeSchematicRequirementSeverity;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -109,7 +108,7 @@ public class WindowSchematicIndexPackSchematicList extends AbstractWindowSkeleto
         // Header
         findPaneOfTypeByID(ID_PAGE_TITLE, Text.class).setText(Component.translatable(SCHEMATIC_INDEX_SCHEMATIC_OVERVIEW_PAGE_TITLE, this.pack.name()));
         registerButton(ID_BACK_BUTTON, this::close);
-        registerButton(ID_CLOSE_BUTTON, () -> Minecraft.getInstance().setScreen(null));
+        registerButton(ID_CLOSE_BUTTON, this::closeAll);
 
         // Subheader
         this.searchInput = findPaneOfTypeByID(ID_SEARCH_INPUT, TextField.class);

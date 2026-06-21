@@ -1,9 +1,18 @@
 package com.ldtteam.structurize.client.gui.index;
 
-import com.ldtteam.structurize.network.messages.SavePackMessage;
-import com.ldtteam.structurize.network.messages.SaveSchematicMessage;
-import com.ldtteam.structurize.network.messages.ValidatePackMessage;
-import com.ldtteam.structurize.network.messages.ValidateSchematicMessage;
+import com.ldtteam.structurize.api.constants.TranslationConstants;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
+import com.ldtteam.structurize.index.PackManager;
+import com.ldtteam.structurize.index.models.Pack;
+import com.ldtteam.structurize.index.models.PackSchematic;
+import com.ldtteam.structurize.network.messages.index.*;
+import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 /**
  * Shared action handlers for the schematic index GUI windows.
@@ -42,7 +51,14 @@ class SchematicIndexActions
      */
     static void deletePack(final String packId)
     {
-        // TODO
+        final Pack pack = PackManager.getClientPack(packId);
+        if (pack == null)
+        {
+            return;
+        }
+
+        new WindowConfirmDelete(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_CONFIRM_DELETE_PACK, pack.name()),
+            () -> new DeletePackMessage(packId).sendToServer()).openAsLayer();
     }
 
     /**
@@ -78,7 +94,15 @@ class SchematicIndexActions
      */
     static void deleteSchematic(final String packId, final String path, final String name)
     {
-        // TODO
+        final Pack pack = PackManager.getClientPack(packId);
+        if (pack == null)
+        {
+            return;
+        }
+
+        final String label = path.isEmpty() ? name : path + "/" + name;
+        new WindowConfirmDelete(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_CONFIRM_DELETE_SCHEMATIC, label, pack.name()),
+            () -> new DeleteSchematicMessage(packId, path, name).sendToServer()).openAsLayer();
     }
 
     /**
@@ -117,6 +141,74 @@ class SchematicIndexActions
      */
     static void deleteSchematic(final String packId, final String path, final String name, final int level)
     {
-        // TODO
+        final Pack pack = PackManager.getClientPack(packId);
+        if (pack == null)
+        {
+            return;
+        }
+
+        final String label = path.isEmpty() ? name : path + "/" + name;
+        new WindowConfirmDelete(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_CONFIRM_DELETE_LEVEL, level, label, pack.name()),
+            () -> new DeleteSchematicMessage(packId, path, name, level).sendToServer()).openAsLayer();
+    }
+
+    /**
+     * Highlights (renders the bounding box of) a single schematic level on the client.
+     *
+     * @param schematic the schematic level to highlight
+     */
+    static void highlightSchematicLevel(final PackSchematic schematic)
+    {
+        RenderingCache.queue("scan", new BoxPreviewData(schematic.pos1(), schematic.pos2(), schematic.anchor()));
+    }
+
+    /**
+     * Teleports the player to a single schematic level.
+     *
+     * @param schematic the schematic level to teleport to
+     */
+    static void teleportToSchematicLevel(final PackSchematic schematic)
+    {
+        new TeleportToSchematicLevelMessage(schematic.pos1(), schematic.pos2()).sendToServer();
+    }
+
+    /**
+     * Opens the placement GUI to relocate a single schematic level.
+     *
+     * <p>The blueprint is built client-side from the schematic's stored bounding box and loaded
+     * into the placement preview. On confirmation, the blocks are placed at the chosen location and the
+     * pack data is updated to match.
+     *
+     * @param packId the pack identifier
+     * @param path   the relative folder path of the schematic (may be empty for root-level)
+     * @param name   the schematic file name (without extension)
+     * @param level  the specific level to relocate (1-based)
+     */
+    static void relocateSchematicLevel(final String packId, final String path, final String name, final int level)
+    {
+        final Pack pack = PackManager.getClientPack(packId);
+        if (pack == null)
+        {
+            return;
+        }
+
+        final PackSchematic schematic = pack.schematics().stream().filter(s -> s.path().equals(path) && s.name().equals(name) && s.level() == level).findFirst().orElse(null);
+
+        if (schematic == null)
+        {
+            return;
+        }
+
+        final BoundingBox box = BoundingBox.fromCorners(schematic.pos1(), schematic.pos2());
+        final Blueprint blueprint = BlueprintUtil.createBlueprint(Minecraft.getInstance().level,
+            new BlockPos(box.minX(), box.minY(), box.minZ()),
+            (short) box.getXSpan(),
+            (short) box.getYSpan(),
+            (short) box.getZSpan(),
+            schematic.getFullSchematicPath(),
+            schematic.anchor());
+
+        RenderingCache.getOrCreateBlueprintPreviewData(WindowSchematicRelocate.PREVIEW_KEY).setBlueprint(blueprint);
+        new WindowSchematicRelocate(packId, path, name, level, Minecraft.getInstance().player.blockPosition()).open();
     }
 }

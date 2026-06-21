@@ -4,6 +4,7 @@ import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.ButtonHandler;
 import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.structurize.api.Log;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
@@ -89,5 +90,13 @@ public abstract class AbstractWindowSkeleton extends BOWindow implements ButtonH
     public final void doNothing(final Button ignored)
     {
         //do nothing with that event
+    }
+
+    /**
+     * Closes all open GUI layers, returning the player to the game.
+     */
+    public final void closeAll()
+    {
+        Minecraft.getInstance().setScreen(null);
     }
 }

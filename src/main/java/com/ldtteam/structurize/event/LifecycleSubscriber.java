@@ -7,6 +7,7 @@ import com.ldtteam.structurize.datagen.BlockEntityTagProvider;
 import com.ldtteam.structurize.datagen.BlockTagProvider;
 import com.ldtteam.structurize.datagen.EntityTagProvider;
 import com.ldtteam.structurize.network.messages.*;
+import com.ldtteam.structurize.network.messages.index.*;
 import com.ldtteam.structurize.storage.ServerStructurePackLoader;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
@@ -47,6 +48,8 @@ public class LifecycleSubscriber
         SaveScanMessage.TYPE.register(registry);
         ScanOnServerMessage.TYPE.register(registry);
         ScanToolTeleportMessage.TYPE.register(registry);
+        TeleportToSchematicLevelMessage.TYPE.register(registry);
+        RelocateSchematicLevelMessage.TYPE.register(registry);
         SetTagInTool.TYPE.register(registry);
         ShowScanMessage.TYPE.register(registry);
         SyncPackManagerMessage.TYPE.register(registry);
@@ -56,6 +59,8 @@ public class LifecycleSubscriber
         SaveSchematicMessage.TYPE.register(registry);
         CreatePackMessage.TYPE.register(registry);
         AddSchematicToPackMessage.TYPE.register(registry);
+        DeletePackMessage.TYPE.register(registry);
+        DeleteSchematicMessage.TYPE.register(registry);
         SyncPreviewCacheToClient.TYPE.register(registry);
         SyncPreviewCacheToServer.TYPE.register(registry);
         SyncSettingsToServer.TYPE.register(registry);

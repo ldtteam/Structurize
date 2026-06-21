@@ -67,7 +67,7 @@ public class WindowSchematicIndexPackList extends AbstractWindowSkeleton impleme
 
         // Header
         registerButton(ID_ADD_BUTTON, () -> new WindowSchematicIndexPackCreate().openAsLayer());
-        registerButton(ID_CLOSE_BUTTON, this::close);
+        registerButton(ID_CLOSE_BUTTON, this::closeAll);
 
         // Subheader
         this.searchInput = findPaneOfTypeByID(ID_INPUT_SEARCH_PACKS, TextField.class);

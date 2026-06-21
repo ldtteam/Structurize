@@ -1,15 +1,15 @@
 // TODO: Remove before publication — debug hook only
-package com.ldtteam.structurize.network.messages;
+package com.ldtteam.structurize.network.messages.index;
 
 import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.index.PackManager;
 import com.ldtteam.structurize.index.models.PackSchematic;
 import com.ldtteam.structurize.index.models.PackSchematicValidationState;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.ScanToolData;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -29,6 +29,7 @@ public class AddSchematicToPackMessage extends AbstractServerPlayMessage
     public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "add_schematic_to_pack", AddSchematicToPackMessage::new);
 
     private final ScanToolData.Slot slot;
+
     private final String packId;
 
     public AddSchematicToPackMessage(final String packId, final ScanToolData.Slot slot)
@@ -55,6 +56,11 @@ public class AddSchematicToPackMessage extends AbstractServerPlayMessage
     @Override
     protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
+        if (!Structurize.getConfig().getServer().isSchematicBuildServer.get())
+        {
+            return;
+        }
+
         final String fullName = slot.name();
         final BoxPreviewData box = slot.box();
 
@@ -81,14 +87,7 @@ public class AddSchematicToPackMessage extends AbstractServerPlayMessage
             schematicName = fileNamePart;
         }
 
-        final PackSchematic schematic = new PackSchematic(
-            schematicPath,
-            schematicName,
-            level,
-            box.pos1(),
-            box.pos2(),
-            box.anchor(),
-            new PackSchematicValidationState());
+        final PackSchematic schematic = new PackSchematic(schematicPath, schematicName, level, box.pos1(), box.pos2(), box.anchor(), new PackSchematicValidationState());
         PackManager.addSchematic(packId, schematic);
         PackManager.validateSchematic(packId, schematicPath, schematicName, level, player.serverLevel());
     }

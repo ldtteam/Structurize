@@ -1,6 +1,7 @@
 // TODO: Remove before publication — debug item only
 package com.ldtteam.structurize.items;
 
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.client.gui.index.WindowSchematicIndexPackList;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -20,7 +21,7 @@ public class ItemPackIndexDebug extends Item
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(final @NotNull Level level, final @NotNull Player player, final @NotNull InteractionHand hand)
     {
-        if (level.isClientSide)
+        if (level.isClientSide && Structurize.getConfig().getServer().isSchematicBuildServer.get())
         {
             new WindowSchematicIndexPackList().open();
         }

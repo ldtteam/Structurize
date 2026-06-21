@@ -8,6 +8,7 @@ import net.neoforged.neoforge.common.ModConfigSpec.Builder;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 import net.neoforged.neoforge.common.ModConfigSpec.EnumValue;
 import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
+import net.neoforged.neoforge.common.ModConfigSpec.LongValue;
 
 /**
  * Mod server configuration.
@@ -16,6 +17,12 @@ import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
 public class ServerConfiguration extends AbstractConfiguration
 {
     public static final String CONFIG_OPTION_ALLOW_PLAYER_SCHEMATICS = "allowPlayerSchematics";
+
+    /**
+     * Is this server used as a schematic build server?
+     * Enables the schematic index and related tooling.
+     */
+    public final BooleanValue isSchematicBuildServer;
 
     /**
      * Should the default schematics be ignored (from the jar)?
@@ -50,7 +57,7 @@ public class ServerConfiguration extends AbstractConfiguration
     /**
      * Max amount of blocks checked by a possible worker.
      */
-    public final IntValue schematicBlockLimit;
+    public final LongValue schematicBlockLimit;
 
     public final ConfigValue<String> iteratorType;
 
@@ -68,7 +75,12 @@ public class ServerConfiguration extends AbstractConfiguration
     {
         super(builder, Constants.MOD_ID);
 
-        createCategory("gameplay");
+        createCategory("schematic-building");
+
+        isSchematicBuildServer = defineBoolean("isSchematicBuildServer", false);
+        schematicBlockLimit = defineLong("schematicBlockLimit", 100000, 1000, Long.MAX_VALUE);
+
+        swapToCategory("gameplay");
 
         ignoreSchematicsFromJar = defineBoolean("ignoreSchematicsFromJar", false);
         allowPlayerSchematics = defineBoolean(CONFIG_OPTION_ALLOW_PLAYER_SCHEMATICS, false);
@@ -76,7 +88,6 @@ public class ServerConfiguration extends AbstractConfiguration
         maxCachedChanges = defineInteger("maxCachedChanges", 50, 0, 250);
         maxCachedSchematics = defineInteger("maxCachedSchematics", 100, 0, 100000);
         maxBlocksChecked = defineInteger("maxBlocksChecked", 1000, 0, 100000);
-        schematicBlockLimit = defineInteger("schematicBlockLimit", 100000, 1000, 1000000);
         iteratorType = defineString("iteratorType", "default");
 
         swapToCategory("teleport");

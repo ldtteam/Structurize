@@ -1,7 +1,8 @@
-package com.ldtteam.structurize.network.messages;
+package com.ldtteam.structurize.network.messages.index;
 
 import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.Registries;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.index.PackManager;
@@ -49,6 +50,11 @@ public class CreatePackMessage extends AbstractServerPlayMessage
     @Override
     protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
+        if (!Structurize.getConfig().getServer().isSchematicBuildServer.get())
+        {
+            return;
+        }
+
         final Holder.Reference<PackType> typeHolder = player.level().registryAccess().registryOrThrow(Registries.SCHEMATIC_INDEX_PACK_TYPES).getHolderOrThrow(type);
         PackManager.addPack(name, typeHolder, player.serverLevel());
     }

@@ -1,9 +1,11 @@
-package com.ldtteam.structurize.network.messages;
+package com.ldtteam.structurize.network.messages.index;
 
 import com.ldtteam.common.network.AbstractServerPlayMessage;
 import com.ldtteam.common.network.PlayMessageType;
+import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.index.PackManager;
+import com.ldtteam.structurize.network.messages.SaveScanMessage;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -43,6 +45,11 @@ public class SavePackMessage extends AbstractServerPlayMessage
     @Override
     protected void onExecute(final IPayloadContext context, final ServerPlayer player)
     {
+        if (!Structurize.getConfig().getServer().isSchematicBuildServer.get())
+        {
+            return;
+        }
+
         PackManager.savePack(packId, player.serverLevel(), player);
     }
 }

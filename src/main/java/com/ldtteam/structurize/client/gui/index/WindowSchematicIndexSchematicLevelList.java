@@ -11,7 +11,6 @@ import com.ldtteam.structurize.index.PackManager;
 import com.ldtteam.structurize.index.models.Pack;
 import com.ldtteam.structurize.index.models.PackSchematic;
 import com.ldtteam.structurize.index.packtypes.models.PackTypeSchematicRequirementSeverity;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -94,7 +93,7 @@ public class WindowSchematicIndexSchematicLevelList extends AbstractWindowSkelet
         final String label = schematicPath.isEmpty() ? schematicName : schematicPath + "/" + schematicName;
         findPaneOfTypeByID(ID_PAGE_TITLE, Text.class).setText(Component.translatable(SCHEMATIC_INDEX_LEVEL_OVERVIEW_PAGE_TITLE, pack.name(), label));
         registerButton(ID_BACK_BUTTON, this::close);
-        registerButton(ID_CLOSE_BUTTON, () -> Minecraft.getInstance().setScreen(null));
+        registerButton(ID_CLOSE_BUTTON, this::closeAll);
 
         // Subheader
         registerButton(ID_VALIDATE_ALL_BUTTON, () -> SchematicIndexActions.validateSchematic(pack.id(), schematicPath, schematicName));
@@ -114,9 +113,9 @@ public class WindowSchematicIndexSchematicLevelList extends AbstractWindowSkelet
             Component.translatable(SCHEMATIC_INDEX_SEVERITY_ERROR_DESC));
 
         // List items
-        registerButton(ID_LEVEL_HIGHLIGHT, button -> {});
-        registerButton(ID_LEVEL_TELEPORT, button -> {});
-        registerButton(ID_LEVEL_RELOCATE, button -> {});
+        registerButton(ID_LEVEL_HIGHLIGHT, this::handleLevelHighlight);
+        registerButton(ID_LEVEL_TELEPORT, this::handleLevelTeleport);
+        registerButton(ID_LEVEL_RELOCATE, this::handleLevelRelocate);
         registerButton(ID_LEVEL_VALIDATE, this::handleLevelValidation);
         registerButton(ID_LEVEL_SAVE, this::handleLevelSave);
         registerButton(ID_LEVEL_DELETE, this::handleLevelDelete);
@@ -193,6 +192,26 @@ public class WindowSchematicIndexSchematicLevelList extends AbstractWindowSkelet
         }
         this.pack = found;
         this.levels = buildLevels();
+    }
+
+    private void handleLevelHighlight(final Button button)
+    {
+        final PackSchematic schematic = levels.get(levelsList.getListElementIndexByPane(button));
+        SchematicIndexActions.highlightSchematicLevel(schematic);
+        closeAll();
+    }
+
+    private void handleLevelTeleport(final Button button)
+    {
+        final PackSchematic schematic = levels.get(levelsList.getListElementIndexByPane(button));
+        SchematicIndexActions.teleportToSchematicLevel(schematic);
+        closeAll();
+    }
+
+    private void handleLevelRelocate(final Button button)
+    {
+        final PackSchematic schematic = levels.get(levelsList.getListElementIndexByPane(button));
+        SchematicIndexActions.relocateSchematicLevel(pack.id(), schematic.path(), schematic.name(), schematic.level());
     }
 
     private void handleLevelValidation(final Button button)

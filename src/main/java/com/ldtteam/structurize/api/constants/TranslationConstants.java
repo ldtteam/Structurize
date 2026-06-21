@@ -105,6 +105,13 @@ public final class TranslationConstants
     public static final String PACK_TYPE_VALIDATION_MULTIPLE_ANCHORS        = "com.ldtteam.structurize.pack_type.validation.multiple_anchors";
 
     @NonNls
+    public static final String SCHEMATIC_INDEX_CONFIRM_DELETE_PACK        = "com.ldtteam.structurize.gui.schematicindex.confirm_delete.pack";
+    @NonNls
+    public static final String SCHEMATIC_INDEX_CONFIRM_DELETE_SCHEMATIC   = "com.ldtteam.structurize.gui.schematicindex.confirm_delete.schematic";
+    @NonNls
+    public static final String SCHEMATIC_INDEX_CONFIRM_DELETE_LEVEL       = "com.ldtteam.structurize.gui.schematicindex.confirm_delete.level";
+
+    @NonNls
     public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_HEADER        = "com.ldtteam.structurize.gui.schematicindex.save_summary.header";
     @NonNls
     public static final String SCHEMATIC_INDEX_SAVE_SUMMARY_INTRO         = "com.ldtteam.structurize.gui.schematicindex.save_summary.intro";

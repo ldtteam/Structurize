@@ -13,6 +13,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFixedCodec;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -36,19 +37,15 @@ public record Pack(
 {
     private static final Codec<Set<PackSchematic>> SCHEMATICS_CODEC = PackSchematic.CODEC.listOf().xmap(HashSet::new, ArrayList::new);
 
-    public static final Codec<Pack> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        Codec.STRING.fieldOf("id").forGetter(Pack::id),
+    public static final Codec<Pack> CODEC = RecordCodecBuilder.create(instance -> instance.group(Codec.STRING.fieldOf("id").forGetter(Pack::id),
         Codec.STRING.fieldOf("name").forGetter(Pack::name),
         RegistryFixedCodec.create(Registries.SCHEMATIC_INDEX_PACK_TYPES).fieldOf("type").forGetter(Pack::type),
         SCHEMATICS_CODEC.fieldOf("schematics").forGetter(Pack::schematics),
-        PackValidationState.CODEC.fieldOf("validation-state").forGetter(Pack::validationState)
-    ).apply(instance, Pack::new));
+        PackValidationState.CODEC.fieldOf("validation-state").forGetter(Pack::validationState)).apply(instance, Pack::new));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, Pack> STREAM_CODEC =
-        ByteBufCodecs.fromCodecWithRegistries(CODEC);
+    public static final StreamCodec<RegistryFriendlyByteBuf, Pack> STREAM_CODEC = ByteBufCodecs.fromCodecWithRegistries(CODEC);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, Map<String, Pack>> MAP_STREAM_CODEC =
-        ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, STREAM_CODEC);
+    public static final StreamCodec<RegistryFriendlyByteBuf, Map<String, Pack>> MAP_STREAM_CODEC = ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, STREAM_CODEC);
 
     /**
      * Convenience constructor for a new, empty pack with no schematics and a fresh validation state.
@@ -98,6 +95,21 @@ public record Pack(
         final Set<PackSchematic> updated = new HashSet<>(schematics);
         updated.remove(schematic);
         updated.add(schematic);
+        return new Pack(id, name, type, updated, validationState);
+    }
+
+    /**
+     * Returns a new {@link Pack} with schematics matching the given path and name removed,
+     * optionally restricted to a specific level.
+     *
+     * @param schematicPath  the relative folder path (may be empty for root-level)
+     * @param schematicName  the schematic file name (without extension)
+     * @param schematicLevel the level to remove (1-based), or {@code null} to remove all levels
+     */
+    public Pack withoutSchematic(final @NotNull String schematicPath, final @NotNull String schematicName, final @Nullable Integer schematicLevel)
+    {
+        final Set<PackSchematic> updated = new HashSet<>(schematics);
+        updated.removeIf(s -> s.path().equals(schematicPath) && s.name().equals(schematicName) && (schematicLevel == null || s.level() == schematicLevel));
         return new Pack(id, name, type, updated, validationState);
     }
 

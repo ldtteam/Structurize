@@ -7,7 +7,7 @@ import com.ldtteam.structurize.api.Registries;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.client.gui.AbstractWindowSkeleton;
 import com.ldtteam.structurize.index.packtypes.models.PackType;
-import com.ldtteam.structurize.network.messages.CreatePackMessage;
+import com.ldtteam.structurize.network.messages.index.CreatePackMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.MutableComponent;
@@ -21,7 +21,7 @@ import java.util.List;
  * GUI window for creating a new schematic pack.
  *
  * <p>Presents a name text field and a drop-down list populated from the registered
- * {@link PackType}s. The create button is only enabled when a non-blank name and a valid type
+ * {@link PackType}s. The "create" button is only enabled when a non-blank name and a valid type
  * are selected. On submission a {@link CreatePackMessage} is sent to the server.
  */
 public class WindowSchematicIndexPackCreate extends AbstractWindowSkeleton
@@ -67,7 +67,7 @@ public class WindowSchematicIndexPackCreate extends AbstractWindowSkeleton
             }
         });
 
-        registerButton(ID_CLOSE_BUTTON, () -> Minecraft.getInstance().setScreen(null));
+        registerButton(ID_CLOSE_BUTTON, this::closeAll);
         registerButton(ID_BACK_BUTTON, this::close);
         registerButton(ID_CANCEL_BUTTON, this::close);
         registerButton(ID_CREATE_BUTTON, this::submit);

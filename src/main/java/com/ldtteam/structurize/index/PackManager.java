@@ -10,6 +10,7 @@ import com.ldtteam.structurize.index.packtypes.models.PackType;
 import com.ldtteam.structurize.index.packtypes.models.PackTypeSchematicRequirementSeverity;
 import com.ldtteam.structurize.network.messages.SyncPackManagerMessage;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -221,6 +222,18 @@ public final class PackManager
         }
     }
 
+    // ---- Pack-level operations: getPack > addPack > validatePack > savePack > deletePack ----
+
+    /**
+     * Returns the pack with the given ID, or {@code null} if not loaded.
+     */
+    @Nullable
+    public static Pack getPack(final @NotNull String packId)
+    {
+        final LevelPackData data = getLevelPackData(packId);
+        return data != null ? data.getOwnedPacks().get(packId) : null;
+    }
+
     /**
      * Adds a new pack, owned by the overworld's data file.
      *
@@ -253,16 +266,6 @@ public final class PackManager
     }
 
     /**
-     * Returns the pack with the given ID, or {@code null} if not loaded.
-     */
-    @Nullable
-    public static Pack getPack(final @NotNull String packId)
-    {
-        final LevelPackData data = getLevelPackData(packId);
-        return data != null ? data.getOwnedPacks().get(packId) : null;
-    }
-
-    /**
      * Runs pack-level validation on the given pack and syncs the result to all players.
      * Does not run per-schematic blueprint checks; use {@link #validateSchematic} for those.
      */
@@ -276,39 +279,6 @@ public final class PackManager
         }
 
         PackValidator.validatePack(pack, level);
-        data.setDirty();
-    }
-
-    /**
-     * Runs per-schematic validation for schematics within the given pack that match the provided
-     * path, name, and optionally level. After updating the affected schematics, the pack is synced
-     * to all players.
-     *
-     * <p>When {@code level} is {@code null} all schematics sharing the given path and name are
-     * validated (every level of that schematic group). When a specific level is supplied, only the
-     * schematic entry for that level is validated.
-     *
-     * @param packId        the pack identifier
-     * @param schematicPath the relative folder path of the schematic (may be empty for root-level)
-     * @param schematicName the schematic file name (without extension)
-     * @param level         the specific level to validate (1-based), or {@code null} for all levels
-     * @param serverLevel   the server level used to resolve anchor block types
-     */
-    public static void validateSchematic(
-        final @NotNull String packId,
-        final @NotNull String schematicPath,
-        final @NotNull String schematicName,
-        final @Nullable Integer level,
-        final @NotNull ServerLevel serverLevel)
-    {
-        final LevelPackData data = getLevelPackData(packId);
-        final Pack pack = getPack(packId);
-        if (data == null || pack == null)
-        {
-            return;
-        }
-
-        PackValidator.validateSchematic(pack, schematicPath, schematicName, level, serverLevel);
         data.setDirty();
     }
 
@@ -354,6 +324,123 @@ public final class PackManager
         }
 
         sendSaveSummary(player, pack.name(), succeeded, failed, errors, warnings, infos);
+    }
+
+    /**
+     * Removes a pack entirely from the index. The physical schematic files on disk are not touched.
+     *
+     * @param packId the pack identifier
+     */
+    public static void deletePack(final @NotNull String packId)
+    {
+        final LevelPackData data = getLevelPackData(packId);
+        if (data == null)
+        {
+            return;
+        }
+
+        data.getOwnedPacksMutable().remove(packId);
+        packOwnerDimension.remove(packId);
+        data.setDirty();
+    }
+
+    // ---- Schematic-level operations: addSchematic > relocateSchematic > validateSchematic > saveSchematic > deleteSchematic ----
+
+    /**
+     * Adds or replaces a schematic in the given pack and marks that pack's owning level dirty.
+     * If a schematic with the same path, name, and level already exists, it is replaced.
+     */
+    public static void addSchematic(final @NotNull String packId, final @NotNull PackSchematic schematic)
+    {
+        final LevelPackData data = getLevelPackData(packId);
+        if (data == null)
+        {
+            return;
+        }
+
+        final Pack pack = data.getOwnedPacks().get(packId);
+        if (pack == null)
+        {
+            return;
+        }
+
+        data.getOwnedPacksMutable().put(packId, pack.withSchematic(schematic));
+        data.setDirty();
+    }
+
+    /**
+     * Moves a schematic's stored bounding box to the given world positions.
+     *
+     * <p>Looks up the existing entry for the given path/name/level, replaces it with a copy that
+     * has the new pos1/pos2, and syncs the change to all clients.
+     *
+     * @param packId        the pack identifier
+     * @param schematicPath the relative folder path of the schematic (may be empty)
+     * @param schematicName the schematic file name (without extension)
+     * @param level         the specific level to relocate (1-based)
+     * @param newPos1       one corner of the new bounding box
+     * @param newPos2       the opposite corner of the new bounding box
+     */
+    public static void relocateSchematic(
+        final @NotNull String packId,
+        final @NotNull String schematicPath,
+        final @NotNull String schematicName,
+        final int level,
+        final @NotNull BlockPos newPos1,
+        final @NotNull BlockPos newPos2)
+    {
+        final LevelPackData data = getLevelPackData(packId);
+        final Pack pack = getPack(packId);
+        if (data == null || pack == null)
+        {
+            return;
+        }
+
+        final PackSchematic existing =
+            pack.schematics().stream().filter(s -> s.path().equals(schematicPath) && s.name().equals(schematicName) && s.level() == level).findFirst().orElse(null);
+
+        if (existing == null)
+        {
+            return;
+        }
+
+        final PackSchematic relocated = new PackSchematic(schematicPath, schematicName, level, newPos1, newPos2, existing.anchor(), existing.validationState());
+
+        data.getOwnedPacksMutable().put(packId, pack.withSchematic(relocated));
+        data.setDirty();
+    }
+
+    /**
+     * Runs per-schematic validation for schematics within the given pack that match the provided
+     * path, name, and optionally level. After updating the affected schematics, the pack is synced
+     * to all players.
+     *
+     * <p>When {@code level} is {@code null} all schematics sharing the given path and name are
+     * validated (every level of that schematic group). When a specific level is supplied, only the
+     * schematic entry for that level is validated.
+     *
+     * @param packId        the pack identifier
+     * @param schematicPath the relative folder path of the schematic (may be empty for root-level)
+     * @param schematicName the schematic file name (without extension)
+     * @param level         the specific level to validate (1-based), or {@code null} for all levels
+     * @param serverLevel   the server level used to resolve anchor block types
+     */
+    public static void validateSchematic(
+        final @NotNull String packId,
+        final @NotNull String schematicPath,
+        final @NotNull String schematicName,
+        final @Nullable Integer level,
+        final @NotNull ServerLevel serverLevel)
+    {
+        final LevelPackData data = getLevelPackData(packId);
+        final Pack pack = getPack(packId);
+        if (data == null || pack == null)
+        {
+            return;
+        }
+
+        PackValidator.validateSchematic(pack, schematicPath, schematicName, level, serverLevel);
+        data.setDirty();
     }
 
     /**
@@ -418,6 +505,33 @@ public final class PackManager
     }
 
     /**
+     * Removes schematics matching the given path and name from a pack. When {@code schematicLevel}
+     * is {@code null} all levels of the schematic group are removed; otherwise only the specified
+     * level is removed. The physical schematic files on disk are not touched.
+     *
+     * @param packId         the pack identifier
+     * @param schematicPath  the relative folder path of the schematic (may be empty for root-level)
+     * @param schematicName  the schematic file name (without extension)
+     * @param schematicLevel the level to remove (1-based), or {@code null} to remove all levels
+     */
+    public static void deleteSchematic(
+        final @NotNull String packId,
+        final @NotNull String schematicPath,
+        final @NotNull String schematicName,
+        final @Nullable Integer schematicLevel)
+    {
+        final LevelPackData data = getLevelPackData(packId);
+        final Pack pack = getPack(packId);
+        if (data == null || pack == null)
+        {
+            return;
+        }
+
+        data.getOwnedPacksMutable().put(packId, pack.withoutSchematic(schematicPath, schematicName, schematicLevel));
+        data.setDirty();
+    }
+
+    /**
      * Creates the blueprint for a single schematic entry, validates it, updates the stored
      * validation state, and — if there are no blocking errors — sends the blueprint to the player.
      *
@@ -457,28 +571,6 @@ public final class PackManager
         player.sendSystemMessage(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_SAVE_SUMMARY_INFORMATIONAL, infos).withStyle(ChatFormatting.AQUA));
         player.sendSystemMessage(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_SAVE_SUMMARY_SEPARATOR));
         player.sendSystemMessage(Component.translatable(TranslationConstants.SCHEMATIC_INDEX_SAVE_SUMMARY_FOOTER));
-    }
-
-    /**
-     * Adds or replaces a schematic in the given pack and marks that pack's owning level dirty.
-     * If a schematic with the same path, name, and level already exists, it is replaced.
-     */
-    public static void addSchematic(final @NotNull String packId, final @NotNull PackSchematic schematic)
-    {
-        final LevelPackData data = getLevelPackData(packId);
-        if (data == null)
-        {
-            return;
-        }
-
-        final Pack pack = data.getOwnedPacks().get(packId);
-        if (pack == null)
-        {
-            return;
-        }
-
-        data.getOwnedPacksMutable().put(packId, pack.withSchematic(schematic));
-        data.setDirty();
     }
 
     @Nullable
