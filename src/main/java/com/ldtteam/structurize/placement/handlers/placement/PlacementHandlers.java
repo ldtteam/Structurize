@@ -582,7 +582,7 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final IPlacementContext placementContext)
         {
-            if (blockState.getValue(BedBlock.PART) == BedPart.HEAD)
+            if (blockState.getValue(BedBlock.PART) == BedPart.FOOT)
             {
                 final List<ItemStack> list = new ArrayList<>();
                 list.add(new ItemStack(blockState.getBlock(), 1));
