@@ -73,7 +73,7 @@ public class BlockTagSubstitutionPlacementHandler implements IPlacementHandler
                 world.setBlock(pos, blockState, UPDATE_FLAG);
                 if (tileEntityData != null)
                 {
-                    handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
+                    handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror().getRotationMirror());
                 }
                 return ActionProcessingResult.PASS;
             }
@@ -85,7 +85,7 @@ public class BlockTagSubstitutionPlacementHandler implements IPlacementHandler
 
             if (tileEntityData != null)
             {
-                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
+                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror().getRotationMirror());
             }
         }
 
