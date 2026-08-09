@@ -91,7 +91,7 @@ public class DoBlockPlacementHandler implements IPlacementHandler
         {
             try
             {
-                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
+                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror().getRotationMirror());
                 placementState.getBlock().setPlacedBy(world, pos, placementState, null, placementState.getBlock().getCloneItemStack(placementState,
                     new BlockHitResult(new Vec3(0, 0, 0), Direction.NORTH, pos, false), world, pos, null));
             }
