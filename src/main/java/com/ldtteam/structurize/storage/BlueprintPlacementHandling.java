@@ -2,9 +2,10 @@ package com.ldtteam.structurize.storage;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.ldtteam.structurize.api.Log;
-import com.ldtteam.structurize.api.Utils;
-import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.interfaces.ISpecialCreativeHandlerAnchorBlock;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.management.Manager;
@@ -16,6 +17,8 @@ import com.ldtteam.structurize.placement.StructurePlacer;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.IOPool;
+import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.fml.ModList;
@@ -29,7 +32,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ldtteam.structurize.api.constants.Constants.*;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
 
 /**
  * Class where blueprint placement is handled.
@@ -44,11 +47,11 @@ public class BlueprintPlacementHandling
     {
         if (!StructurePacks.hasPack(message.structurePackId))
         {
-            new ClientBlueprintRequestMessage(message).sendToPlayer(message.player);
+            Network.getNetwork().sendToPlayer(new ClientBlueprintRequestMessage(message), message.player);
         }
         else
         {
-            ServerFutureProcessor.queueBlueprint(new ServerFutureProcessor.BlueprintProcessingData(StructurePacks.getBlueprintFuture(message.structurePackId, message.blueprintPath, message.world.registryAccess()),
+            ServerFutureProcessor.queueBlueprint(new ServerFutureProcessor.BlueprintProcessingData(StructurePacks.getBlueprintFuture(message.structurePackId, message.blueprintPath),
               message.world, (blueprint) -> process(blueprint, message)));
         }
     }
@@ -77,28 +80,34 @@ public class BlueprintPlacementHandling
                         message.world,
                         message.player,
                         message.pos,
-                        message.rotationMirror);
+                        new PlacementSettings(message.mirror, message.rotation));
             }
             return;
         }
 
         Utils.playSuccessSound(message.player);
         final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-        blueprint.setRotationMirror(message.rotationMirror, message.world);
+        blueprint.setRotationMirror(RotationMirror.of(message.rotation, message.mirror), message.world);
 
         final IStructureHandler structure;
-        final boolean fancyPlacement = message.type == BuildToolPlacementMessage.HandlerType.Pretty;
-        if (anchor.getBlock() instanceof final ISpecialCreativeHandlerAnchorBlock specialAnchor)
+        if (anchor.getBlock() instanceof ISpecialCreativeHandlerAnchorBlock)
         {
-            if (!specialAnchor.setup(message.player, message.world, message.pos, blueprint, message.rotationMirror, fancyPlacement, message.structurePackId, message.blueprintPath))
-            {
-                return;
-            }
-            structure = specialAnchor.getStructureHandler(message.world, message.pos, blueprint, message.rotationMirror, fancyPlacement);
+           if (!((ISpecialCreativeHandlerAnchorBlock) anchor.getBlock()).setup(message.player, message.world, message.pos, blueprint, new PlacementSettings(message.mirror, message.rotation),
+              message.type == BuildToolPlacementMessage.HandlerType.Pretty, message.structurePackId, message.blueprintPath))
+           {
+               return;
+           }
+            structure =
+              ((ISpecialCreativeHandlerAnchorBlock) anchor.getBlock()).getStructureHandler(message.world, message.pos, blueprint, new PlacementSettings(message.mirror, message.rotation),
+                message.type == BuildToolPlacementMessage.HandlerType.Pretty);
         }
         else
         {
-            structure = new CreativeStructureHandler(message.world, message.pos, blueprint, message.rotationMirror, fancyPlacement);
+            structure = new CreativeStructureHandler(message.world,
+              message.pos,
+              blueprint,
+              new PlacementSettings(message.mirror, message.rotation),
+              message.type == BuildToolPlacementMessage.HandlerType.Pretty);
         }
 
         final StructurePlacer instantPlacer = new StructurePlacer(structure);
@@ -164,7 +173,7 @@ public class BlueprintPlacementHandling
                 Log.getLogger().error("Failed to save blueprint file for client blueprint: " + blueprintSyncMessage.blueprintPath, e);
             }
 
-            return StructurePacks.getBlueprint(packId, blueprintPath, player.level().registryAccess());
+            return StructurePacks.getBlueprint(packId, blueprintPath);
         }), player.level(), blueprint -> process(blueprint, new BuildToolPlacementMessage(blueprintSyncMessage, player, player.level()))));
     }
 }

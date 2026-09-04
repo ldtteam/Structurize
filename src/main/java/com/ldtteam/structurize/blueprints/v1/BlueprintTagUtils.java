@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.ldtteam.structurize.api.constants.Constants.GROUNDLEVEL_TAG;
-import static com.ldtteam.structurize.api.constants.Constants.INVISIBLE_TAG;
+import static com.ldtteam.structurize.api.util.constant.Constants.GROUNDLEVEL_TAG;
+import static com.ldtteam.structurize.api.util.constant.Constants.INVISIBLE_TAG;
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
 
 /**
@@ -36,7 +36,7 @@ public class BlueprintTagUtils
 
         if (nbt != null)
         {
-            return IBlueprintDataProviderBE.readTagPosMapFrom(nbt.getCompound(TAG_BLUEPRINTDATA));
+            return IBlueprintDataProviderBE.readTagPosMapFrom(nbt.getCompoundOrEmpty(TAG_BLUEPRINTDATA));
         }
 
         return new HashMap<>();

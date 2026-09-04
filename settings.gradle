@@ -1,8 +1,22 @@
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+pluginManagement {
+    repositories {
+        maven { url = uri('/tmp/maven-local') }
+        gradlePluginPortal()
+        maven {
+            url = uri('https://ldtteam.jfrog.io/artifactory/tableau/')
+            name = 'Tableau'
+        }
+    }
 }
 
-gradle.startParameter.setProjectProperties(new HashMap<>(gradle.startParameter.getProjectProperties()))
-gradle.startParameter.getProjectProperties().put("build.start", Long.toString(System.currentTimeMillis()))
+plugins {
+    id 'com.ldtteam.tableau' version '0.0.96-j21.0'
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
 
-rootProject.name = "structurize"
+rootProject.name = 'structurize'
+
+features {
+    usesGit = true
+    usesCurse = true
+}

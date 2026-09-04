@@ -1,13 +1,16 @@
 package com.ldtteam.structurize.config;
 
-import com.ldtteam.common.config.AbstractConfiguration;
-import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer;
-import net.neoforged.neoforge.common.ModConfigSpec.*;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
+import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
+import net.neoforged.neoforge.common.ModConfigSpec.DoubleValue;
+import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
 
 /**
  * Mod client configuration.
@@ -29,24 +32,23 @@ public class ClientConfiguration extends AbstractConfiguration
      *
      * @param builder config builder
      */
-    public ClientConfiguration(final Builder builder)
+    protected ClientConfiguration(final ModConfigSpec.Builder builder)
     {
-        super(builder, Constants.MOD_ID);
-
-        createCategory("blueprint");
-        createCategory("renderer");
+        createCategory(builder, "blueprint.renderer");
         // if you add anything to this category, also add it #collectPreviewRendererSettings()
         
-        renderPlaceholdersNice = defineBoolean("render_placeholders_nice", false);
-        sharePreviews = defineBoolean("share_previews", false);
-        displayShared = defineBoolean("see_shared_previews", false);
-        rendererLightLevel = defineInteger("light_level", 15, -1, 15);
-        rendererTransparency = defineDouble("transparency", -1, -1, 1);
+        renderPlaceholdersNice = defineBoolean(builder, "render_placeholders_nice", false);
+        sharePreviews = defineBoolean(builder, "share_previews", false);
+        displayShared = defineBoolean(builder, "see_shared_previews", false);
+        rendererLightLevel = defineInteger(builder, "light_level", 15, -1, 15);
+        // Keep blueprint presets readable against the world by default.  A negative value
+        // remains available for the legacy solid-preview behavior through the config UI.
+        rendererTransparency = defineDouble(builder, "transparency", 0.4, -1, 1);
 
         addWatcher(BlueprintHandler.getInstance()::clearCache, renderPlaceholdersNice, rendererLightLevel);
         addWatcher(displayShared, (oldValue, isSharingEnabled) -> {
             // notify server
-            new SyncSettingsToServer().sendToServer();
+            Network.getNetwork().sendToServer(new SyncSettingsToServer());
             if (!isSharingEnabled)
             {
                 RenderingCache.removeSharedPreviews();
@@ -59,12 +61,12 @@ public class ClientConfiguration extends AbstractConfiguration
             }
         });
 
-        finishCategory();   // renderer
-        finishCategory();   // blueprint
+        finishCategory(builder);    // blueprint.renderer
+        finishCategory(builder);    // blueprint
 
-        createCategory("gameplay");
-        scanToolScrolling = defineBoolean("scan_tool_scrolling", false);
-        finishCategory();
+        createCategory(builder, "gameplay");
+        scanToolScrolling = defineBoolean(builder, "scan_tool_scrolling", false);
+        finishCategory(builder);    // gameplay
     }
 
     /**

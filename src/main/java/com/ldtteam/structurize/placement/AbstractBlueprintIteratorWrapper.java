@@ -1,7 +1,9 @@
 package com.ldtteam.structurize.placement;
 
+import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import net.minecraft.core.BlockPos;
+import com.ldtteam.structurize.api.util.TriPredicate;
 
 /**
  * This is a base class for BlueprintIterators based on a delegated iterator

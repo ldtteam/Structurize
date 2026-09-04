@@ -1,24 +1,21 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractServerPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.BlueprintPlacementHandling;
-import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
 import org.apache.commons.io.FilenameUtils;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Sends a blueprint from the client to the server.
  */
-public class BlueprintSyncMessage extends AbstractServerPlayMessage
+public class BlueprintSyncMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "blueprint_sync", BlueprintSyncMessage::new);
-
     /**
      * Structure placement info.
      */
@@ -27,26 +24,27 @@ public class BlueprintSyncMessage extends AbstractServerPlayMessage
     public       String structurePackId;
     public final String blueprintPath;
     public final BlockPos pos;
-    public final RotationMirror rotationMirror;
+    public final Rotation rotation;
+    public final Mirror   mirror;
 
     /**
      * Blueprint data future.
      */
-    public final byte[] blueprintData;
+    public byte[] blueprintData;
 
     /**
      * Buffer reading message constructor.
      */
-    protected BlueprintSyncMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public BlueprintSyncMessage(final FriendlyByteBuf buf)
     {
-        super(buf, type);
         this.type = BuildToolPlacementMessage.HandlerType.values()[buf.readInt()];
         this.handlerId = buf.readUtf(32767);
 
         this.structurePackId = buf.readUtf(32767);
         this.blueprintPath = FilenameUtils.normalize(buf.readUtf(32767));
         this.pos = buf.readBlockPos();
-        this.rotationMirror = RotationMirror.values()[buf.readInt()];
+        this.rotation = Rotation.values()[buf.readInt()];
+        this.mirror = Mirror.values()[buf.readInt()];
 
         this.blueprintData = buf.readByteArray();
     }
@@ -61,19 +59,19 @@ public class BlueprintSyncMessage extends AbstractServerPlayMessage
       final ClientBlueprintRequestMessage msg,
       final byte[] blueprintData)
     {
-        super(TYPE);
         this.type = msg.type;
         this.handlerId = msg.handlerId;
 
         this.structurePackId = msg.structurePackId;
         this.blueprintPath = msg.blueprintPath;
         this.pos = msg.pos;
-        this.rotationMirror = msg.rotationMirror;
+        this.rotation = msg.rotation;
+        this.mirror = msg.mirror;
         this.blueprintData = blueprintData;
     }
 
     @Override
-    protected void toBytes(final RegistryFriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeInt(this.type.ordinal());
         buf.writeUtf(this.handlerId);
@@ -81,17 +79,25 @@ public class BlueprintSyncMessage extends AbstractServerPlayMessage
         buf.writeUtf(this.structurePackId);
         buf.writeUtf(this.blueprintPath);
         buf.writeBlockPos(this.pos);
-        buf.writeInt(this.rotationMirror.ordinal());
+        buf.writeInt(this.rotation.ordinal());
+        buf.writeInt(this.mirror.ordinal());
 
         buf.writeByteArray(this.blueprintData);
     }
 
+    @Nullable
     @Override
-    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.SERVER;
+    }
+
+    @Override
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
     {
         if (Structurize.getConfig().getServer().allowPlayerSchematics.get())
         {
-            BlueprintPlacementHandling.handlePlacement(this, player);
+            BlueprintPlacementHandling.handlePlacement(this, ctxIn.getSender());
         }
     }
 }

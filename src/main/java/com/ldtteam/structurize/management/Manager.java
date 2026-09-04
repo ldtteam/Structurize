@@ -1,24 +1,28 @@
 package com.ldtteam.structurize.management;
 
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.Shape;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
+import com.ldtteam.structurize.operations.ITickedWorldOperation;
 import com.ldtteam.structurize.operations.RedoOperation;
 import com.ldtteam.structurize.operations.UndoOperation;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
-import com.ldtteam.structurize.util.ITickedWorldOperation;
-import com.ldtteam.structurize.api.RotationMirror;
-import com.ldtteam.structurize.api.Shape;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.SavedDataStorage;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
+
 import java.util.*;
 
 import static com.ldtteam.structurize.operations.UndoOperation.UNDO_PREFIX;
@@ -44,6 +48,11 @@ public final class Manager
      */
     private static final LinkedList<ITickedWorldOperation> scanToolOperationPool = new LinkedList<>();
 
+    /**
+     * Pseudo unique id for the server
+     */
+    private static volatile UUID serverUUID = null;
+
     private Manager()
     {
         //Hides default constructor.
@@ -56,19 +65,15 @@ public final class Manager
      */
     public static void onWorldTick(final ServerLevel world)
     {
-        int count = 0;
         if (!scanToolOperationPool.isEmpty())
         {
-            while (count++ <= Structurize.getConfig().getServer().maxOperationsPerTick.get())
+            final ITickedWorldOperation operation = scanToolOperationPool.peek();
+            if (operation != null && operation.apply(world))
             {
-                final ITickedWorldOperation operation = scanToolOperationPool.peek();
-                if (operation != null && operation.apply(world))
+                scanToolOperationPool.pop();
+                if (!(operation instanceof UndoOperation || operation instanceof RedoOperation))
                 {
-                    scanToolOperationPool.pop();
-                    if (!(operation instanceof UndoOperation || operation instanceof RedoOperation))
-                    {
-                        addToUndoRedoCache(operation.getChangeStorage());
-                    }
+                    addToUndoRedoCache(operation.getChangeStorage());
                 }
             }
         }
@@ -128,7 +133,8 @@ public final class Manager
      * @param inputFillBlock the fill block.
      * @param hollow         if hollow or not.
      * @param player         the player.
-     * @param rotMir         the mirror and the rotation.
+     * @param mirror         the mirror.
+     * @param rotation       the rotation.
      */
     public static void pasteStructure(
       final ServerLevel server,
@@ -143,11 +149,11 @@ public final class Manager
       final ItemStack inputFillBlock,
       final boolean hollow,
       final ServerPlayer player,
-      final RotationMirror rotMir,
-      final HolderLookup.Provider provider)
+      final Mirror mirror,
+      final Rotation rotation)
     {
-        final Blueprint blueprint = Manager.getStructureFromFormula(width, length, height, frequency, equation, shape, inputBlock, inputFillBlock, hollow, provider);
-        StructurePlacementUtils.loadAndPlaceStructureWithRotation(server, blueprint, pos, rotMir, true, player);
+        final Blueprint blueprint = Manager.getStructureFromFormula(width, length, height, frequency, equation, shape, inputBlock, inputFillBlock, hollow);
+        StructurePlacementUtils.loadAndPlaceStructureWithRotation(server, blueprint, pos, rotation, mirror, true, player);
     }
 
     /**
@@ -172,9 +178,7 @@ public final class Manager
       final String equation,
       final Shape shape,
       final ItemStack inputBlock,
-      final ItemStack inputFillBlock,
-      final boolean hollow,
-      final HolderLookup.Provider provider)
+      final ItemStack inputFillBlock, final boolean hollow)
     {
         final Blueprint blueprint;
         final BlockState mainBlock = BlockUtils.getBlockStateFromStack(inputBlock, Blocks.GOLD_BLOCK.defaultBlockState());
@@ -182,35 +186,35 @@ public final class Manager
 
         if (shape == Shape.SPHERE || shape == Shape.HALF_SPHERE || shape == Shape.BOWL)
         {
-            blueprint = generateSphere(height / 2, mainBlock, fillBlock, hollow, shape, provider);
+            blueprint = generateSphere(height / 2, mainBlock, fillBlock, hollow, shape);
         }
         else if (shape == Shape.CUBE)
         {
-            blueprint = generateCube(height, width, length, mainBlock, fillBlock, hollow, provider);
+            blueprint = generateCube(height, width, length, mainBlock, fillBlock, hollow);
         }
         else if (shape == Shape.WAVE)
         {
-            blueprint = generateWave(height, width, length, frequency, mainBlock, true, provider);
+            blueprint = generateWave(height, width, length, frequency, mainBlock, true);
         }
         else if (shape == Shape.WAVE_3D)
         {
-            blueprint = generateWave(height, width, length, frequency, mainBlock, false, provider);
+            blueprint = generateWave(height, width, length, frequency, mainBlock, false);
         }
         else if (shape == Shape.CYLINDER)
         {
-            blueprint = generateCylinder(height, width, mainBlock, fillBlock, hollow, provider);
+            blueprint = generateCylinder(height, width, mainBlock, fillBlock, hollow);
         }
         else if (shape == Shape.PYRAMID || shape == Shape.UPSIDE_DOWN_PYRAMID || shape == Shape.DIAMOND)
         {
-            blueprint = generatePyramid(height, mainBlock, fillBlock, hollow, shape, provider);
+            blueprint = generatePyramid(height, mainBlock, fillBlock, hollow, shape);
         }
         else if (shape == Shape.CONE)
         {
-            blueprint = generateCone(height, width, mainBlock, fillBlock, hollow, shape, provider);
+            blueprint = generateCone(height, width, mainBlock, fillBlock, hollow, shape);
         }
         else
         {
-            blueprint = generateRandomShape(height, width, length, equation, mainBlock, provider);
+            blueprint = generateRandomShape(height, width, length, equation, mainBlock);
         }
         return blueprint;
     }
@@ -220,8 +224,7 @@ public final class Manager
       final BlockState block,
       final BlockState fillBlock,
       final boolean hollow,
-      final Shape shape,
-      final HolderLookup.Provider provider)
+      final Shape shape)
     {
         final int height = shape == Shape.DIAMOND ? inputHeight : inputHeight * 2;
         final int hHeight = height / 2;
@@ -256,7 +259,7 @@ public final class Manager
             }
         }
 
-        final Blueprint blueprint = new Blueprint((short) height, (short) (shape == Shape.DIAMOND ? height : inputHeight + 2), (short) height, provider);
+        final Blueprint blueprint = new Blueprint((short) height, (short) (shape == Shape.DIAMOND ? height : inputHeight + 2), (short) height);
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -267,8 +270,7 @@ public final class Manager
       final BlockState block,
       final BlockState fillBlock,
       final boolean hollow,
-      final Shape shape,
-      final HolderLookup.Provider provider)
+      final Shape shape)
     {
         final int height = shape == Shape.DIAMOND ? inputHeight : inputHeight * 2;
         final Map<BlockPos, BlockState> posList = new HashMap<>();
@@ -293,7 +295,7 @@ public final class Manager
             }
         }
 
-        final Blueprint blueprint = new Blueprint((short) (width * 2), (short) height, (short) (width * 2), provider);
+        final Blueprint blueprint = new Blueprint((short) (width * 2), (short) height, (short) (width * 2));
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -314,8 +316,7 @@ public final class Manager
       final int length,
       final BlockState block,
       final BlockState fillBlock,
-      final boolean hollow,
-      final HolderLookup.Provider provider)
+      final boolean hollow)
     {
         final Map<BlockPos, BlockState> posList = new HashMap<>();
         for (int y = 0; y < height; y++)
@@ -335,7 +336,7 @@ public final class Manager
                 }
             }
         }
-        final Blueprint blueprint = new Blueprint((short) width, (short) height, (short) length, provider);
+        final Blueprint blueprint = new Blueprint((short) width, (short) height, (short) length);
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -354,8 +355,7 @@ public final class Manager
       final BlockState block,
       final BlockState fillBlock,
       final boolean hollow,
-      final Shape shape,
-      final HolderLookup.Provider provider)
+      final Shape shape)
     {
         final Map<BlockPos, BlockState> posList = new HashMap<>();
         for (int y = 0; y <= height + 1; y++)
@@ -387,7 +387,7 @@ public final class Manager
             }
         }
 
-        final Blueprint blueprint = new Blueprint((short) ((height + 2) * 2), (short) ((height + 2) * 2), (short) ((height + 2) * 2), provider);
+        final Blueprint blueprint = new Blueprint((short) ((height + 2) * 2), (short) ((height + 2) * 2), (short) ((height + 2) * 2));
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -406,8 +406,7 @@ public final class Manager
       final int width,
       final BlockState block,
       final BlockState fillBlock,
-      final boolean hollow,
-      final HolderLookup.Provider provider)
+      final boolean hollow)
     {
         final Map<BlockPos, BlockState> posList = new HashMap<>();
         for (int x = 0; x < width; x++)
@@ -430,7 +429,7 @@ public final class Manager
             }
         }
 
-        final Blueprint blueprint = new Blueprint((short) (width * 2), (short) height, (short) (width * 2), provider);
+        final Blueprint blueprint = new Blueprint((short) (width * 2), (short) height, (short) (width * 2));
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -449,8 +448,7 @@ public final class Manager
       final int length,
       final int frequency,
       final BlockState block,
-      final boolean flat,
-      final HolderLookup.Provider provider)
+      final boolean flat)
     {
         final Map<BlockPos, BlockState> posList = new HashMap<>();
         for (int x = 0; x < length; x++)
@@ -468,7 +466,7 @@ public final class Manager
             }
         }
 
-        final Blueprint blueprint = new Blueprint((short) length, (short) (frequency * 2 + 1 + (!flat ? width * 2 : 0)), (short) (width * 2 + 1), provider);
+        final Blueprint blueprint = new Blueprint((short) length, (short) (frequency * 2 + 1 + (!flat ? width * 2 : 0)), (short) (width * 2 + 1));
         posList.forEach(blueprint::addBlockState);
         return blueprint;
     }
@@ -483,7 +481,7 @@ public final class Manager
      * @param block    the block.
      * @return the created blueprint
      */
-    public static Blueprint generateRandomShape(final int height, final int width, final int length, final String equation, final BlockState block, final HolderLookup.Provider provider)
+    public static Blueprint generateRandomShape(final int height, final int width, final int length, final String equation, final BlockState block)
     {
         /*Expression e = new Expression(equation);
         final Argument argumentX = new Argument("x = 0");
@@ -544,7 +542,7 @@ public final class Manager
         final List<ChangeStorage> list = changeQueue.get(player.getUUID());
         if (list == null || list.isEmpty())
         {
-            player.displayClientMessage(Component.translatable("structurize.gui.undoredo.undo.notfound"), false);
+            player.sendSystemMessage(Component.translatable("structurize.gui.undoredo.undo.notfound"));
             return;
         }
 
@@ -555,11 +553,11 @@ public final class Manager
             {
                 if (!storage.isDone())
                 {
-                    player.displayClientMessage(Component.translatable("structurize.gui.undoredo.undo.inprogress", storage.getOperation()), false);
+                    player.sendSystemMessage(Component.translatable("structurize.gui.undoredo.undo.inprogress", storage.getOperation()));
                     return;
                 }
 
-                player.displayClientMessage(Component.translatable("structurize.gui.undoredo.undo.add", storage.getOperation()), false);
+                player.sendSystemMessage(Component.translatable("structurize.gui.undoredo.undo.add", storage.getOperation()));
                 addToQueue(new UndoOperation(player, storage));
                 if (storage.getOperation().toString().indexOf(UNDO_PREFIX) == 0)
                 {
@@ -569,7 +567,7 @@ public final class Manager
             }
         }
 
-        player.displayClientMessage(Component.translatable("structurize.gui.undoredo.undo.notfound"), false);
+        player.sendSystemMessage(Component.translatable("structurize.gui.undoredo.undo.notfound"));
     }
 
     /**
@@ -583,7 +581,7 @@ public final class Manager
         final List<ChangeStorage> list = changeQueue.get(player.getUUID());
         if (list == null || list.isEmpty())
         {
-            player.displayClientMessage(Component.translatable("structurize.gui.undoredo.redo.notfound"), false);
+            player.sendSystemMessage(Component.translatable("structurize.gui.undoredo.redo.notfound"));
             return;
         }
 
@@ -593,17 +591,64 @@ public final class Manager
             {
                 if (!storage.isDone())
                 {
-                    player.displayClientMessage(Component.translatable("structurize.gui.undoredo.redo.inprogress", storage.getOperation()), false);
+                    player.sendSystemMessage(Component.translatable("structurize.gui.undoredo.redo.inprogress", storage.getOperation()));
                     return;
                 }
 
-                player.displayClientMessage(Component.translatable("structurize.gui.undoredo.redo.add", storage.getOperation()), false);
+                player.sendSystemMessage(Component.translatable("structurize.gui.undoredo.redo.add", storage.getOperation()));
                 addToQueue(new RedoOperation(player, storage));
                 return;
             }
         }
 
-        player.displayClientMessage(Component.translatable("structurize.gui.undoredo.redo.notfound"), false);
+        player.sendSystemMessage(Component.translatable("structurize.gui.undoredo.redo.notfound"));
+    }
+
+    /**
+     * Get the Universal Unique ID for the server.
+     *
+     * @return the server Universal Unique ID for ther
+     */
+    public static UUID getServerUUID()
+    {
+        if (serverUUID == null)
+        {
+            return generateOrRetrieveUUID();
+        }
+        return serverUUID;
+    }
+
+    /**
+     * Generate or retrieve the UUID of the server.
+     *
+     * @return the UUID.
+     */
+    private static UUID generateOrRetrieveUUID()
+    {
+        final SavedDataStorage storage = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage();
+        final UUIDStorage loaded = storage.computeIfAbsent(UUIDStorage.TYPE);
+        if (loaded.getUUID() != null)
+        {
+            Manager.setServerUUID(loaded.getUUID());
+            return serverUUID;
+        }
+
+        final UUIDStorage created = new UUIDStorage(UUID.randomUUID());
+        storage.set(UUIDStorage.TYPE, created);
+        Manager.setServerUUID(created.getUUID());
+        Log.getLogger().info(String.format("New Server UUID %s", serverUUID));
+
+        return serverUUID;
+    }
+
+    /**
+     * Set the server UUID.
+     *
+     * @param uuid the universal unique id
+     */
+    public static void setServerUUID(final UUID uuid)
+    {
+        serverUUID = uuid;
     }
 
     /**

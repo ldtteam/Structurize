@@ -1,40 +1,41 @@
 package com.ldtteam.structurize.datagen;
 
-import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.tag.ModTags;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.Registry;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
+import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.EntityTypes;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Datagen provider for Entity Tags
  */
-public class EntityTagProvider extends IntrinsicHolderTagsProvider<EntityType<?>>
+public class EntityTagProvider extends TagsProvider<EntityType<?>>
 {
     public EntityTagProvider(final PackOutput output,
         final ResourceKey<? extends Registry<EntityType<?>>> key,
-        final CompletableFuture<Provider> future,
-        @Nullable final ExistingFileHelper existingFileHelper)
+        final CompletableFuture<Provider> future)
     {
-        super(output, key, future, k -> BuiltInRegistries.ENTITY_TYPE.getResourceKey(k).get(), Constants.MOD_ID, existingFileHelper);
+        super(output, key, future, Constants.MOD_ID);
     }
 
     @Override
     protected void addTags(final Provider provider)
     {
-        tag(ModTags.PREVIEW_TICKING_ENTITIES).add(EntityType.ARMOR_STAND)
-            .add(EntityType.END_CRYSTAL)
-            .add(EntityType.BLOCK_DISPLAY)
-            .add(EntityType.ITEM_DISPLAY)
-            .add(EntityType.TEXT_DISPLAY)
-            .add(EntityType.FURNACE_MINECART)
-            .add(EntityType.OMINOUS_ITEM_SPAWNER);
+        // 1.20.2 tick: armorstand, endcrystal, minecartfurnace, display
+
+        tag(ModTags.PREVIEW_TICKING_ENTITIES).add(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:armor_stand")))
+            .add(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:end_crystal")))
+            .add(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:block_display")))
+            .add(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:item_display")))
+            .add(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:text_display")))
+            .add(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:furnace_minecart")));
     }
 }

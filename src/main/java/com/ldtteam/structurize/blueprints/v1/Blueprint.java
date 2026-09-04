@@ -1,35 +1,35 @@
 package com.ldtteam.structurize.blueprints.v1;
 
-import com.ldtteam.structurize.api.Log;
-import com.ldtteam.common.fakelevel.IFakeLevelBlockGetter;
-import com.ldtteam.common.util.BlockToItemHelper;
-import com.ldtteam.structurize.api.BlockPosUtil;
-import com.ldtteam.structurize.api.ItemStackUtils;
+import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
-import com.ldtteam.structurize.component.CapturedBlock;
+import com.ldtteam.structurize.blueprints.FacingFixer;
+import com.ldtteam.structurize.client.fakelevel.IFakeLevelBlockGetter;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.EntityNbtHelper;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
-import com.mojang.serialization.DynamicOps;
-import com.ldtteam.structurize.api.RotationMirror;
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnRequest;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -135,8 +135,6 @@ public class Blueprint implements IFakeLevelBlockGetter
      */
     private RotationMirror rotationMirror = RotationMirror.NONE;
 
-    private final HolderLookup.Provider registryAccess;
-
     /**
      * Constructor of a new Blueprint.
      *
@@ -157,10 +155,8 @@ public class Blueprint implements IFakeLevelBlockGetter
       List<BlockState> pallete,
       short[][][] structure,
       CompoundTag[] tileEntities,
-      List<String> requiredMods,
-      HolderLookup.Provider registryAccess)
+      List<String> requiredMods)
     {
-        this.registryAccess = registryAccess;
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.sizeZ = sizeZ;
@@ -173,7 +169,7 @@ public class Blueprint implements IFakeLevelBlockGetter
         {
             if (te != null)
             {
-                this.tileEntities[te.getShort("y")][te.getShort("z")][te.getShort("x")] = te;
+                this.tileEntities[te.getShortOr("y", (short) 0)][te.getShortOr("z", (short) 0)][te.getShortOr("x", (short) 0)] = te;
             }
         }
         this.requiredMods = requiredMods;
@@ -186,9 +182,8 @@ public class Blueprint implements IFakeLevelBlockGetter
      * @param sizeY the y size.
      * @param sizeZ the z size.
      */
-    public Blueprint(short sizeX, short sizeY, short sizeZ, HolderLookup.Provider registryAccess)
+    public Blueprint(short sizeX, short sizeY, short sizeZ)
     {
-        this.registryAccess = registryAccess;
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.sizeZ = sizeZ;
@@ -204,7 +199,7 @@ public class Blueprint implements IFakeLevelBlockGetter
     /**
      * @return the Size of the Structure on the X-Axis (without rotation and/or mirroring)
      */
-    public int getSizeX()
+    public short getSizeX()
     {
         return this.sizeX;
     }
@@ -220,7 +215,7 @@ public class Blueprint implements IFakeLevelBlockGetter
     /**
      * @return the Size of the Structure on the Z-Axis (without rotation and/or mirroring)
      */
-    public int getSizeZ()
+    public short getSizeZ()
     {
         return this.sizeZ;
     }
@@ -518,10 +513,8 @@ public class Blueprint implements IFakeLevelBlockGetter
      * 
      * @param pos the pos its at.
      * @return an item or null if not initialized.
-     * @deprecated use {@link BlockToItemHelper}
      */
     @Nullable
-    @Deprecated(forRemoval = true, since = "1.21.1")
     public Item getItem(final BlockPos pos)
     {
         @Nullable
@@ -650,16 +643,11 @@ public class Blueprint implements IFakeLevelBlockGetter
      */
     public void setRotationMirrorRelative(final RotationMirror transformBy, final Level level)
     {
-        if (level.registryAccess() != registryAccess)
-        {
-            throw new IllegalStateException("World mismatch");
-        }
         if (transformBy == RotationMirror.NONE)
         {
             return;
         }
 
-        final DynamicOps<Tag> dynamicNbtOps = registryAccess.createSerializationContext(NbtOps.INSTANCE);
         final BlockPos primaryOffset = getPrimaryBlockOffset();
         final short newSizeX, newSizeZ, newSizeY = sizeY;
 
@@ -684,7 +672,14 @@ public class Blueprint implements IFakeLevelBlockGetter
         final List<BlockState> palette = new ArrayList<>();
         for (int i = 0; i < this.palette.size(); i++)
         {
-            palette.add(i, transformBy.applyToBlockState(this.palette.get(i)));
+            BlockState bs = this.palette.get(i);
+
+            if (transformBy.isMirrored())
+            {
+                bs = FacingFixer.fixMirroredFacing(bs.mirror(transformBy.mirror()), bs);
+            }
+
+            palette.add(i, bs.rotate(transformBy.rotation()));
         }
 
         final BlockPos extremes = transformBy.applyToPos(new BlockPos(sizeX, sizeY, sizeZ));
@@ -721,16 +716,17 @@ public class Blueprint implements IFakeLevelBlockGetter
                         //       Level with blockstate and entity and the former requires reinflating everything
                         //       before we can test whether it's rotatable or not, neither of which is ideal.  So
                         //       for now this is the minimal requirement.
-                        if (compound.getString("id").equals(ModBlockEntities.TAG_SUBSTITUTION.getId().toString()))
+                        if (compound.getStringOr("id", "").equals(ModBlockEntities.TAG_SUBSTITUTION.getId().toString()))
                         {
-                            CapturedBlock replacement = BlockEntityTagSubstitution.deserializeReplacement(compound, dynamicNbtOps);
-                            replacement = replacement.applyRotationMirror(transformBy, level);
-                            BlockEntityTagSubstitution.serializeReplacement(compound, dynamicNbtOps, replacement);
+                            BlockEntityTagSubstitution.ReplacementBlock replacement =
+                                    new BlockEntityTagSubstitution.ReplacementBlock(compound);
+                            replacement = replacement.rotateWithMirror(tempPos, transformBy, level);
+                            replacement.write(compound);
                         }
 
                         if (compound.contains(TAG_BLUEPRINTDATA))
                         {
-                            CompoundTag dataCompound = compound.getCompound(TAG_BLUEPRINTDATA);
+                            CompoundTag dataCompound = compound.getCompoundOrEmpty(TAG_BLUEPRINTDATA);
 
                             // Rotate tag map
                             final Map<BlockPos, List<String>> tagPosMap = IBlueprintDataProviderBE.readTagPosMapFrom(dataCompound);
@@ -777,6 +773,20 @@ public class Blueprint implements IFakeLevelBlockGetter
     }
 
     /**
+     * Rotate the structure depending on the direction it's facing.
+     *
+     * @param localRotation times to rotateWithMirror.
+     * @param localMirror   the mirror.
+     * @param world    the world.
+     * @deprecated replaced by {@link #setRotationMirrorRelative(RotationMirror, Level)} or use exact setter {@link #setRotationMirror(RotationMirror, Level)}
+     */
+    @Deprecated(since="1.20", forRemoval=true)
+    public void rotateWithMirror(final Rotation localRotation, final Mirror localMirror, final Level world)
+    {
+        setRotationMirrorRelative(RotationMirror.of(localRotation, localMirror), world);
+    }
+
+    /**
      * Transform an entity and rotate it.
      *
      * @param entityInfo the entity nbt.
@@ -790,38 +800,35 @@ public class Blueprint implements IFakeLevelBlockGetter
         final BlockPos pos,
         final RotationMirror rotationMirror)
     {
-        final Optional<EntityType<?>> type = EntityType.by(entityInfo);
-        if (type.isPresent())
+        final Entity finalEntity = EntityType.loadEntityRecursive(
+            entityInfo,
+            world,
+            new EntitySpawnRequest(EntitySpawnReason.LOAD, false),
+            loaded -> loaded);
+
+        if (finalEntity != null)
         {
-            final Entity finalEntity = type.get().create(world);
-
-            if (finalEntity != null)
+            try
             {
-                try
-                {
-                    finalEntity.load(entityInfo);
+                final Vec3 entityVec = rotationMirror
+                    .applyToPos(
+                        finalEntity instanceof HangingEntity hang ? Vec3.atCenterOf(hang.getPos()) : finalEntity.position())
+                    .add(Vec3.atLowerCornerOf(pos));
+                finalEntity.setYRot(finalEntity.mirror(rotationMirror.mirror()));
+                finalEntity.setYRot(finalEntity.rotate(rotationMirror.rotation()));
+                finalEntity.setPos(entityVec.x, entityVec.y, entityVec.z);
 
-                    final Vec3 entityVec = rotationMirror
-                        .applyToPos(
-                            finalEntity instanceof HangingEntity hang ? Vec3.atCenterOf(hang.getPos()) : finalEntity.position())
-                        .add(Vec3.atLowerCornerOf(pos));
-                    finalEntity.setYRot(finalEntity.mirror(rotationMirror.mirror()));
-                    finalEntity.setYRot(finalEntity.rotate(rotationMirror.rotation()));
-                    finalEntity.moveTo(entityVec.x, entityVec.y, entityVec.z, finalEntity.getYRot(), finalEntity.getXRot());
-
-                    final CompoundTag newEntityInfo = new CompoundTag();
-                    finalEntity.save(newEntityInfo);
-                    return newEntityInfo;
-                }
-                catch (final Exception ex)
-                {
-                    Log.getLogger().error("Entity: " + type.get().getDescriptionId() + " failed to load. ", ex);
-                    return null;
-                }
+                return EntityNbtHelper.save(finalEntity, world.registryAccess());
+            }
+            catch (final Exception ex)
+            {
+                Log.getLogger().error("Entity: " + finalEntity.getType().getDescriptionId() + " failed to load. ", ex);
+                return null;
             }
         }
         return null;
     }
+
 
     private int getVolume()
     {
@@ -868,6 +875,18 @@ public class Blueprint implements IFakeLevelBlockGetter
     }
 
     /**
+     * Set the render source of the blueprint.
+     * This will be included in the hash to differentiate.
+     * This is supposed to be used for static blueprints that are not moved around only.
+     * @param pos the source position.
+     * @deprecated ask Ray what to use :)
+     */
+    @Deprecated(since = "1.20", forRemoval = true)
+    public void setRenderSource(final BlockPos pos)
+    {
+    }
+
+    /**
      * Get blueprint info at position.
      * 
      * @param pos             the position
@@ -890,10 +909,10 @@ public class Blueprint implements IFakeLevelBlockGetter
      */
     private static boolean isAtPos(final CompoundTag entityData, final BlockPos pos)
     {
-        final ListTag list = entityData.getList(ENTITY_POS, 6);
-        final int x = (int) list.getDouble(0);
-        final int y = (int) list.getDouble(1);
-        final int z = (int) list.getDouble(2);
+        final ListTag list = entityData.getListOrEmpty(ENTITY_POS);
+        final int x = (int) list.getDoubleOr(0, 0D);
+        final int y = (int) list.getDoubleOr(1, 0D);
+        final int z = (int) list.getDoubleOr(2, 0D);
         return new BlockPos(x, y, z).equals(pos);
     }
 
@@ -936,7 +955,7 @@ public class Blueprint implements IFakeLevelBlockGetter
     @javax.annotation.Nullable
     public BlockEntity getBlockEntity(final BlockPos pos)
     {
-        return BlueprintUtils.constructTileEntity(getBlockInfoAsMap().get(pos), null, registryAccess);
+        return BlueprintUtils.constructTileEntity(getBlockInfoAsMap().get(pos), null);
     }
 
     @Override
@@ -955,10 +974,5 @@ public class Blueprint implements IFakeLevelBlockGetter
         category.setDetail("Blueprint file path", () -> filePath.toString());
         category.setDetail("Blueprint size", () -> "%d %d %d".formatted(sizeX, sizeY, sizeZ));
         category.setDetail("Blueprint rotation mirror", () -> rotationMirror.name());
-    }
-
-    public HolderLookup.Provider getRegistryAccess()
-    {
-        return registryAccess;
     }
 }

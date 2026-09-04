@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.operations;
 
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.network.messages.UpdateClientRender;
 import com.ldtteam.structurize.util.ChangeStorage;
@@ -100,7 +101,7 @@ public abstract class AreaOperation extends BaseOperation
             }
         }
 
-        new UpdateClientRender(startPos, endPos).sendToAllClients();
+        Network.getNetwork().sendToEveryone(new UpdateClientRender(startPos, endPos));
 
         return true;
     }

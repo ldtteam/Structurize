@@ -3,13 +3,17 @@ package com.ldtteam.structurize.blocks.schematic;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.HitResult;
+import net.neoforged.neoforge.common.extensions.IBlockExtension;
 import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 
@@ -18,6 +22,11 @@ import javax.annotation.Nullable;
  */
 public class BlockTagSubstitution extends BlockSubstitution implements IAnchorBlock, EntityBlock
 {
+    public BlockTagSubstitution(final net.minecraft.world.level.block.state.BlockBehaviour.Properties properties)
+    {
+        super(properties);
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(final @NotNull BlockPos blockPos, final @NotNull BlockState blockState)
@@ -27,25 +36,25 @@ public class BlockTagSubstitution extends BlockSubstitution implements IAnchorBl
 
     @NotNull
     @Override
-    @SuppressWarnings("deprecation")
     public ItemStack getCloneItemStack(@NotNull final LevelReader level,
         @NotNull final BlockPos pos,
-        @NotNull final BlockState blockState)
+        @NotNull final BlockState blockState,
+        final boolean includeNonCreative,
+        @Nullable final Player player)
     {
-        return cloneItemStack(super.getCloneItemStack(level, pos, blockState), level, pos);
-    }
-
-    @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player)
-    {
-        return cloneItemStack(super.getCloneItemStack(state, target, level, pos, player), level, pos);
+        return cloneItemStack(
+            super.getCloneItemStack(level, pos, blockState, includeNonCreative, player),
+            level,
+            pos);
     }
 
     private ItemStack cloneItemStack(final ItemStack stack, LevelReader level, BlockPos pos)
     {
         if (level.getBlockEntity(pos) instanceof final BlockEntityTagSubstitution entity)
         {
-            entity.saveToItem(stack, level.registryAccess());
+            stack.set(
+                DataComponents.CUSTOM_DATA,
+                CustomData.of(entity.saveWithFullMetadata(RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY))));
         }
         return stack;
     }

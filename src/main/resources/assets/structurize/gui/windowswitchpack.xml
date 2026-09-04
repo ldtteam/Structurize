@@ -1,4 +1,4 @@
-<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/ldtteam/BlockUI/version/main/src/main/resources/assets/blockui/gui/block_ui.xsd"
+<window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../java/com/ldtteam/blockout/blockOut.xsd"
         size="420 240" pause="false" type="OVERSIZED_VANILLA" lightbox="true">
 
     <button id="cancel" source="structurize:textures/gui/buildtool/button_medium.png" label="$(structurize.gui.buildtool.cancel)" size="86 17" pos="3 3" textcolor="black" texthovercolor="gray"/>

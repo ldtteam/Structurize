@@ -1,28 +1,23 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractServerPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.IScrollableItem;
-import com.ldtteam.structurize.api.ISpecialBlockPickItem;
-import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
+import com.ldtteam.structurize.api.util.IScrollableItem;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Notify server that client clicked or scrolled the middle mouse on a special item
  */
-public class ItemMiddleMouseMessage extends AbstractServerPlayMessage
+public class ItemMiddleMouseMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "item_middle_mouse", ItemMiddleMouseMessage::new);
-
     @Nullable private final BlockPos pos;
-    private final double deltaX;
-    private final double deltaY;
+    private final double delta;
     private final boolean ctrlKey;
 
     /**
@@ -32,25 +27,20 @@ public class ItemMiddleMouseMessage extends AbstractServerPlayMessage
      */
     public ItemMiddleMouseMessage(@Nullable final BlockPos pos, final boolean ctrlKey)
     {
-        super(TYPE);
         this.pos = pos;
-        this.deltaX = 0;
-        this.deltaY = 0;
+        this.delta = 0;
         this.ctrlKey = ctrlKey;
     }
 
     /**
      * Construct message for a middle mouse shift-scroll event.
-     * @param deltaX the scroll delta; negative is upwards
-     * @param deltaY the scroll delta; negative is upwards
+     * @param delta the scroll delta; negative is upwards
      * @param ctrlKey ctrl key is held
      */
-    public ItemMiddleMouseMessage(final double deltaX, final double deltaY, final boolean ctrlKey)
+    public ItemMiddleMouseMessage(final double delta, final boolean ctrlKey)
     {
-        super(TYPE);
         this.pos = null;
-        this.deltaX = deltaX;
-        this.deltaY = deltaY;
+        this.delta = delta;
         this.ctrlKey = ctrlKey;
     }
 
@@ -58,17 +48,15 @@ public class ItemMiddleMouseMessage extends AbstractServerPlayMessage
      * Construct from network.
      * @param buf buffer
      */
-    protected ItemMiddleMouseMessage(@NotNull final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public ItemMiddleMouseMessage(@NotNull final FriendlyByteBuf buf)
     {
-        super(buf, type);
         this.pos = buf.readBoolean() ? buf.readBlockPos() : null;
-        this.deltaX = buf.readDouble();
-        this.deltaY = buf.readDouble();
+        this.delta = buf.readDouble();
         this.ctrlKey = buf.readBoolean();
     }
 
     @Override
-    protected void toBytes(@NotNull final RegistryFriendlyByteBuf buf)
+    public void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         if (this.pos == null)
         {
@@ -79,17 +67,24 @@ public class ItemMiddleMouseMessage extends AbstractServerPlayMessage
             buf.writeBoolean(true);
             buf.writeBlockPos(this.pos);
         }
-        buf.writeDouble(this.deltaX);
-        buf.writeDouble(this.deltaY);
+        buf.writeDouble(this.delta);
         buf.writeBoolean(this.ctrlKey);
     }
 
+    @Nullable
     @Override
-    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
+    public LogicalSide getExecutionSide()
     {
-        final ItemStack current = player.getInventory().getSelected();
+        return LogicalSide.SERVER;
+    }
 
-        if (this.deltaX == 0 && this.deltaY == 0)
+    @Override
+    public void onExecute(@NotNull final NetworkContext ctxIn, final boolean isLogicalServer)
+    {
+        final ServerPlayer player = ctxIn.getSender();
+        final ItemStack current = player.getInventory().getSelectedItem();
+
+        if (this.delta == 0)
         {
             if (current.getItem() instanceof ISpecialBlockPickItem clickableItem)
             {
@@ -100,7 +95,7 @@ public class ItemMiddleMouseMessage extends AbstractServerPlayMessage
         {
             if (current.getItem() instanceof IScrollableItem scrollableItem)
             {
-                scrollableItem.onMouseScroll(player, current, this.deltaX, this.deltaY, this.ctrlKey);
+                scrollableItem.onMouseScroll(player, current, this.delta, this.ctrlKey);
             }
         }
     }

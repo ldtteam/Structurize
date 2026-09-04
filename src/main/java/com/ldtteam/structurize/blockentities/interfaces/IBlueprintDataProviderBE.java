@@ -1,11 +1,11 @@
 package com.ldtteam.structurize.blockentities.interfaces;
 
-import com.ldtteam.structurize.api.BlockPosUtil;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.util.Tuple;
+import com.ldtteam.structurize.api.util.Tuple;
 import net.minecraft.core.BlockPos;
 
 import java.util.*;
@@ -133,10 +133,10 @@ public interface IBlueprintDataProviderBE
             return;
         }
 
-        CompoundTag compoundNBT = originalCompound.getCompound(TAG_BLUEPRINTDATA);
+        CompoundTag compoundNBT = originalCompound.getCompoundOrEmpty(TAG_BLUEPRINTDATA);
 
         // Read schematic name
-        setSchematicName(compoundNBT.getString(TAG_SCHEMATIC_NAME));
+        setSchematicName(compoundNBT.getStringOr(TAG_SCHEMATIC_NAME, ""));
 
         // Read corners
         final BlockPos corner1 = BlockPosUtil.readFromNBT(compoundNBT, TAG_CORNER_ONE);
@@ -161,7 +161,7 @@ public interface IBlueprintDataProviderBE
             return tagPosMap;
         }
 
-        final ListTag tagPosMapNBT = compoundNBT.getList(TAG_POS_TAG_MAP, Tag.TAG_COMPOUND);
+        final ListTag tagPosMapNBT = compoundNBT.getListOrEmpty(TAG_POS_TAG_MAP);
 
         for (final Tag tagPosMapEntry : tagPosMapNBT)
         {
@@ -174,7 +174,7 @@ public interface IBlueprintDataProviderBE
             final BlockPos tagPos = BlockPosUtil.readFromNBT(entry, TAG_TAG_POS);
 
             final Set<String> tagList = new HashSet<>();
-            final ListTag tagListNbt = entry.getList(TAG_TAG_NAME_LIST, Tag.TAG_COMPOUND);
+            final ListTag tagListNbt = entry.getListOrEmpty(TAG_TAG_NAME_LIST);
 
             for (final Tag tagEntryNBT : tagListNbt)
             {
@@ -184,7 +184,7 @@ public interface IBlueprintDataProviderBE
                 }
 
                 final CompoundTag tagEntry = ((CompoundTag) tagEntryNBT);
-                tagList.add(tagEntry.getString(TAG_TAG_NAME));
+                tagList.add(tagEntry.getStringOr(TAG_TAG_NAME, ""));
             }
 
             tagPosMap.put(tagPos, new ArrayList<>(tagList));

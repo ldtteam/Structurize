@@ -2,6 +2,7 @@ package com.ldtteam.structurize.blocks.schematic;
 
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
@@ -17,7 +18,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 /**
  * This block is used as a substitution block for the Builder. Every solid block can be substituted by this block in schematics. This helps make schematics independent from
@@ -28,15 +30,20 @@ public class BlockSubstitution extends Block implements LiquidBlockContainer
     /**
      * Constructor for the Substitution block. sets the creative tab, as well as the resistance and the hardness.
      */
-    public BlockSubstitution()
+    public BlockSubstitution(final Properties properties)
     {
-        super(defaultSubstitutionProperties()
+        super(defaultSubstitutionProperties(properties)
                 .forceSolidOff());  // don't kill farmland and path blocks underneath
     }
 
     public static Properties defaultSubstitutionProperties()
     {
-        return Properties.of()
+        return defaultSubstitutionProperties(Properties.of());
+    }
+
+    public static Properties defaultSubstitutionProperties(final Properties properties)
+    {
+        return properties
             .mapColor(MapColor.WOOD)
             .sound(SoundType.WOOD)
             .instabreak() // must be before explosionResistance
@@ -72,14 +79,19 @@ public class BlockSubstitution extends Block implements LiquidBlockContainer
     }
 
     @Override
-    public boolean canPlaceLiquid(@Nullable Player player, BlockGetter level, BlockPos pos, BlockState state, Fluid fluid)
+    public boolean canPlaceLiquid(
+        final @Nullable LivingEntity entity,
+        final BlockGetter worldIn,
+        final BlockPos pos,
+        final BlockState state,
+        final Fluid fluid)
     {
         // Don't allow water to flow inside despite being non-solid
         return false;
     }
 
     @Override
-    public boolean placeLiquid(LevelAccessor level, BlockPos pos, BlockState state, FluidState fluidState)
+    public boolean placeLiquid(LevelAccessor worldIn, BlockPos pos, BlockState state, FluidState fluid)
     {
         return false;
     }

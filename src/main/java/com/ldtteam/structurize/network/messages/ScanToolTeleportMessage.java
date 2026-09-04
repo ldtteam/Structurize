@@ -1,41 +1,42 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractServerPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.items.ItemScanTool;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class ScanToolTeleportMessage extends AbstractServerPlayMessage
+public class ScanToolTeleportMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "scantool_teleport", ScanToolTeleportMessage::new);
-
     public ScanToolTeleportMessage()
     {
-        super(TYPE);
     }
 
-    protected ScanToolTeleportMessage(@NotNull final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
-    {
-        super(buf, type);
-    }
-
-    @Override
-    protected void toBytes(RegistryFriendlyByteBuf buf)
+    public ScanToolTeleportMessage(@NotNull final FriendlyByteBuf buf)
     {
     }
 
     @Override
-    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
+    public void toBytes(FriendlyByteBuf buf)
     {
-        final ItemStack stack = player.getMainHandItem();
+    }
+
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.SERVER;
+    }
+
+    @Override
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
+    {
+        final ItemStack stack = ctxIn.getSender().getMainHandItem();
         if (stack.getItem() instanceof ItemScanTool tool)
         {
-            tool.onTeleport(player, stack);
+            tool.onTeleport(ctxIn.getSender(), stack);
         }
     }
 }

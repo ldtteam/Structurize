@@ -1,9 +1,9 @@
 package com.ldtteam.structurize.blocks.interfaces;
 
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public interface IRequirementsBlueprintAnchorBlock
      * Get the list of requirements as chat components.
      * @return List for display.
      */
-    List<MutableComponent> getRequirements(final ClientLevel level, final BlockPos pos, final LocalPlayer player);
+    List<MutableComponent> getRequirements(final Level level, final BlockPos pos, final Player player);
 
     /**
      * Check if the requirements are met for:
@@ -25,5 +25,5 @@ public interface IRequirementsBlueprintAnchorBlock
      * @param player the player.
      * @return true if so.
      */
-    boolean areRequirementsMet(final ClientLevel level, final BlockPos pos, final LocalPlayer player);
+    boolean areRequirementsMet(final Level level, final BlockPos pos, final Player player);
 }

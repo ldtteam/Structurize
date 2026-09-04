@@ -6,8 +6,8 @@ import com.ldtteam.domumornamentum.client.model.data.MaterialTextureData;
 import com.ldtteam.domumornamentum.entity.block.IMateriallyTexturedBlockEntity;
 import com.ldtteam.domumornamentum.entity.block.MateriallyTexturedBlockEntity;
 import com.ldtteam.domumornamentum.util.BlockUtils;
-import com.ldtteam.structurize.api.ItemStackUtils;
-import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.placement.IPlacementContext;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.InventoryUtils;
@@ -15,7 +15,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.util.Tuple;
+import com.ldtteam.structurize.api.util.Tuple;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -35,8 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.ldtteam.domumornamentum.util.Constants.BLOCK_ENTITY_TEXTURE_DATA;
-import static com.ldtteam.structurize.api.constants.Constants.UPDATE_FLAG;
+import static com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG;
 import static com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers.handleTileEntityPlacement;
 
 public class DoBlockPlacementHandler implements IPlacementHandler
@@ -92,9 +91,9 @@ public class DoBlockPlacementHandler implements IPlacementHandler
         {
             try
             {
-                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
-                placementState.getBlock().setPlacedBy(world, pos, placementState, null, placementState.getBlock().getCloneItemStack(placementState,
-                    new BlockHitResult(new Vec3(0, 0, 0), Direction.NORTH, pos, false), world, pos, null));
+                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror().getRotationMirror());
+                placementState.getBlock().setPlacedBy(world, pos, placementState, null,
+                    placementState.getBlock().getCloneItemStack(world, pos, placementState, true, null));
             }
             catch (final Exception ex)
             {
@@ -133,9 +132,9 @@ public class DoBlockPlacementHandler implements IPlacementHandler
             if (blockEntityData.getA() instanceof final IMateriallyTexturedBlockEntity mtbe)
             {
                 final String source;
-                if (blockEntityData.getB().contains(BLOCK_ENTITY_TEXTURE_DATA))
+                if (blockEntityData.getB().contains("textureData"))
                 {
-                     source = BLOCK_ENTITY_TEXTURE_DATA;
+                     source = "textureData";
                 }
                 else if (blockEntityData.getB().contains("originalTextureData"))
                 {
@@ -145,7 +144,8 @@ public class DoBlockPlacementHandler implements IPlacementHandler
                 {
                     source = null;
                 }
-                return source != null && mtbe.getTextureData().equals(MaterialTextureData.CODEC.decode(NbtOps.INSTANCE, blockEntityData.getB().get(source)).getOrThrow().getFirst());
+                return source != null && mtbe.getTextureData()
+                    .equals(MaterialTextureData.deserializeFromNBT(blockEntityData.getB().getCompoundOrEmpty(source)));
             }
         }
         return false;
@@ -162,7 +162,7 @@ public class DoBlockPlacementHandler implements IPlacementHandler
         final List<ItemStack> itemList = new ArrayList<>();
         if (tileEntityData != null)
         {
-            BlockPos blockpos = new BlockPos(tileEntityData.getInt("x"), tileEntityData.getInt("y"), tileEntityData.getInt("z"));
+            BlockPos blockpos = new BlockPos(tileEntityData.getIntOr("x", 0), tileEntityData.getIntOr("y", 0), tileEntityData.getIntOr("z", 0));
             final BlockEntity tileEntity = BlockEntity.loadStatic(blockpos, blockState, tileEntityData, world.registryAccess());
             if (tileEntity == null)
             {
@@ -191,4 +191,3 @@ public class DoBlockPlacementHandler implements IPlacementHandler
         world.removeBlock(pos, false);
     }
 }
-

@@ -1,7 +1,7 @@
 package com.ldtteam.structurize.client.gui.util;
 
 import com.google.common.collect.ImmutableList;
-import com.ldtteam.structurize.api.ItemStorage;
+import com.ldtteam.structurize.api.util.ItemStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.*;
@@ -48,11 +48,11 @@ public class ItemUtil
             }
         }
 
-        for (final ItemStack stack : Minecraft.getInstance().player.getInventory().items)
+        for (final ItemStack stack : Minecraft.getInstance().player.getInventory().getNonEquipmentItems())
         {
             final Item item = stack.getItem();
             if (item instanceof AirItem || item instanceof BlockItem || (item instanceof BucketItem
-                && ((BucketItem) item).content != Fluids.EMPTY))
+                && ((BucketItem) item).getContent() != Fluids.EMPTY))
             {
                 items.add(new ItemStorage(stack.copy()));
             }

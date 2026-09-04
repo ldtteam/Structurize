@@ -1,9 +1,14 @@
+repositories {
+    mavenLocal()
+}
+
 dependencies {
-    implementation "com.ldtteam:blockui:${project.blockUiVersion}"
+    apiImplementation "com.ldtteam:blockui:0.0.1-local"
+    implementation "com.ldtteam:blockui:0.0.1-local"
 
-    implementation "com.ldtteam:domum-ornamentum:${project.domumOrnamentumVersion}"
+    apiImplementation "com.ldtteam:domum-ornamentum:1.0.0-local"
+    implementation "com.ldtteam:domum-ornamentum:1.0.0-local"
+    runtimeOnly "com.ldtteam:domum-ornamentum:1.0.0-local"
 
-    implementation (("com.ldtteam:datagenerators:${project.dataGeneratorsVersion}:universal")) {
-        transitive = false
-    }
+    testImplementation 'junit:junit:4.13.2'
 }

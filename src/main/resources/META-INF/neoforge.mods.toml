@@ -1,10 +1,10 @@
 modLoader="javafml"
-loaderVersion="${fmlRange}"
+loaderVersion="${fml_range}"
 license="GPL 3.0"
 issueTrackerURL="https://github.com/ldtteam/structurize/issues/new/choose"
 [[mods]]
 modId="structurize"
-version="${version}" #mandatory
+version="${file.jarVersion}"
 displayName="Structurize"
 displayURL="https://minecolonies.com/"
 logoFile="structurize.png"
@@ -22,7 +22,7 @@ Allows you to:
 [[dependencies.structurize]]
     modId="neoforge"
     type="required"
-    versionRange="${forgeRange}"
+    versionRange="${neoforge_range}"
     ordering="NONE"
     side="BOTH"
 [[dependencies.structurize]]
@@ -34,12 +34,12 @@ Allows you to:
 [[dependencies.structurize]]
     modId="blockui"
     type="required"
-    versionRange="[${blockUiVersion}, )"
-    ordering="AFTER"
-    side="BOTH"
+    versionRange="${blockUiRange}"
+    ordering="NONE"
+    side="CLIENT"
 [[dependencies.structurize]]
     modId="domum_ornamentum"
     type="required"
-    versionRange="[${domumOrnamentumVersion}, )"
+    versionRange="${domumOrnamentumRange}"
     ordering="AFTER"
     side="BOTH"

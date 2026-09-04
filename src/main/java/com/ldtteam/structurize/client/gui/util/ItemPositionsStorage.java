@@ -1,9 +1,12 @@
 package com.ldtteam.structurize.client.gui.util;
 
-import com.ldtteam.structurize.api.ItemStorage;
-import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.util.ItemStorage;
+import com.ldtteam.structurize.api.util.Log;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +25,9 @@ public class ItemPositionsStorage
         this.itemStorage = itemStorage;
     }
 
-    public ItemPositionsStorage(final RegistryFriendlyByteBuf buf)
+    public ItemPositionsStorage(final FriendlyByteBuf buf)
     {
-        itemStorage = new ItemStorage(buf);
+        itemStorage = new ItemStorage(wrapRegistry(buf));
         final int count = buf.readVarInt();
 
         for (int i = 0; i < count; i++)
@@ -85,9 +88,9 @@ public class ItemPositionsStorage
      *
      * @param buf
      */
-    public void serialize(final RegistryFriendlyByteBuf buf)
+    public void serialize(final FriendlyByteBuf buf)
     {
-        itemStorage.serialize(buf);
+        itemStorage.serialize(wrapRegistry(buf));
         buf.writeVarInt(positions.size());
         for (final BlockPos pos : positions)
         {
@@ -95,5 +98,12 @@ public class ItemPositionsStorage
             buf.writeVarInt(pos.getY());
             buf.writeVarInt(pos.getZ());
         }
+    }
+
+    private static RegistryFriendlyByteBuf wrapRegistry(final FriendlyByteBuf buf)
+    {
+        return new RegistryFriendlyByteBuf(
+            buf,
+            RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
     }
 }

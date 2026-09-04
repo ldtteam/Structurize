@@ -5,27 +5,34 @@ import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
-import com.ldtteam.structurize.api.ItemStorage;
-import com.ldtteam.structurize.api.RotationMirror;
-import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.api.util.ItemStorage;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.client.gui.util.InputFilters;
 import com.ldtteam.structurize.client.gui.util.ItemPositionsStorage;
+import com.ldtteam.structurize.client.rendertask.RenderTaskManager;
+import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewData;
+import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewRenderTask;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.placement.SimplePlacementContext;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
-import com.ldtteam.structurize.storage.rendering.RenderingCache;
-import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
+import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.ScanToolData;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -33,14 +40,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static com.ldtteam.structurize.api.constants.WindowConstants.*;
+import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 
 /**
  * Window for finishing a scan.
@@ -70,7 +77,7 @@ public class WindowScan extends AbstractWindowSkeleton
     /**
      * Contains all entities needed for a certain build.
      */
-    private final Object2IntMap<EntityType<?>> entities = new Object2IntOpenHashMap<>();
+    private final Object2IntMap<EntityType> entities = new Object2IntOpenHashMap<>();
 
     /**
      * White color.
@@ -80,7 +87,7 @@ public class WindowScan extends AbstractWindowSkeleton
     /**
      * The scan tool data.
      */
-    private ScanToolData data;
+    private final ScanToolData data;
 
     /**
      * Filter for the block and entity lists.
@@ -203,11 +210,17 @@ public class WindowScan extends AbstractWindowSkeleton
             double circleRadiusMult = Double.parseDouble(findPaneOfTypeByID(INPUT_RADIUS, TextField.class).getText());
             int heightOffset = Integer.parseInt(findPaneOfTypeByID(INPUT_HEIGHT_OFFSET, TextField.class).getText());
             int minDistToBlocks = Integer.parseInt(findPaneOfTypeByID(INPUT_BLOCKDIST, TextField.class).getText());
-            new FillTopPlaceholderMessage(data.currentSlot().box().pos1(), data.currentSlot().box().pos2(), yStretch, circleRadiusMult, heightOffset, minDistToBlocks).sendToServer();
+            Network.getNetwork()
+                .sendToServer(new FillTopPlaceholderMessage(data.getCurrentSlotData().getBox().getPos1(),
+                    data.getCurrentSlotData().getBox().getPos2(),
+                    yStretch,
+                    circleRadiusMult,
+                    heightOffset,
+                    minDistToBlocks));
         }
-        catch (Exception e)
+        catch (NumberFormatException e)
         {
-            Minecraft.getInstance().player.displayClientMessage(Component.literal("Invalid Number"), false);
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal("Invalid Number"));
         }
         close();
     }
@@ -238,8 +251,8 @@ public class WindowScan extends AbstractWindowSkeleton
         final int z2 = Integer.parseInt(pos2z.getText());
 
         final int row = entityList.getListElementIndexByPane(button);
-        final EntityType<?> entity = new ArrayList<>(entities.keySet()).get(row);
-        new RemoveEntityMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), EntityType.getKey(entity)).sendToServer();
+        final EntityType entity = new ArrayList<>(entities.keySet()).get(row);
+        Network.getNetwork().sendToServer(new RemoveEntityMessage(new BlockPos(x1, y1, z1), new BlockPos(x2, y2, z2), EntityType.getKey(entity)));
         entities.removeInt(entity);
         updateEntitylist();
     }
@@ -248,7 +261,7 @@ public class WindowScan extends AbstractWindowSkeleton
     {
         final int row = resourceList.getListElementIndexByPane(button);
         final ItemPositionsStorage toRemove = allResources.get(visibleResourcesSortedList.get(row));
-        new RemoveBlockMessage(toRemove).sendToServer();
+        Network.getNetwork().sendToServer(new RemoveBlockMessage(toRemove));
         removeAllNeededResource(toRemove.itemStorage.getItemStack());
         updateResourceList();
     }
@@ -265,7 +278,7 @@ public class WindowScan extends AbstractWindowSkeleton
 
     private void removeFilteredBlock()
     {
-        new RemoveBlockMessage(allResources.values().stream().toList()).sendToServer();
+        Network.getNetwork().sendToServer(new RemoveBlockMessage(allResources.values().stream().toList()));
         allResources.clear();
         updateResourceList();
     }
@@ -307,7 +320,7 @@ public class WindowScan extends AbstractWindowSkeleton
     @Override
     public void onClosed()
     {
-        if (RenderingCache.getBoxPreviewData("scan") != null)   // not confirmed/cancelled
+        if (RenderTaskManager.getTasksByGroup("scan") != null)   // not confirmed/cancelled
         {
             updateBounds();
         }
@@ -335,16 +348,8 @@ public class WindowScan extends AbstractWindowSkeleton
      */
     private void discardClicked()
     {
-        RenderingCache.removeBox("scan");
-
-        for (Iterator<Map.Entry<String, BoxPreviewData>> iterator = RenderingCache.boxRenderingCache.entrySet().iterator(); iterator.hasNext(); )
-        {
-            final var entry = iterator.next();
-            if (entry.getKey().contains("clickedResource"))
-            {
-                iterator.remove();
-            }
-        }
+        RenderTaskManager.removeTaskGroup("scan");
+        RenderTaskManager.removeTaskGroup("clickedResource");
         close();
     }
 
@@ -355,49 +360,53 @@ public class WindowScan extends AbstractWindowSkeleton
     {
         updateBounds();
 
-        new ScanOnServerMessage(data.currentSlot(), true).sendToServer();
-        RenderingCache.removeBox("scan");
+        final ScanToolData.Slot slot = data.getCurrentSlotData();
+        Network.getNetwork().sendToServer(new ScanOnServerMessage(slot, true));
+        RenderTaskManager.removeTaskGroup("scan");
         close();
     }
 
     @Override
-    public boolean onUnhandledKeyTyped(final int ch, final int key)
+    public boolean onCharactedEvent(final CharacterEvent event)
     {
+        final char ch = event.codepoint() >= Character.MIN_VALUE && event.codepoint() <= Character.MAX_VALUE
+            ? (char) event.codepoint()
+            : '\0';
         if (ch >= '0' && ch <= '9')
         {
             updateBounds();
-            data = data.moveTo(ch - '0');
+            data.moveTo(ch - '0');
             loadSlot();
             updateResources();
             return true;
         }
 
-        return super.onUnhandledKeyTyped(ch, key);
+        return super.onCharactedEvent(event);
     }
 
     private void loadSlot()
     {
-        slotId.setText(String.valueOf(data.currentSlotId()));
-        final ScanToolData.Slot slot = data.currentSlot();
+        slotId.setText(String.valueOf(data.getCurrentSlotId()));
+        final ScanToolData.Slot slot = data.getCurrentSlotData();
 
-        pos1x.setText(String.valueOf(slot.box().pos1().getX()));
-        pos1y.setText(String.valueOf(slot.box().pos1().getY()));
-        pos1z.setText(String.valueOf(slot.box().pos1().getZ()));
+        pos1x.setText(String.valueOf(slot.getBox().getPos1().getX()));
+        pos1y.setText(String.valueOf(slot.getBox().getPos1().getY()));
+        pos1z.setText(String.valueOf(slot.getBox().getPos1().getZ()));
 
-        pos2x.setText(String.valueOf(slot.box().pos2().getX()));
-        pos2y.setText(String.valueOf(slot.box().pos2().getY()));
-        pos2z.setText(String.valueOf(slot.box().pos2().getZ()));
+        pos2x.setText(String.valueOf(slot.getBox().getPos2().getX()));
+        pos2y.setText(String.valueOf(slot.getBox().getPos2().getY()));
+        pos2z.setText(String.valueOf(slot.getBox().getPos2().getZ()));
 
-        RenderingCache.queue("scan", slot.box());
+        RenderTaskManager.addRenderTask("scan", new BoxPreviewRenderTask("scan", slot.getBox(), 60 * 10));
 
         findPaneOfTypeByID(NAME_LABEL, TextField.class).setText("");
-        if (!slot.name().isEmpty())
+        if (!slot.getName().isEmpty())
         {
-            findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(slot.name());
+            findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(slot.getName());
         }
-        else if (slot.box().anchor().isPresent())
+        else if (slot.getBox().getAnchor().isPresent())
         {
-            final BlockEntity tile = Minecraft.getInstance().player.level().getBlockEntity(slot.box().anchor().get());
+            final BlockEntity tile = Minecraft.getInstance().player.level().getBlockEntity(slot.getBox().getAnchor().get());
             if (tile instanceof IBlueprintDataProviderBE && !((IBlueprintDataProviderBE) tile).getSchematicName().isEmpty())
             {
                 findPaneOfTypeByID(NAME_LABEL, TextField.class).setText(((IBlueprintDataProviderBE) tile).getSchematicName());
@@ -424,15 +433,15 @@ public class WindowScan extends AbstractWindowSkeleton
         }
         catch (final NumberFormatException e)
         {
-            Minecraft.getInstance().player.displayClientMessage(Component.literal("Invalid Number"), false);
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal("Invalid Number"));
             return;
         }
 
         final String name = findPaneOfTypeByID(NAME_LABEL, TextField.class).getText();
-        data = data.withCurrentSlot(new ScanToolData.Slot(name, data.currentSlot().box().withCorners(pos1, pos2)));
-
-        RenderingCache.queue("scan", data.currentSlot().box());
-        new UpdateScanToolMessage(data).sendToServer();
+        final ScanToolData.Slot slot = data.getCurrentSlotData();
+        data.setCurrentSlotData(new ScanToolData.Slot(name, new BoxPreviewData(pos1, pos2, slot.getBox().getAnchor())));
+        RenderTaskManager.addRenderTask("scan", new BoxPreviewRenderTask("scan", data.getCurrentSlotData().getBox(), 60 * 10));
+        Network.getNetwork().sendToServer(new UpdateScanToolMessage(data));
     }
 
     /**
@@ -452,15 +461,20 @@ public class WindowScan extends AbstractWindowSkeleton
             return;
         }
 
-        final BoxPreviewData box = data.currentSlot().box();
-        final List<Entity> list = world.getEntitiesOfClass(Entity.class, AABB.encapsulatingFullBlocks(box.pos1(), box.pos2()));
+        final ScanToolData.Slot slot = data.getCurrentSlotData();
+
+        final List<Entity> list = world.getEntitiesOfClass(
+            Entity.class,
+            new AABB(
+                Vec3.atLowerCornerOf(slot.getBox().getPos1()),
+                Vec3.atLowerCornerOf(slot.getBox().getPos2())));
 
         for (final Entity entity : list)
         {
             // LEASH_KNOT, while not directly serializable, still serializes as part of the mob
             // and drops a lead, so we should alert builders that it exists in the scan
             if (!entities.containsKey(entity.getName().getString())
-                && (entity.getType().canSerialize() || entity.getType().equals(EntityType.LEASH_KNOT))
+                && (entity.getType().canSerialize() || entity.getType().equals(EntityTypes.LEASH_KNOT))
                 && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
                 || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
             {
@@ -469,13 +483,12 @@ public class WindowScan extends AbstractWindowSkeleton
         }
 
         final BlockPos.MutableBlockPos here = new BlockPos.MutableBlockPos();
-        final int minX = Math.min(box.pos1().getX(), box.pos2().getX());
-        final int minY = Math.min(box.pos1().getY(), box.pos2().getY());
-        final int minZ = Math.min(box.pos1().getZ(), box.pos2().getZ());
-        final int maxX = Math.max(box.pos1().getX(), box.pos2().getX());
-        final int maxY = Math.max(box.pos1().getY(), box.pos2().getY());
-        final int maxZ = Math.max(box.pos1().getZ(), box.pos2().getZ());
-        final BoundingBox boundingBox = BoundingBox.fromCorners(box.pos1(), box.pos2());
+        final int minX = Math.min(slot.getBox().getPos1().getX(), slot.getBox().getPos2().getX());
+        final int minY = Math.min(slot.getBox().getPos1().getY(), slot.getBox().getPos2().getY());
+        final int minZ = Math.min(slot.getBox().getPos1().getZ(), slot.getBox().getPos2().getZ());
+        final int maxX = Math.max(slot.getBox().getPos1().getX(), slot.getBox().getPos2().getX());
+        final int maxY = Math.max(slot.getBox().getPos1().getY(), slot.getBox().getPos2().getY());
+        final int maxZ = Math.max(slot.getBox().getPos1().getZ(), slot.getBox().getPos2().getZ());
 
         for (int x = minX; x <= maxX; x++)
         {
@@ -508,9 +521,7 @@ public class WindowScan extends AbstractWindowSkeleton
                     else
                     {
                         final IPlacementHandler handler = PlacementHandlers.getHandler(world, BlockPos.ZERO, blockState);
-                        final List<ItemStack> itemList =
-                            handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(world.registryAccess()),
-                                new SimplePlacementContext(false, RotationMirror.NONE));
+                        final List<ItemStack> itemList = handler.getRequiredItems(world, here, blockState, tileEntity == null ? null : tileEntity.saveWithFullMetadata(RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY)), new SimplePlacementContext(false, new PlacementSettings()));
                         for (final ItemStack stack : itemList)
                         {
                             addNeededResource(stack, visible, here);
@@ -551,7 +562,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
 
         if (filter.isEmpty()
-            || res.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+                || res.getItem().getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
             || res.getHoverName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
         {
             final ItemStorage stackToStore = new ItemStorage(res, 1, true, false);
@@ -570,7 +581,7 @@ public class WindowScan extends AbstractWindowSkeleton
     {
         entityList.enable();
         entityList.show();
-        final List<EntityType<?>> tempEntities = new ArrayList<>(entities.keySet());
+        final List<EntityType> tempEntities = new ArrayList<>(entities.keySet());
 
         //Creates a dataProvider for the unemployed resourceList.
         entityList.setDataProvider(new ScrollingList.DataProvider()
@@ -594,17 +605,17 @@ public class WindowScan extends AbstractWindowSkeleton
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
-                final EntityType<?> entity = tempEntities.get(index);
-                ItemStack entityIcon = entity.create(Minecraft.getInstance().level).getPickResult();
-                if (entity == EntityType.GLOW_ITEM_FRAME)
+                final EntityType entity = tempEntities.get(index);
+                ItemStack entityIcon = entity.create(Minecraft.getInstance().level, EntitySpawnReason.LOAD).getPickResult();
+                if (entity == EntityTypes.GLOW_ITEM_FRAME)
                 {
                     entityIcon = new ItemStack(Items.GLOW_ITEM_FRAME);
                 }
-                else if (entity == EntityType.ITEM_FRAME)
+                else if (entity == EntityTypes.ITEM_FRAME)
                 {
                     entityIcon = new ItemStack(Items.ITEM_FRAME);
                 }
-                else if (entity == EntityType.MINECART)
+                else if (entity == EntityTypes.MINECART)
                 {
                     entityIcon = new ItemStack(Items.MINECART);
                 }
@@ -680,9 +691,9 @@ public class WindowScan extends AbstractWindowSkeleton
                 final ItemPositionsStorage itemPositionsStorage = allResources.get(block);
                 for (final BlockPos position : itemPositionsStorage.positions)
                 {
-                    BoxPreviewData previewData = new BoxPreviewData(position, position, Optional.empty());
-                    previewData.setExpireTime(30);
-                    RenderingCache.queue("clickedResource" + position.toShortString(), previewData);
+                    BoxPreviewRenderTask previewData =
+                        new BoxPreviewRenderTask("clickedResource" + position.toShortString(), new BoxPreviewData(position, position, Optional.empty()), 30);
+                    RenderTaskManager.addRenderTask("clickedResource", previewData);
                 }
                 window.close();
             }

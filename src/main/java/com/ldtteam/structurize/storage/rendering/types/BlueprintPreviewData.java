@@ -1,16 +1,18 @@
 package com.ldtteam.structurize.storage.rendering.types;
 
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.RenderingCacheKey;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
 import com.ldtteam.structurize.storage.StructurePacks;
+import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
@@ -72,14 +74,14 @@ public class BlueprintPreviewData
     private float overridePreviewTransparency = -1;
 
     /**
-     * Override blockstate for solid placeholders
-     */
-    private BlockState solidSubstitutionOverride = null;
-
-    /**
      * Setting for whether blocks render nice or not
      */
     private boolean renderBlocksNice = Structurize.getConfig().getClient() != null && Structurize.getConfig().getClient().renderPlaceholdersNice.get();
+
+    /**
+     * Override blockstate for solid placeholders
+     */
+    private BlockState solidSubstitutionOverride = null;
 
     /**
      * Default constructor to create a new setup.
@@ -103,7 +105,7 @@ public class BlueprintPreviewData
      * Create blueprint preview data from byteBuf.
      * @param byteBuf the buffer data.
      */
-    public BlueprintPreviewData(final RegistryFriendlyByteBuf byteBuf)
+    public BlueprintPreviewData(final FriendlyByteBuf byteBuf)
     {
         this(byteBuf, true);
     }
@@ -113,7 +115,7 @@ public class BlueprintPreviewData
      * @param byteBuf the buffer data.
      * @param serverSyncEnabled if false then wont send sync preview messages to server
      */
-    public BlueprintPreviewData(final RegistryFriendlyByteBuf byteBuf, final boolean serverSyncEnabled)
+    public BlueprintPreviewData(final FriendlyByteBuf byteBuf, final boolean serverSyncEnabled)
     {
         this.serverSyncEnabled = serverSyncEnabled;
 
@@ -122,7 +124,7 @@ public class BlueprintPreviewData
         this.blueprintPath = byteBuf.readUtf(32767);
         if (StructurePacks.hasPack(packName))
         {
-            blueprintFuture = StructurePacks.getBlueprintFuture(packName, blueprintPath, byteBuf.registryAccess());
+            blueprintFuture = StructurePacks.getBlueprintFuture(packName, blueprintPath);
         }
         else
         {
@@ -262,7 +264,7 @@ public class BlueprintPreviewData
     {
         if (serverSyncEnabled && Structurize.getConfig().getClient().sharePreviews.get() && (blueprint == null || blueprint.getName() != null))
         {
-            new SyncPreviewCacheToServer(this).sendToServer();
+            Network.getNetwork().sendToServer(new SyncPreviewCacheToServer(this));
         }
     }
 
@@ -279,12 +281,66 @@ public class BlueprintPreviewData
     }
 
     /**
+     * Check if the blueprint rendered should refresh the cache.
+     * @return true if so.
+     * @deprecated no longer needed
+     */
+    @Deprecated(since = "1.20", forRemoval = true)
+    public boolean shouldRefresh()
+    {
+        return false;
+    }
+
+    /**
+     * Tell the structurize renderer to refresh the cache.
+     * @deprecated switch to {@link #syncChangesToServer()}
+     */
+    @Deprecated(since = "1.20", forRemoval = true)
+    public void scheduleRefresh()
+    {
+        syncChangesToServer();
+    }
+
+    /**
+     * Get the placement settings for this instance.
+     * @return the placement settings with mirror and rotation.
+     * @deprecated see {@link #getRotationMirror()}
+     */
+    @Deprecated(since = "1.20", forRemoval = true)
+    public PlacementSettings getPlacementSettings()
+    {
+        return new PlacementSettings(rotationMirror.mirror(), rotationMirror.rotation());
+    }
+
+    /**
      * Check if this is an invalid preview data object.
      * @return true if so.
      */
     public boolean isEmpty()
     {
         return blueprintFuture == null && blueprint == null;
+    }
+
+    /**
+     * Get the rotation of the preview.
+     * @return the rotation.
+     * @deprecated see {@link #getRotationMirror()}
+     */
+    @Deprecated(since = "1.20", forRemoval = true)
+    public Rotation getRotation()
+    {
+        return rotationMirror.rotation();
+    }
+
+    /**
+     * Get the mirror of the preview.
+     * @return the mirror.
+     * @deprecated see {@link #getRotationMirror()}
+     */
+    @Deprecated(since = "1.20", forRemoval = true)
+    public Mirror getMirror()
+    {
+        return rotationMirror.mirror();
     }
 
     /**
@@ -392,8 +448,6 @@ public class BlueprintPreviewData
 
     /**
      * Set the solid placeholder blockstate override, only updates when the renderer is recalculated
-     *
-     * @return
      */
     public void setSolidSubstitutionOverride(final BlockState solidSubstitutionOverride)
     {

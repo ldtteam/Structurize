@@ -2,6 +2,7 @@
   "credit": "Made by d3miurge.vallek@gmail.com",
   "textures": {
     "0": "structurize:block/waypoints/waypoints",
+    "missing": "minecraft:block/polished_andesite",
     "particle": "structurize:block/waypoints/waypoints"
   },
   "elements": [

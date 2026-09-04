@@ -1,6 +1,5 @@
 package com.ldtteam.structurize.util;
 
-import com.ldtteam.structurize.api.RotationMirror;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

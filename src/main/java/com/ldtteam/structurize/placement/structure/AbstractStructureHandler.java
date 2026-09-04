@@ -3,10 +3,12 @@ package com.ldtteam.structurize.placement.structure;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.storage.StructurePacks;
-import com.ldtteam.structurize.api.RotationMirror;
+import com.ldtteam.structurize.util.PlacementSettings;
+import com.ldtteam.structurize.util.RotationMirror;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.List;
@@ -36,7 +38,7 @@ public abstract class AbstractStructureHandler implements IStructureHandler
     /**
      * The used settings for the placement.
      */
-    private RotationMirror rotMir;
+    private PlacementSettings settings;
 
     /**
      * The minecraft world this struture is displayed in.
@@ -54,13 +56,13 @@ public abstract class AbstractStructureHandler implements IStructureHandler
      * @param world the world it gets.
      * @param worldPos the position the anchor of the structure got placed.
      * @param blueprintFuture the name of the structure.
-     * @param rotMir the placement settings.
+     * @param settings the placement settings.
      */
-    public AbstractStructureHandler(final Level world, final BlockPos worldPos, final Future<Blueprint> blueprintFuture, final RotationMirror rotMir)
+    public AbstractStructureHandler(final Level world, final BlockPos worldPos, final Future<Blueprint> blueprintFuture, final PlacementSettings settings)
     {
         this.world = world;
         this.worldPos = worldPos;
-        this.rotMir = rotMir;
+        this.settings = settings;
         this.blueprintFuture = blueprintFuture;
     }
 
@@ -69,13 +71,13 @@ public abstract class AbstractStructureHandler implements IStructureHandler
      * @param world the world.
      * @param pos the position.
      * @param blueprint the blueprint.
-     * @param rotMir the placement settings.
+     * @param settings the placement settings.
      */
-    public AbstractStructureHandler(final Level world, final BlockPos pos, final Blueprint blueprint, final RotationMirror rotMir)
+    public AbstractStructureHandler(final Level world, final BlockPos pos, final Blueprint blueprint, final PlacementSettings settings)
     {
         this.world = world;
         this.worldPos = pos;
-        this.rotMir = rotMir;
+        this.settings = settings;
         this.blueprint = blueprint;
     }
 
@@ -119,7 +121,7 @@ public abstract class AbstractStructureHandler implements IStructureHandler
             try
             {
                 blueprint = blueprintFuture.get();
-                blueprint.setRotationMirror(rotMir, world);
+                blueprint.setRotationMirror(settings.getRotationMirror(), world);
             }
             catch (InterruptedException | ExecutionException e)
             {
@@ -144,13 +146,19 @@ public abstract class AbstractStructureHandler implements IStructureHandler
     @Override
     public BlockPos getCenterPos()
     {
-        return this.worldPos;
+        return worldPos;
     }
 
     @Override
-    public RotationMirror getRotationMirror()
+    public PlacementSettings getSettings()
     {
-        return this.rotMir;
+        return this.settings;
+    }
+
+    @Override
+    public PlacementSettings getRotationMirror()
+    {
+        return this.settings;
     }
     
     @Override

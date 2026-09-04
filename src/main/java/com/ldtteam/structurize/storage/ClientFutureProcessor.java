@@ -1,9 +1,10 @@
 package com.ldtteam.structurize.storage;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;

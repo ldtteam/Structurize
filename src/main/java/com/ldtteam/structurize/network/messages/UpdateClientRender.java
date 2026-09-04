@@ -1,21 +1,19 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractClientPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.constants.Constants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.network.FriendlyByteBuf;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Marks an area of blocks for re-rendering on the client
  */
-public class UpdateClientRender extends AbstractClientPlayMessage
+public class UpdateClientRender implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forClient(Constants.MOD_ID, "update_client_render", UpdateClientRender::new);
-
     /**
      * Position to scan from.
      */
@@ -29,9 +27,8 @@ public class UpdateClientRender extends AbstractClientPlayMessage
     /**
      * Empty public constructor.
      */
-    protected UpdateClientRender(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public UpdateClientRender(final FriendlyByteBuf buf)
     {
-        super(buf, type);
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
     }
@@ -43,22 +40,35 @@ public class UpdateClientRender extends AbstractClientPlayMessage
      */
     public UpdateClientRender(final BlockPos from, final BlockPos to)
     {
-        super(TYPE);
         this.from = from;
         this.to = to;
     }
 
     @Override
-    protected void toBytes(final RegistryFriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
     }
 
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.CLIENT;
+    }
+
     @SuppressWarnings("resource")
     @Override
-    protected void onExecute(final IPayloadContext context, final Player player)
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
     {
-        Minecraft.getInstance().levelRenderer.setBlocksDirty(from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ());
+        if (!isLogicalServer)
+        {
+            final ClientLevel level = Minecraft.getInstance().level;
+            for (BlockPos pos : BlockPos.betweenClosed(from, to))
+            {
+                level.sendBlockUpdated(pos, level.getBlockState(pos), level.getBlockState(pos), Block.UPDATE_ALL);
+            }
+        }
     }
 }

@@ -1,25 +1,21 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractServerPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.operations.RemoveEntityOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Message to remove an entity from the world.
  */
-public class RemoveEntityMessage extends AbstractServerPlayMessage
+public class RemoveEntityMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "remove_entity", RemoveEntityMessage::new);
-
     /**
      * Position to scan from.
      */
@@ -33,17 +29,16 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
     /**
      * The entity to remove from the world.
      */
-    private final ResourceLocation entityName;
+    private final Identifier entityName;
 
     /**
      * Empty constructor used when registering the message.
      */
-    protected RemoveEntityMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public RemoveEntityMessage(final FriendlyByteBuf buf)
     {
-        super(buf, type);
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
-        this.entityName = buf.readResourceLocation();
+        this.entityName = buf.readIdentifier();
     }
 
     /**
@@ -53,34 +48,40 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
      * @param pos2       end coordinate.
      * @param entityName the entity to remove.
      */
-    public RemoveEntityMessage(final BlockPos pos1, final BlockPos pos2, final ResourceLocation entityName)
+    public RemoveEntityMessage(final BlockPos pos1, final BlockPos pos2, final Identifier entityName)
     {
-        super(TYPE);
         this.from = pos1;
         this.to = pos2;
         this.entityName = entityName;
     }
 
     @Override
-    protected void toBytes(final RegistryFriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
-        buf.writeResourceLocation(entityName);
+        buf.writeIdentifier(entityName);
+    }
+
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.SERVER;
     }
 
     @Override
-    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
     {
-        if (!player.isCreative())
+        if (!ctxIn.getSender().isCreative())
         {
             return;
         }
 
-        final EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(entityName);
+        final EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getValue(entityName);
         if (type != null)
         {
-            Manager.addToQueue(new RemoveEntityOperation(player, from, to, type));
+            Manager.addToQueue(new RemoveEntityOperation(ctxIn.getSender(), from, to, type));
         }
     }
 }

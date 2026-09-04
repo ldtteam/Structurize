@@ -1,1 +1,74 @@
-apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/ng7/gradle/mod.gradle'
+tableau {
+    project {
+        group = "com.ldtteam"
+        publisher = "LDTTeam"
+        modId = "structurize"
+    }
+
+    sourceSets {
+        api {
+            isPartOfPrimaryJar = true
+            neogradle {
+                isModSource = true
+            }
+        }
+        main {
+            dependencies {
+                implementation sourceSets.named('api')
+            }
+        }
+    }
+
+    maven {
+        publishAsLDTTeamMod()
+        publishLocally()
+        pom({
+            usingGnu3License()
+            usingGit()
+        })
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.addAll(['-Xmaxerrs', '1000', '-Xmaxwarns', '1000'])
+}
+
+// NeoGradle 7.1.x does not strip @OnlyIn annotations that Vineflower adds back
+// during decompilation for MC 26.x. The NeoForm and UserDev patches expect them
+// removed before nested type declarations. We also restore blank-line separators
+// that Vineflower collapses between consecutive declarations.
+tasks.matching { it.name == 'neoFormPatch' }.configureEach {
+    doFirst {
+        def decompileJar = project.file("build/neoForm/neoFormJoined26.2-2/steps/decompile/outputs.jar")
+        if (!decompileJar.exists()) return
+
+        def workDir = new File(project.buildDir, "onlyin-fix")
+        workDir.deleteDir()
+        workDir.mkdirs()
+
+        def zipTree = project.zipTree(decompileJar)
+        def javaFiles = []
+        zipTree.visit { details ->
+            def dest = new File(workDir, details.path)
+            if (details.directory) { dest.mkdirs() } else { dest.parentFile.mkdirs(); details.copyTo(dest); if (dest.name.endsWith('.java')) javaFiles << dest }
+        }
+
+        javaFiles.each { f ->
+            def text = f.text
+            // Strip @OnlyIn when it immediately precedes any nested type declaration
+            // at any indentation level. Preserves top-level class annotations.
+            def fixed = text.replaceAll(
+                /(?m)^( +)@OnlyIn\s*\([^)]*\)\n(\1(?:public |private |protected )?(?:static |final |abstract )?(?:class |interface |record |enum |@interface ))/,
+                '$2')
+            // Restore blank lines between closing brace and next declaration at same indent.
+            fixed = fixed.replaceAll(
+                /(?m)^(\}+)\n( +(?:public|private|protected)\s+(?:static\s+)?(?:class |record |interface |enum ))/,
+                '$1\n\n$2')
+            if (fixed != text) f.text = fixed
+        }
+
+        def ant = new groovy.ant.AntBuilder()
+        ant.jar(destfile: decompileJar.absolutePath, basedir: workDir)
+        workDir.deleteDir()
+    }
+}

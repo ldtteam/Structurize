@@ -1,22 +1,21 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractServerPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.items.ItemTagSubstitution;
+import com.ldtteam.structurize.util.ItemStackNbtHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Sent client to server to request that the currently held item should "absorb" a new replacement block.
  */
-public class AbsorbBlockMessage extends AbstractServerPlayMessage
+public class AbsorbBlockMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "absorb_block", AbsorbBlockMessage::new);
     private final BlockPos pos;
     private final ItemStack stack;
 
@@ -27,7 +26,6 @@ public class AbsorbBlockMessage extends AbstractServerPlayMessage
      */
     public AbsorbBlockMessage(@NotNull final BlockPos pos, @NotNull final ItemStack stack)
     {
-        super(TYPE);
         this.pos = pos;
         this.stack = stack;
     }
@@ -36,11 +34,10 @@ public class AbsorbBlockMessage extends AbstractServerPlayMessage
      * Deserialize
      * @param buf the network buffer
      */
-    protected AbsorbBlockMessage(@NotNull final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public AbsorbBlockMessage(@NotNull final FriendlyByteBuf buf)
     {
-        super(buf, type);
         this.pos = buf.readBlockPos();
-        this.stack = ItemStack.STREAM_CODEC.decode(buf);
+        this.stack = ItemStackNbtHelper.readNetworkStack(buf);
     }
 
     /**
@@ -48,16 +45,24 @@ public class AbsorbBlockMessage extends AbstractServerPlayMessage
      * @param buf network data byte buffer
      */
     @Override
-    protected void toBytes(@NotNull final RegistryFriendlyByteBuf buf)
+    public void toBytes(@NotNull final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(this.pos);
-        ItemStack.STREAM_CODEC.encode(buf, this.stack);
+        ItemStackNbtHelper.writeNetworkStack(buf, this.stack);
+    }
+
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.SERVER;
     }
 
     @Override
-    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
+    public void onExecute(@NotNull final NetworkContext ctxIn, final boolean isLogicalServer)
     {
-        final ItemStack current = player.getInventory().getSelected();
+        final ServerPlayer player = ctxIn.getSender();
+        final ItemStack current = player.getInventory().getSelectedItem();
 
         if (current.getItem() instanceof ItemTagSubstitution anchor)
         {

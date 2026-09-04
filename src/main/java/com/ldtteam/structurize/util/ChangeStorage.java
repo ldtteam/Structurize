@@ -1,13 +1,14 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.management.Manager;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnRequest;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -15,6 +16,7 @@ import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Change storage to store changes to an area to be able to undo them.
@@ -97,13 +99,12 @@ public class ChangeStorage
      *
      * @param list the list of entities.
      */
-    public void addEntities(final List<Entity> list, final HolderLookup.Provider provider)
+    public void addEntities(final List<Entity> list)
     {
-        list.stream().map(entity -> {
-            final CompoundTag tag = new CompoundTag();
-            entity.save(tag);
-            return tag;
-        }).forEach(removedEntities::add);
+        removedEntities.addAll(list.stream()
+            .map(entity -> EntityNbtHelper.save(entity, entity.level().registryAccess()))
+            .filter(Objects::nonNull)
+            .toList());
     }
 
     /**
@@ -169,18 +170,18 @@ public class ChangeStorage
 
         for (final CompoundTag data : removedEntities)
         {
-            final Optional<EntityType<?>> type = EntityType.by(data);
-            if (type.isPresent())
+            final Entity entity = EntityType.loadEntityRecursive(
+                data,
+                world,
+                new EntitySpawnRequest(EntitySpawnReason.LOAD, false),
+                loaded -> loaded);
+
+            if (entity != null)
             {
-                final Entity entity = type.get().create(world);
-                if (entity != null)
+                world.addFreshEntity(entity);
+                if (undoStorage != null)
                 {
-                    entity.load(data);
-                    world.addFreshEntity(entity);
-                    if (undoStorage != null)
-                    {
-                        undoStorage.addedEntities.add(entity);
-                    }
+                    undoStorage.addedEntities.add(entity);
                 }
             }
         }

@@ -3,22 +3,16 @@ package com.ldtteam.structurize.storage.rendering;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToClient;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
-import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Rendering cache for boxes, blueprints, etc. TODO:
+ * Rendering cache for boxes, blueprints, etc.
  */
 public class RenderingCache
 {
-    /**
-     * Boxes to render.
-     */
-    public static Map<String, BoxPreviewData> boxRenderingCache = new HashMap<>();
-
     /**
      * Blueprints to render.
      */
@@ -32,16 +26,6 @@ public class RenderingCache
     public static boolean hasBlueprint(final String key)
     {
         return blueprintRenderingCache.containsKey(key);
-    }
-
-    /**
-     * Get the preview data for a box.
-     * @param key the key of the box.
-     * @return the preview data.
-     */
-    public static BoxPreviewData getBoxPreviewData(final String key)
-    {
-        return boxRenderingCache.get(key);
     }
 
     /**
@@ -63,25 +47,6 @@ public class RenderingCache
     }
 
     /**
-     * Get a list of all blueprints to render.
-     * @return the preview data.
-     */
-    public static Collection<BoxPreviewData> getBoxesToRender()
-    {
-        return boxRenderingCache.values();
-    }
-
-    /**
-     * Queue a box to be rendered.
-     * @param key the key to queue it under.
-     * @param boxPreviewData the preview data.
-     */
-    public static void queue(final String key, final BoxPreviewData boxPreviewData)
-    {
-        boxRenderingCache.put(key, boxPreviewData);
-    }
-
-    /**
      * Queue a blueprint to be rendered.
      * @param key the key to queue it under.
      * @param boxPreviewData the preview data.
@@ -89,16 +54,6 @@ public class RenderingCache
     public static void queue(final String key, final BlueprintPreviewData boxPreviewData)
     {
         blueprintRenderingCache.put(key, boxPreviewData);
-    }
-
-    /**
-     * Remove an item from the cache.
-     * @param key the key of the item to be removed.
-     * @return the removed data.
-     */
-    public static BoxPreviewData removeBox(final String key)
-    {
-        return boxRenderingCache.remove(key);
     }
 
     /**
@@ -124,7 +79,7 @@ public class RenderingCache
     /**
      * @return true when should use light level from {@link #getOurLightLevel()}
      */
-    @Deprecated(forRemoval = true, since = "1.21.1")
+    @Deprecated
     public static boolean forceLightLevel()
     {
         return Structurize.getConfig().getClient().rendererLightLevel.get() >= 0;
@@ -133,7 +88,7 @@ public class RenderingCache
     /**
      * @return static light level
      */
-    @Deprecated(forRemoval = true, since = "1.21.1")
+    @Deprecated
     public static int getOurLightLevel()
     {
         return Structurize.getConfig().getClient().rendererLightLevel.get();
@@ -145,7 +100,6 @@ public class RenderingCache
     public static void clear()
     {
         blueprintRenderingCache.clear();
-        boxRenderingCache.clear();
     }
 
     /**

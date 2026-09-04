@@ -1,4 +1,4 @@
 project.ext.customChangelogHeader = "\n" +
         "### Required Dependencies: \n" +
-        "- BlockUI: ${project.blockUiVersion} (or above)\n" +
-        "- Domum Ornamentum: ${project.domumOrnamentumVersion} (or above)\n"
+        "- BlockUI: 0.0.1-local (or above)\n" +
+        "- Domum Ornamentum: 1.0.0-local (or above)\n"

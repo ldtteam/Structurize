@@ -1,22 +1,18 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractServerPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.PlacerholderFillOperation;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.network.FriendlyByteBuf;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Message to replace a block from the world with another one.
  */
-public class FillTopPlaceholderMessage extends AbstractServerPlayMessage
+public class FillTopPlaceholderMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "fill_top_placeholder", FillTopPlaceholderMessage::new);
-
     /**
      * Position to scan from.
      */
@@ -30,17 +26,16 @@ public class FillTopPlaceholderMessage extends AbstractServerPlayMessage
     /**
      * Fill parameters
      */
-    private final double yStretch;
-    private final double circleRadiusMult;
-    private final int    heightOffset;
-    private final int    minDistToBlocks;
+    private double yStretch;
+    private double circleRadiusMult;
+    private int    heightOffset;
+    private int    minDistToBlocks;
 
     /**
      * Empty constructor used when registering the message.
      */
-    protected FillTopPlaceholderMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public FillTopPlaceholderMessage(final FriendlyByteBuf buf)
     {
-        super(buf, type);
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
         this.yStretch = buf.readDouble();
@@ -54,8 +49,10 @@ public class FillTopPlaceholderMessage extends AbstractServerPlayMessage
      *
      * @param pos1      start coordinate.
      * @param pos2      end coordinate.
-     * @param blockFrom the block to replace.
-     * @param blockTo   the block to replace it with.
+     * @param yStretch         vertical stretch factor.
+     * @param circleRadiusMult circle radius multiplier.
+     * @param heightOffset     height offset.
+     * @param minDistToBlocks  minimum distance from blocks.
      */
     public FillTopPlaceholderMessage(
       final BlockPos pos1,
@@ -65,7 +62,6 @@ public class FillTopPlaceholderMessage extends AbstractServerPlayMessage
       final int heightOffset,
       final int minDistToBlocks)
     {
-        super(TYPE);
         this.from = pos1;
         this.to = pos2;
         this.yStretch = yStretch;
@@ -75,7 +71,7 @@ public class FillTopPlaceholderMessage extends AbstractServerPlayMessage
     }
 
     @Override
-    protected void toBytes(final RegistryFriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
@@ -85,14 +81,21 @@ public class FillTopPlaceholderMessage extends AbstractServerPlayMessage
         buf.writeInt(minDistToBlocks);
     }
 
+    @Nullable
     @Override
-    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
+    public LogicalSide getExecutionSide()
     {
-        if (!player.isCreative())
+        return LogicalSide.SERVER;
+    }
+
+    @Override
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
+    {
+        if (!ctxIn.getSender().isCreative())
         {
             return;
         }
 
-        Manager.addToQueue(new PlacerholderFillOperation(from, to, player, yStretch, circleRadiusMult, heightOffset, minDistToBlocks));
+        Manager.addToQueue(new PlacerholderFillOperation(from, to, ctxIn.getSender(), yStretch, circleRadiusMult, heightOffset, minDistToBlocks));
     }
 }

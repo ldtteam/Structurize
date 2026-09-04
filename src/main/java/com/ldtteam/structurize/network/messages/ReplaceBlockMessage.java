@@ -1,24 +1,20 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractServerPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.ItemStackUtils;
-import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.client.gui.util.ItemPositionsStorage;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.operations.ReplaceBlockOperation;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
+import com.ldtteam.structurize.util.ItemStackNbtHelper;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Message to replace a block from the world with another one.
  */
-public class ReplaceBlockMessage extends AbstractServerPlayMessage
+public class ReplaceBlockMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "replace_block", ReplaceBlockMessage::new);
-
     /**
      *  The block to replace with its positions
      */
@@ -37,10 +33,9 @@ public class ReplaceBlockMessage extends AbstractServerPlayMessage
     /**
      * Empty constructor used when registering the message.
      */
-    protected ReplaceBlockMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public ReplaceBlockMessage(final FriendlyByteBuf buf)
     {
-        super(buf, type);
-        this.blockTo = ItemStackUtils.deserializeFromBuffer(buf);
+        this.blockTo = ItemStackNbtHelper.readNetworkStack(buf);
         this.pct = buf.readInt();
         toReplace = new ItemPositionsStorage(buf);
     }
@@ -52,28 +47,34 @@ public class ReplaceBlockMessage extends AbstractServerPlayMessage
      */
     public ReplaceBlockMessage(final ItemPositionsStorage toReplace, final ItemStack blockTo, final int pct)
     {
-        super(TYPE);
         this.toReplace = toReplace;
         this.blockTo = blockTo;
         this.pct = pct;
     }
 
     @Override
-    protected void toBytes(final RegistryFriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
-        ItemStackUtils.serializeToBuffer(blockTo, buf);
+        ItemStackNbtHelper.writeNetworkStack(buf, blockTo);
         buf.writeInt(pct);
         toReplace.serialize(buf);
     }
 
+    @Nullable
     @Override
-    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
+    public LogicalSide getExecutionSide()
     {
-        if (!player.isCreative())
+        return LogicalSide.SERVER;
+    }
+
+    @Override
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
+    {
+        if (!ctxIn.getSender().isCreative())
         {
             return;
         }
 
-        Manager.addToQueue(new ReplaceBlockOperation(player, toReplace, blockTo, pct));
+        Manager.addToQueue(new ReplaceBlockOperation(ctxIn.getSender(), toReplace, blockTo, pct));
     }
 }

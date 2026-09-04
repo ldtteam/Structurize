@@ -1,59 +1,64 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractServerPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.items.ItemScanTool;
+import com.ldtteam.structurize.util.ItemStackNbtHelper;
 import com.ldtteam.structurize.util.ScanToolData;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Send the scan tool update message to the client.
  */
-public class UpdateScanToolMessage extends AbstractServerPlayMessage
+public class UpdateScanToolMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "update_scan_tool", UpdateScanToolMessage::new);
-
-    private final ScanToolData data;
+    /**
+     * Data.
+     */
+    private final CompoundTag tag;
 
     /**
      * Empty public constructor.
      */
-    protected UpdateScanToolMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public UpdateScanToolMessage(final FriendlyByteBuf buf)
     {
-        super(buf, type);
-
-        this.data = ScanToolData.STREAM_CODEC.decode(buf);
+        this.tag = buf.readNbt();
     }
 
     /**
      * Update the scan tool.
      * @param data the new data
      */
-    public UpdateScanToolMessage(final ScanToolData data)
+    public UpdateScanToolMessage(@NotNull ScanToolData data)
     {
-        super(TYPE);
-
-        this.data = data;
+        this.tag = data.getInternalTag().copy();
     }
 
     @Override
-    protected void toBytes(final RegistryFriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
-        ScanToolData.STREAM_CODEC.encode(buf, this.data);
+        buf.writeNbt(this.tag);
+    }
+
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.SERVER;
     }
 
     @Override
-    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
     {
-        final ItemStack stack = player.getMainHandItem();
+        final ItemStack stack = ctxIn.getSender().getMainHandItem();
         if (stack.getItem() instanceof ItemScanTool tool)
         {
-            // normally you should sanity check client data more, but there's nothing particularly abuse-prone here
-            tool.loadSlot(ScanToolData.updateItemStack(stack, old -> this.data), stack);
+            ItemStackNbtHelper.setCustomTag(stack, this.tag);
+            tool.loadSlot(new ScanToolData(ItemStackNbtHelper.getOrCreateCustomTag(stack)), stack);
         }
     }
 }

@@ -4,16 +4,21 @@ import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.structurize.api.TagManager;
-import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
-import com.ldtteam.structurize.items.ItemTagTool.TagData;
+import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
 import com.ldtteam.structurize.network.messages.SetTagInTool;
 import com.ldtteam.structurize.util.BlockUtils;
+import com.ldtteam.structurize.util.ItemStackNbtHelper;
+import com.ldtteam.structurize.util.TagManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -127,14 +132,25 @@ public class WindowTagTool extends AbstractWindowSkeleton
     {
         super.close();
         currentTag = findPaneOfTypeByID(INPUT_FIELD, TextField.class).getText();
-        TagData.updateItemStack(stack, tags -> tags.setCurrentTag(currentTag));
-        new SetTagInTool(currentTag, Minecraft.getInstance().player.getInventory().findSlotMatchingItem(stack)).sendToServer();
+        final CompoundTag itemTag = ItemStackNbtHelper.getOrCreateCustomTag(stack);
+        itemTag.putString(ItemTagTool.TAG_CURRENT_TAG, currentTag);
+        ItemStackNbtHelper.setCustomTag(stack, itemTag);
+        Network.getNetwork().sendToServer(new SetTagInTool(currentTag, Minecraft.getInstance().player.getInventory().findSlotMatchingItem(stack)));
     }
 
     @Override
-    public boolean onKeyTyped(final char ch, final int key)
+    public boolean onKeyEvent(final KeyEvent event)
     {
-        final boolean returnValue = super.onKeyTyped(ch, key);;
+        final boolean returnValue = super.onKeyEvent(event);
+        updateTagOptionList();
+        currentTag = findPaneOfTypeByID(INPUT_FIELD, TextField.class).getText();
+        return returnValue;
+    }
+
+    @Override
+    public boolean onCharactedEvent(final CharacterEvent event)
+    {
+        final boolean returnValue = super.onCharactedEvent(event);
         updateTagOptionList();
         currentTag = findPaneOfTypeByID(INPUT_FIELD, TextField.class).getText();
         return returnValue;
@@ -159,7 +175,7 @@ public class WindowTagTool extends AbstractWindowSkeleton
             {
                 String tag = map.get(toRemove).get(map.get(toRemove).size() - 1);
                 dataTE.removeTag(toRemove, tag);
-                new AddRemoveTagMessage(false, tag, toRemove, anchorPos).sendToServer();
+                Network.getNetwork().sendToServer(new AddRemoveTagMessage(false, tag, toRemove, anchorPos));
             }
             updateResourceList();
         }

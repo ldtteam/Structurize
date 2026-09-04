@@ -8,8 +8,8 @@ import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.util.resloc.OutOfJarResourceLocation;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
-import com.ldtteam.structurize.api.Log;
-import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blocks.interfaces.ILeveledBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.INamedBlueprintAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.IRequirementsBlueprintAnchorBlock;
@@ -24,10 +24,10 @@ import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -39,11 +39,11 @@ import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
-import static com.ldtteam.structurize.api.constants.GUIConstants.BUTTON_SWITCH_STYLE;
-import static com.ldtteam.structurize.api.constants.GUIConstants.DEFAULT_ICON;
-import static com.ldtteam.structurize.api.constants.WindowConstants.BUILD_TOOL_RESOURCE_SUFFIX;
-import static com.ldtteam.structurize.api.constants.WindowConstants.BUTTON_CONFIRM;
+import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
+import static com.ldtteam.structurize.api.util.constant.GUIConstants.BUTTON_SWITCH_STYLE;
+import static com.ldtteam.structurize.api.util.constant.GUIConstants.DEFAULT_ICON;
+import static com.ldtteam.structurize.api.util.constant.WindowConstants.BUILD_TOOL_RESOURCE_SUFFIX;
+import static com.ldtteam.structurize.api.util.constant.WindowConstants.BUTTON_CONFIRM;
 
 /**
  * BuildTool window.
@@ -146,8 +146,6 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
      */
     private final Predicate<Blueprint> availableBlueprintPredicate;
 
-    private final HolderLookup.Provider provider;
-
     /**
      * Type of button.
      */
@@ -160,10 +158,9 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
     public WindowExtendedBuildTool(
       final BlockPos pos,
-      final int groundstyle,
-      final HolderLookup.Provider provider)
+      final int groundstyle)
     {
-        this(pos, groundstyle, null, BLOCK_BLUEPRINT_REQUIREMENT, provider);
+        this(pos, groundstyle, null, BLOCK_BLUEPRINT_REQUIREMENT);
     }
 
     /**
@@ -181,13 +178,11 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
       final BlockPos pos,
       final int groundstyle,
       @Nullable final BiConsumer<WindowExtendedBuildTool, Blueprint> selectionCallback,
-      @Nullable final Predicate<Blueprint> availableBlueprintPredicate,
-      final HolderLookup.Provider provider)
+      @Nullable final Predicate<Blueprint> availableBlueprintPredicate)
     {
         super(MOD_ID + BUILD_TOOL_RESOURCE_SUFFIX, pos, groundstyle, "blueprint");
         this.selectionCallback = selectionCallback;
         this.availableBlueprintPredicate = availableBlueprintPredicate;
-        this.provider = provider;
         this.init(groundstyle, pos);
         registerButton(BUTTON_SWITCH_STYLE, this::switchPackClicked);
     }
@@ -288,8 +283,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         new WindowSwitchPack(() -> new WindowExtendedBuildTool(RenderingCache.getOrCreateBlueprintPreviewData("blueprint").getPos(),
           groundstyle,
           selectionCallback,
-          availableBlueprintPredicate,
-          provider)).open();
+          availableBlueprintPredicate)).open();
     }
 
     @Override
@@ -298,7 +292,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         BlueprintPreviewData previewData = RenderingCache.removeBlueprint("blueprint");
         previewData.setBlueprint(null);
         previewData.setPos(BlockPos.ZERO);
-        new SyncPreviewCacheToServer(previewData).sendToServer();
+        Network.getNetwork().sendToServer(new SyncPreviewCacheToServer(previewData));
 
 
         close();
@@ -327,16 +321,19 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("blueprint");
         if (previewData.getBlueprint() != null)
         {
-            new BuildToolPlacementMessage(type,
+            Network.getNetwork()
+                    .sendToServer(new BuildToolPlacementMessage(type,
                             id,
                             currentStructurePack,
                             StructurePacks.getStructurePack(currentStructurePack).getSubPath(previewData.getBlueprint().getFilePath().resolve(previewData.getBlueprint().getFileName() + ".blueprint")),
                             previewData.getPos(),
-                            previewData.getRotationMirror()).sendToServer();
-            if (type == BuildToolPlacementMessage.HandlerType.Survival)
-            {
-                cancelClicked();
-            }
+                            previewData.getRotationMirror().rotation(),
+                            previewData.getRotationMirror().mirror()));
+            // A placement request consumes the current preview regardless of
+            // whether it is a survival handler or an instant creative
+            // placement. Keeping the cache for Complete/Pretty leaves the
+            // just-constructed building covered by a stale ghost blueprint.
+            cancelClicked();
         }
     }
 
@@ -366,12 +363,12 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                         }
                         catch (final Exception ex)
                         {
-                            img.setImage(Constants.resLocStruct(DEFAULT_ICON));
+                            img.setImage(Identifier.parse(DEFAULT_ICON));
                         }
                     }
                     else
                     {
-                        img.setImage(Constants.resLocStruct(DEFAULT_ICON));
+                        img.setImage(Identifier.parse(DEFAULT_ICON));
                     }
 
                     final String id = category.subPath;
@@ -384,7 +381,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
                     if (category.isTerminal)
                     {
-                        blueprintsAtDepth.put(id, StructurePacks.getBlueprintsFuture(currentStructurePack, id, provider));
+                        blueprintsAtDepth.put(id, StructurePacks.getBlueprintsFuture(currentStructurePack, id));
                     }
                     else
                     {
@@ -412,7 +409,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                     if (subCats.isEmpty())
                     {
                         nextDepthMeta.remove(nextDepth);
-                        blueprintsAtDepth.put(nextDepth, StructurePacks.getBlueprintsFuture(id, nextDepth, provider));
+                        blueprintsAtDepth.put(nextDepth, StructurePacks.getBlueprintsFuture(id, nextDepth));
                     }
                     else
                     {
@@ -421,7 +418,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                             final String id = subCat.subPath;
                             if (subCat.isTerminal)
                             {
-                                blueprintsAtDepth.put(id, StructurePacks.getBlueprintsFuture(currentStructurePack, id, provider));
+                                blueprintsAtDepth.put(id, StructurePacks.getBlueprintsFuture(currentStructurePack, id));
                             }
                             else
                             {
@@ -548,6 +545,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
              * @param index the index of the row/list element.
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
+            @SuppressWarnings("resource")
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
@@ -680,6 +678,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
              * @param index the index of the row/list element.
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
+            @SuppressWarnings("resource")
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
@@ -728,13 +727,14 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
              * @param index the index of the row/list element.
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
+            @SuppressWarnings("resource")
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
                 final ButtonImage button = rowPane.findPaneOfTypeByID("alternative", ButtonImage.class);
                 rowPane.findPaneOfTypeByID("id", Text.class).setText(Component.literal(depth + ":" + list.get(index).getKey()));
                 button.setText(Component.literal(list.get(index).getKey()));
-                button.setTextColor(ChatFormatting.BLACK.getColor());
+                button.setTextColor(0xFF000000);
             }
         });
     }
@@ -775,25 +775,26 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
              * @param index the index of the row/list element.
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
+            @SuppressWarnings("resource")
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
                 if (blueprints.get(index) == null)
                 {
-                    final String buttonId = depth.substring(0, depth.lastIndexOf(":")) + ":$back";
+                    final String buttonId = depth.substring(0, depth.lastIndexOf(":")) + ":back";
                     final ButtonImage button = rowPane.findPaneOfTypeByID("level", ButtonImage.class);
                     rowPane.findPaneOfTypeByID("id", Text.class).setText(Component.literal(buttonId));
                     button.setText(Component.literal(""));
-                    button.setImage(Constants.resLocStruct("textures/gui/buildtool/back_medium.png"));
+                    button.setImage(Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/buildtool/back_medium.png"));
                 }
                 else
                 {
                     final String buttonId = depth + ":" + (hasAlternatives ? index - 1 : index);
                     final ButtonImage button = rowPane.findPaneOfTypeByID("level", ButtonImage.class);
                     rowPane.findPaneOfTypeByID("id", Text.class).setText(Component.literal(buttonId));
-                    button.setImage(Constants.resLocStruct("textures/gui/buildtool/button_medium.png"));
+                    button.setImage(Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/buildtool/button_medium.png"));
                     button.setText(Component.literal("Level: " + (index + (hasAlternatives ? 0 : 1))));
-                    button.setTextColor(ChatFormatting.BLACK.getColor());
+                    button.setTextColor(0xFF000000);
                 }
             }
         });
@@ -806,11 +807,11 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         {
             if (img == null)
             {
-                img = rowPane.findPaneOfTypeByID("$back:" + buttonData.data, ButtonImage.class);
+                img = rowPane.findPaneOfTypeByID("back:" + buttonData.data, ButtonImage.class);
             }
-            img.setID("$back:" + buttonData.data);
+            img.setID("back:" + buttonData.data);
             img.setVisible(true);
-            img.setImage(Constants.resLocStruct("textures/gui/buildtool/back_medium.png"));
+            img.setImage(Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/buildtool/back_medium.png"));
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(Component.literal("back"));
         }
         else if (buttonData.type == ButtonType.Blueprint)
@@ -872,7 +873,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 }
 
                 PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(toolTip);
-                img.setImage(Constants.resLocStruct("textures/gui/buildtool/button_blueprint_disabled" + (hasAlts ? "_variant" : "") + ".png"));
+                img.setImage(Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/buildtool/button_blueprint_disabled" + (hasAlts ? "_variant" : "") + ".png"));
                 isLocked = true;
             }
 
@@ -880,11 +881,11 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
 
             if (isCurrentlySelected)
             {
-                img.setImage(Constants.resLocStruct("textures/gui/buildtool/button_blueprint_selected" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"));
+                img.setImage(Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/buildtool/button_blueprint_selected" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"));
             }
             else if (!isLocked)
             {
-                img.setImage(Constants.resLocStruct("textures/gui/buildtool/button_blueprint" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"));
+                img.setImage(Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/buildtool/button_blueprint" + (allInvis ? "_creative" : "") + (hasAlts ? "_variant" : "") + ".png"));
             }
         }
     }
@@ -912,11 +913,11 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         {
             if (img == null)
             {
-                img = rowPane.findPaneOfTypeByID("$back:" + buttonData.data, ButtonImage.class);
+                img = rowPane.findPaneOfTypeByID("back:" + buttonData.data, ButtonImage.class);
             }
-            img.setID("$back:" + buttonData.data);
+            img.setID("back:" + buttonData.data);
             img.setVisible(true);
-            img.setImage(Constants.resLocStruct("textures/gui/buildtool/back_medium.png"));
+            img.setImage(Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/buildtool/back_medium.png"));
             PaneBuilders.tooltipBuilder().hoverPane(img).build().setText(Component.literal("back"));
             return;
         }
@@ -935,14 +936,14 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         final Component desc = Component.literal(descString);
         img.setText(desc);
         img.setVisible(true);
-        img.setTextColor(ChatFormatting.BLACK.getColor());
+        img.setTextColor(0xFF000000);
     }
 
     @Override
     public void onButtonClicked(final Button button)
     {
         boolean handled = false;
-        if (button.getID().contains("$back:"))
+        if (button.getID().contains("back:"))
         {
             // When leaving the current folder, the alternatives should also disable then.
             alternativesList.hide();
@@ -1020,7 +1021,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 pane.enable();
             }
 
-            currentBlueprintCat = button.getID().replace(":$back", "");
+            currentBlueprintCat = button.getID().replace(":back", "");
             handleBlueprintCategory(currentBlueprintCat, false);
             button.setHoverPane(null);
             handled = true;
@@ -1032,7 +1033,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 pane.enable();
             }
 
-            currentBlueprintCat = button.getParent().findPaneOfTypeByID("id", Text.class).getText().getString().replace(":$back", "");
+            currentBlueprintCat = button.getParent().findPaneOfTypeByID("id", Text.class).getText().getString().replace(":back", "");
             handleBlueprintCategory(currentBlueprintCat, false);
             button.setHoverPane(null);
             handled = true;
@@ -1145,6 +1146,11 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         adjustToGroundOffset();
         selectedBlueprint = blueprint;
 
+        // Blueprint selection can happen from the async category/level lists,
+        // before the generic button-dispatch path runs. Keep the movement and
+        // rotation controls visible as soon as a preview is actually ready.
+        findPaneOfTypeByID("manipulator", View.class).setVisible(true);
+
         final boolean canBuild = availableBlueprintPredicate == null || availableBlueprintPredicate.test(blueprint);
 
         findPaneOfTypeByID(BUTTON_CONFIRM, Button.class).setVisible(canBuild);
@@ -1163,12 +1169,5 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
             this.type = type;
             this.data = data;
         }
-    }
-
-    public static void clearStaticData()
-    {
-        nextDepthMeta.clear();
-        blueprintsAtDepth.clear();
-        currentBluePrintMappingAtDepthCache.clear();
     }
 }

@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.storage;
 
-import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.Network;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.network.messages.NotifyClientAboutStructurePacksMessage;
 import com.ldtteam.structurize.network.messages.TransferStructurePackToClient;
 import com.ldtteam.structurize.util.IOPool;
@@ -8,10 +9,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforgespi.language.IModInfo;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -24,7 +26,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static com.ldtteam.structurize.api.constants.Constants.*;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
 
 /**
  * Here we load the structure packs on the server side.
@@ -67,7 +69,12 @@ public class ServerStructurePackLoader
         final List<String> modList = new ArrayList<>();
         for (IModInfo mod : ModList.get().getMods())
         {
-            modPaths.add(mod.getOwningFile().getFile().findResource(BLUEPRINT_FOLDER, mod.getModId()));
+            // Resolve resources through NeoForge's JarContents so packs in a
+            // jar-backed mod are visible in production as well as dev runs.
+            modPaths.add(mod.getOwningFile().getFile().getContents()
+                .findFile(BLUEPRINT_FOLDER + "/" + mod.getModId())
+                .map(uri -> Paths.get(uri))
+                .orElse(null));
             modList.add(mod.getModId());
         }
 
@@ -78,13 +85,19 @@ public class ServerStructurePackLoader
             try
             {
                 // This loads from the jar
-                for (final Path modPath : modPaths)
+                for (int index = 0; index < modPaths.size(); index++)
                 {
+                    final Path modPath = modPaths.get(index);
+                    if (modPath == null || !Files.isDirectory(modPath))
+                    {
+                        continue;
+                    }
+                    final String owner = modList.get(index);
                     try
                     {
                         try (final Stream<Path> paths = Files.list(modPath))
                         {
-                            paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false, modPath.toString().split("/")[1]));
+                            paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false, owner));
                         }
                     }
                     catch (IOException e)
@@ -162,7 +175,7 @@ public class ServerStructurePackLoader
     {
         if (loadingState == ServerLoadingState.UNINITIALIZED)
         {
-            new NotifyClientAboutStructurePacksMessage(List.of()).sendToPlayer(player);
+            Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(List.of()), player);
             // Noop Single Player, Nothing to do here.
             return;
         }
@@ -197,11 +210,14 @@ public class ServerStructurePackLoader
         if (!messageSendTasks.isEmpty())
         {
             final PackagedPack packData = messageSendTasks.poll();
-            final ServerPlayer player = event.getServer().getPlayerList().getPlayer(packData.player);
-            // If the player logged off, we can just skip.
-            if (player != null)
+            if (packData != null)
             {
-                new TransferStructurePackToClient(packData.structurePack, packData.buf, packData.eol).sendToPlayer(player);
+                final ServerPlayer player = event.getServer().getPlayerList().getPlayer(packData.player);
+                // If the player logged off, we can just skip.
+                if (player != null)
+                {
+                    Network.getNetwork().sendToPlayer(new TransferStructurePackToClient(packData.structurePack, packData.buf, packData.eol), player);
+                }
             }
         }
     }
@@ -212,7 +228,7 @@ public class ServerStructurePackLoader
      */
     private static void handleClientUpdate(final Map<String, Double> clientStructurePacks, final ServerPlayer player)
     {
-        new NotifyClientAboutStructurePacksMessage(StructurePacks.getPackMetas()).sendToPlayer(player);
+        Network.getNetwork().sendToPlayer(new NotifyClientAboutStructurePacksMessage(StructurePacks.getPackMetas()), player);
 
         final UUID uuid = player.getUUID();
         final Map<String, StructurePackMeta> missingPacks = new HashMap<>();

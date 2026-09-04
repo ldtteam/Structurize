@@ -1,29 +1,25 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractServerPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.rendering.ServerPreviewDistributor;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.network.FriendlyByteBuf;
+import com.ldtteam.structurize.api.util.Tuple;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Sync player settings to server.
  */
-public class SyncSettingsToServer extends AbstractServerPlayMessage
+public class SyncSettingsToServer implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "sync_settings_to_server", SyncSettingsToServer::new);
-
     private final boolean displayShared;
 
     /**
      * Buffer reading message constructor.
      */
-    protected SyncSettingsToServer(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public SyncSettingsToServer(final FriendlyByteBuf buf)
     {
-        super(buf, type);
         this.displayShared = buf.readBoolean();
     }
 
@@ -32,19 +28,25 @@ public class SyncSettingsToServer extends AbstractServerPlayMessage
      */
     public SyncSettingsToServer()
     {
-        super(TYPE);
         this.displayShared = Structurize.getConfig().getClient().displayShared.get();
     }
 
     @Override
-    protected void toBytes(final RegistryFriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeBoolean(displayShared);
     }
 
+    @Nullable
     @Override
-    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
+    public LogicalSide getExecutionSide()
     {
-        ServerPreviewDistributor.register(player, displayShared);
+        return LogicalSide.SERVER;
+    }
+
+    @Override
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
+    {
+        ServerPreviewDistributor.register(ctxIn.getSender(), displayShared);
     }
 }

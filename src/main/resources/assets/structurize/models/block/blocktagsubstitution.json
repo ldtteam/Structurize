@@ -1,4 +1,7 @@
 {
   "parent": "structurize:block/blocktagsubstitutionoverlay",
-  "loader": "structurize:overlaid"
+  "loader": "structurize:overlaid",
+  "textures": {
+    "particle": "structurize:block/blocktagsubstitution"
+  }
 }

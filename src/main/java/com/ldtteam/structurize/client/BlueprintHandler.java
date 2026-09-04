@@ -3,13 +3,13 @@ package com.ldtteam.structurize.client;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.profiling.Profiler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import java.util.Collection;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
+
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -70,18 +70,26 @@ public final class BlueprintHandler
      * @param pos         position to render at
      * @param ctx         rendering event
      */
-    public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final RenderLevelStageEvent ctx)
+    public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final SubmitCustomGeometryEvent ctx)
+    {
+        internalBackportDraw(previewData, pos, ctx);
+    }
+
+    /**
+     * DO NOT USE IN MCOL
+     */
+    public void internalBackportDraw(final BlueprintPreviewData previewData, final BlockPos pos, final SubmitCustomGeometryEvent ctx)
     {
         if (previewData == null || previewData.getBlueprint() == null)
         {
             Log.getLogger().warn("Trying to draw null blueprint!");
             return;
         }
-        Minecraft.getInstance().getProfiler().push("struct_render_cache");
+        Profiler.get().push("struct_render_cache");
         
         rendererCache.getUnchecked(previewData.getRenderKey()).draw(previewData, pos, ctx);
 
-        Minecraft.getInstance().getProfiler().pop();
+        Profiler.get().pop();
     }
 
     /**
@@ -108,15 +116,15 @@ public final class BlueprintHandler
      * @param ctx         rendering event
      */
     public void drawAtListOfPositions(final BlueprintPreviewData previewData,
-        final Collection<BlockPos> points,
-        final RenderLevelStageEvent ctx)
+        final List<BlockPos> points,
+        final SubmitCustomGeometryEvent ctx)
     {
         if (points.isEmpty() || previewData == null || previewData.getBlueprint() == null)
         {
             return;
         }
 
-        Minecraft.getInstance().getProfiler().push("struct_render_multi");
+        Profiler.get().push("struct_render_multi");
 
         final BlueprintRenderer renderer = rendererCache.getUnchecked(previewData.getRenderKey());
 
@@ -125,15 +133,6 @@ public final class BlueprintHandler
             renderer.draw(previewData, coord, ctx);
         }
 
-        Minecraft.getInstance().getProfiler().pop();
-    }
-
-    /**
-     * @return list of entities for instantiated renderer (potentially immediately invalid), else empty list
-     */
-    public List<Entity> getOptionalEntitiesForBlueprint(final BlueprintPreviewData previewData)
-    {
-        final BlueprintRenderer renderer = rendererCache.getIfPresent(previewData.getRenderKey());
-        return renderer == null ? List.of() : renderer.entities;
+        Profiler.get().pop();
     }
 }

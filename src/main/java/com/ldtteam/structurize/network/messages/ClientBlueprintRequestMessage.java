@@ -1,23 +1,21 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractClientPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.storage.ClientFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
-import com.ldtteam.structurize.api.RotationMirror;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Request a blueprint from the client.
  */
-public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
+public class ClientBlueprintRequestMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forClient(Constants.MOD_ID, "blueprint_request", ClientBlueprintRequestMessage::new);
-
     /**
      * Structure placement info.
      */
@@ -26,22 +24,23 @@ public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
     public final String   structurePackId;
     public final String   blueprintPath;
     public final BlockPos pos;
-    public final RotationMirror rotationMirror;
+    public final Rotation rotation;
+    public final Mirror   mirror;
 
 
     /**
      * Buffer reading message constructor.
      */
-    protected ClientBlueprintRequestMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public ClientBlueprintRequestMessage(final FriendlyByteBuf buf)
     {
-        super(buf, type);
         this.type = BuildToolPlacementMessage.HandlerType.values()[buf.readInt()];
         this.handlerId = buf.readUtf(32767);
 
         this.structurePackId = buf.readUtf(32767);
         this.blueprintPath = buf.readUtf(32767);
         this.pos = buf.readBlockPos();
-        this.rotationMirror = RotationMirror.values()[buf.readInt()];
+        this.rotation = Rotation.values()[buf.readInt()];
+        this.mirror = Mirror.values()[buf.readInt()];
     }
 
     /**
@@ -51,18 +50,18 @@ public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
      */
     public ClientBlueprintRequestMessage(final BuildToolPlacementMessage msg)
     {
-        super(TYPE);
         this.type = msg.type;
         this.handlerId = msg.handlerId;
 
         this.structurePackId = msg.structurePackId;
         this.blueprintPath = msg.blueprintPath;
         this.pos = msg.pos;
-        this.rotationMirror = msg.rotationMirror;
+        this.rotation = msg.rotation;
+        this.mirror = msg.mirror;
     }
 
     @Override
-    protected void toBytes(final RegistryFriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeInt(this.type.ordinal());
         buf.writeUtf(this.handlerId);
@@ -70,16 +69,24 @@ public class ClientBlueprintRequestMessage extends AbstractClientPlayMessage
         buf.writeUtf(this.structurePackId);
         buf.writeUtf(this.blueprintPath);
         buf.writeBlockPos(this.pos);
-        buf.writeInt(this.rotationMirror.ordinal());
+        buf.writeInt(this.rotation.ordinal());
+        buf.writeInt(this.mirror.ordinal());
+    }
+
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.CLIENT;
     }
 
     @Override
-    protected void onExecute(final IPayloadContext context, final Player player)
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
     {
         ClientFutureProcessor.queueBlueprintData(new ClientFutureProcessor.BlueprintDataProcessingData(StructurePacks.getBlueprintDataFuture(structurePackId, blueprintPath), (blueprintData) -> {
             if (blueprintData != null)
             {
-                new BlueprintSyncMessage(this, blueprintData).sendToServer();
+                Network.getNetwork().sendToServer(new BlueprintSyncMessage(this, blueprintData));
             }
         }));
     }

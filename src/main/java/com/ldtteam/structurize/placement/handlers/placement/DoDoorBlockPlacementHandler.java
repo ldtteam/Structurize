@@ -3,13 +3,12 @@ package com.ldtteam.structurize.placement.handlers.placement;
 import com.ldtteam.domumornamentum.block.AbstractBlockDoor;
 import com.ldtteam.domumornamentum.block.IMateriallyTexturedBlock;
 import com.ldtteam.domumornamentum.util.BlockUtils;
-import com.ldtteam.structurize.api.ItemStackUtils;
-import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.placement.IPlacementContext;
-import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
+import com.ldtteam.structurize.api.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -23,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.ldtteam.structurize.api.constants.Constants.UPDATE_FLAG;
+import static com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG;
 import static com.ldtteam.structurize.placement.handlers.placement.DoBlockPlacementHandler.compareBEData;
 import static com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers.handleTileEntityPlacement;
 
@@ -58,8 +57,8 @@ public class DoDoorBlockPlacementHandler implements IPlacementHandler
             {
                 try
                 {
-                    handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
-                    handleTileEntityPlacement(tileEntityData, world, pos.above(), placementContext.getRotationMirror());
+                    handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror().getRotationMirror());
+                    handleTileEntityPlacement(tileEntityData, world, pos.above(), placementContext.getRotationMirror().getRotationMirror());
                 }
                 catch (final Exception ex)
                 {
@@ -81,7 +80,7 @@ public class DoDoorBlockPlacementHandler implements IPlacementHandler
         final List<ItemStack> itemList = new ArrayList<>();
         if (tileEntityData != null && blockState.getValue(net.minecraft.world.level.block.DoorBlock.HALF).equals(DoubleBlockHalf.LOWER))
         {
-            BlockPos blockpos = new BlockPos(tileEntityData.getInt("x"), tileEntityData.getInt("y"), tileEntityData.getInt("z"));
+            BlockPos blockpos = new BlockPos(tileEntityData.getIntOr("x", 0), tileEntityData.getIntOr("y", 0), tileEntityData.getIntOr("z", 0));
             final BlockEntity tileEntity = BlockEntity.loadStatic(blockpos, blockState, tileEntityData, world.registryAccess());
             if (tileEntity == null)
             {
@@ -128,4 +127,3 @@ public class DoDoorBlockPlacementHandler implements IPlacementHandler
         return compareBEData(blockEntityData);
     }
 }
-

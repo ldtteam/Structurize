@@ -2,10 +2,11 @@ package com.ldtteam.structurize.storage;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.Log;
-import com.ldtteam.structurize.api.Utils;
-import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.NotifyServerAboutStructurePacksMessage;
 import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -14,24 +15,25 @@ import com.ldtteam.structurize.util.JavaUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforgespi.language.IModInfo;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static com.ldtteam.structurize.api.constants.Constants.*;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
 
 /**
  * Client side structure pack discovery.
@@ -63,7 +65,14 @@ public class ClientStructurePackLoader
         final List<String> modList = new ArrayList<>();
         for (IModInfo mod : ModList.get().getMods())
         {
-            modPaths.add(mod.getOwningFile().getFile().findResource(BLUEPRINT_FOLDER, mod.getModId()));
+            // NeoForge mods are normally jar-backed. Resolving a child path
+            // from getFilePath() treats the jar itself as a directory and
+            // leaves every built-in pack undiscoverable. JarContents exposes
+            // the resource through a URI that works for jar and dev files.
+            modPaths.add(mod.getOwningFile().getFile().getContents()
+                .findFile(BLUEPRINT_FOLDER + "/" + mod.getModId())
+                .map(uri -> Paths.get(uri))
+                .orElse(null));
             modList.add(mod.getModId());
         }
 
@@ -78,13 +87,19 @@ public class ClientStructurePackLoader
         IOPool.execute(() ->
         {
             // This loads from the jar
-            for (final Path modPath : modPaths)
+            for (int index = 0; index < modPaths.size(); index++)
             {
+                final Path modPath = modPaths.get(index);
+                if (modPath == null || !Files.isDirectory(modPath))
+                {
+                    continue;
+                }
+                final String owner = modList.get(index);
                 try
                 {
                     try (final Stream<Path> paths = Files.list(modPath))
                     {
-                        paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false, modPath.toString().split("/")[1]));
+                        paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false, owner));
                     }
                 }
                 catch (IOException e)
@@ -144,7 +159,7 @@ public class ClientStructurePackLoader
     {
         if (Minecraft.getInstance().level != null && loadingState == ClientLoadingState.FINISHED_LOADING)
         {
-            if (Minecraft.getInstance().isSingleplayer())
+            if (Minecraft.getInstance().getSingleplayerServer() != null)
             {
                 loadingState = ClientLoadingState.FINISHED_SYNCING;
                 StructurePacks.setFinishedLoading();
@@ -153,7 +168,7 @@ public class ClientStructurePackLoader
             }
 
             loadingState = ClientLoadingState.SYNCING;
-            new NotifyServerAboutStructurePacksMessage(StructurePacks.getPackMetas()).sendToServer();
+            Network.getNetwork().sendToServer(new NotifyServerAboutStructurePacksMessage(StructurePacks.getPackMetas()));
         }
         else if (Minecraft.getInstance().level == null && (loadingState == ClientLoadingState.SYNCING || loadingState == ClientLoadingState.FINISHED_SYNCING))
         {
@@ -172,7 +187,7 @@ public class ClientStructurePackLoader
      */
     public static void onServerSyncAttempt(final Map<String, Double> serverStructurePacks)
     {
-        new SyncSettingsToServer().sendToServer();
+        Network.getNetwork().sendToServer(new SyncSettingsToServer());
 
         if (serverStructurePacks.isEmpty())
         {
@@ -183,7 +198,7 @@ public class ClientStructurePackLoader
             return;
         }
         
-        if (serverStructurePacks.containsKey(Minecraft.getInstance().player.getGameProfile().getName()))
+        if (serverStructurePacks.containsKey(Minecraft.getInstance().player.getGameProfile().name()))
         {
             Minecraft.getInstance().player.sendSystemMessage(Component.translatable("structurize.pack.equaluser.error"));
         }
@@ -344,7 +359,7 @@ public class ClientStructurePackLoader
      * @param compound compound to store.
      * @param fileName milli seconds for fileName.
      */
-    public static void handleSaveScanMessage(final CompoundTag compound, final String fileName, final HolderLookup.Provider provider)
+    public static void handleSaveScanMessage(final CompoundTag compound, final String fileName)
     {
         final String packName = Utils.getSafePackName(Minecraft.getInstance().getUser().getName());
         StructurePacks.switchSelectedPack(StructurePacks.getStructurePack(Utils.getSafePackName(Minecraft.getInstance().getUser().getName())));
@@ -352,8 +367,8 @@ public class ClientStructurePackLoader
           StructurePacks.storeBlueprint(packName, compound, Minecraft.getInstance().gameDirectory.toPath()
             .resolve(BLUEPRINT_FOLDER)
             .resolve(packName.toLowerCase(Locale.US))
-            .resolve(SCANS_FOLDER).resolve(fileName), provider));
+            .resolve(SCANS_FOLDER).resolve(fileName)));
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setPos(null);
-        Minecraft.getInstance().player.displayClientMessage(Component.translatable("Scan successfully saved as %s", fileName), false);
+        Minecraft.getInstance().player.sendSystemMessage(Component.translatable("Scan successfully saved as %s", fileName));
     }
 }

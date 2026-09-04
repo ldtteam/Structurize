@@ -1,25 +1,23 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractServerPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.BlueprintPlacementHandling;
-import com.ldtteam.structurize.api.RotationMirror;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Send build tool data to the server. Verify the data on the server side and then place the blueprint.
  * This also buffers the incoming messages, places one per tick and loads the file off-thread.
  */
-public class BuildToolPlacementMessage extends AbstractServerPlayMessage
+public class BuildToolPlacementMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "buildtool_placement", BuildToolPlacementMessage::new);
-
     /**
      * Identify the Client side handler.
      */
@@ -32,7 +30,8 @@ public class BuildToolPlacementMessage extends AbstractServerPlayMessage
     public final String   structurePackId;
     public final String   blueprintPath;
     public final  BlockPos pos;
-    public final RotationMirror rotationMirror;
+    public final Rotation rotation;
+    public final Mirror   mirror;
 
     /**
      * Cached placement info.
@@ -54,16 +53,16 @@ public class BuildToolPlacementMessage extends AbstractServerPlayMessage
     /**
      * Buffer reading message constructor.
      */
-    protected BuildToolPlacementMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public BuildToolPlacementMessage(final FriendlyByteBuf buf)
     {
-        super(buf, type);
         this.type = HandlerType.values()[buf.readInt()];
         this.handlerId = buf.readUtf(32767);
 
         this.structurePackId = buf.readUtf(32767);
         this.blueprintPath = buf.readUtf(32767);
         this.pos = buf.readBlockPos();
-        this.rotationMirror = RotationMirror.values()[buf.readInt()];
+        this.rotation = Rotation.values()[buf.readInt()];
+        this.mirror = Mirror.values()[buf.readInt()];
     }
 
     /**
@@ -74,7 +73,8 @@ public class BuildToolPlacementMessage extends AbstractServerPlayMessage
      * @param structurePackId the id of the pack.
      * @param blueprintPath   the path of the structure in the pack.
      * @param pos             the position of the blueprint.
-     * @param rotMir          the rotation and the mirror of the blueprint.
+     * @param rotation        the rotation of the blueprint.
+     * @param mirror          the mirror of the blueprint.
      */
     public BuildToolPlacementMessage(
       final HandlerType type,
@@ -82,16 +82,17 @@ public class BuildToolPlacementMessage extends AbstractServerPlayMessage
       final String structurePackId,
       final String blueprintPath,
       final BlockPos pos,
-      final RotationMirror rotMir)
+      final Rotation rotation,
+      final Mirror mirror)
     {
-        super(TYPE);
         this.type = type;
         this.handlerId = handlerId;
 
         this.structurePackId = structurePackId;
         this.blueprintPath = blueprintPath;
         this.pos = pos;
-        this.rotationMirror = rotMir;
+        this.rotation = rotation;
+        this.mirror = mirror;
     }
 
     /**
@@ -100,14 +101,14 @@ public class BuildToolPlacementMessage extends AbstractServerPlayMessage
      */
     public BuildToolPlacementMessage(final BlueprintSyncMessage msg, final ServerPlayer player, final Level world)
     {
-        super(TYPE);
         this.type = msg.type;
         this.handlerId = msg.handlerId;
 
         this.structurePackId = msg.structurePackId;
         this.blueprintPath = msg.blueprintPath;
         this.pos = msg.pos;
-        this.rotationMirror = msg.rotationMirror;
+        this.rotation = msg.rotation;
+        this.mirror = msg.mirror;
 
         this.clientPack = true;
         this.player = player;
@@ -120,7 +121,7 @@ public class BuildToolPlacementMessage extends AbstractServerPlayMessage
      * @param buf The buffer being written to.
      */
     @Override
-    protected void toBytes(final RegistryFriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeInt(this.type.ordinal());
         buf.writeUtf(this.handlerId);
@@ -128,14 +129,22 @@ public class BuildToolPlacementMessage extends AbstractServerPlayMessage
         buf.writeUtf(this.structurePackId);
         buf.writeUtf(this.blueprintPath);
         buf.writeBlockPos(this.pos);
-        buf.writeInt(this.rotationMirror.ordinal());
+        buf.writeInt(this.rotation.ordinal());
+        buf.writeInt(this.mirror.ordinal());
+    }
+
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.SERVER;
     }
 
     @Override
-    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
     {
-        world = player.level();
-        this.player = player;
+        world = ctxIn.getSender().level();
+        player = ctxIn.getSender();
         BlueprintPlacementHandling.handlePlacement(this);
     }
 }

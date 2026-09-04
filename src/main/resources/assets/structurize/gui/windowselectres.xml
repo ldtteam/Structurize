@@ -4,12 +4,12 @@
     <text id="desc" size="100% 11" pos="0 25" textalign="TOP_MIDDLE" color="white"/>
 
     <itemicon id="resourceIconFrom" size="17 17" pos="0 1" visible="false"/>
-    <text id="resourceNameFrom" size="140 12" pos="30 4" color="white" visible="false"/>
-    <text id="to" label="->" size="120 12" pos="150 4" color="white" visible="false"/>
+    <label id="resourceNameFrom" size="140 12" pos="30 4" color="white" visible="false"/>
+    <label id="to" label="->" size="120 12" pos="150 4" color="white" visible="false"/>
     <itemicon id="resourceIconTo" size="17 17" pos="170 1" visible="false"/>
-    <text id="resourceNameTo" size="140 12" pos="200 4" color="white" visible="false"/>
+    <label id="resourceNameTo" size="140 12" pos="200 4" color="white" visible="false"/>
 
-    <text id="countText" textalign="TOP_RIGHT" label="$(com.minecolonies.coremod.gui.scan.select.stack)" size="105 12" pos="270 4" color="white" visible="false"/>
+    <label id="countText" textalign="TOP_RIGHT" label="$(com.minecolonies.coremod.gui.scan.select.stack)" size="105 12" pos="270 4" color="white" visible="false"/>
     <input id="count" size="30 18" pos="385 0" maxlength="25" visible="false"/>
 
     <layout source="structurize:gui/layoutselectres.xml"/>

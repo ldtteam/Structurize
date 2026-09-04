@@ -13,7 +13,6 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.UUID;
 
 import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
@@ -47,7 +46,7 @@ public class PlaceStructureOperation extends BaseOperation
      */
     public PlaceStructureOperation(@NotNull final StructurePlacer placer, @Nullable final Player player)
     {
-        super(new ChangeStorage(Component.translatable("com.ldtteam.structurize.place_structure", Objects.requireNonNullElse(placer.getHandler().getBluePrint().getName(), "[NULL]")),
+        super(new ChangeStorage(Component.translatable("com.ldtteam.structurize.place_structure", placer.getHandler().getBluePrint().getName()),
           player != null ? player.getUUID() : UUID.randomUUID()));
         this.placer = placer;
         this.currentPos = NULL_POS;
@@ -56,7 +55,7 @@ public class PlaceStructureOperation extends BaseOperation
     @Override
     public boolean apply(final ServerLevel world)
     {
-        if (placer.isReady() && placer.getHandler().getWorld().dimension().location().equals(world.dimension().location()))
+        if (placer.isReady() && placer.getHandler().getWorld().dimension().identifier().equals(world.dimension().identifier()))
         {
             StructurePhasePlacementResult result;
             switch (structurePhase)

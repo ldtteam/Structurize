@@ -1,28 +1,26 @@
 package com.ldtteam.structurize.items;
 
-import com.ldtteam.structurize.api.Utils;
-import com.ldtteam.structurize.component.ModDataComponents;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.util.BlockPosUtil;
+import com.ldtteam.structurize.util.ItemStackNbtHelper;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.Tuple;
+import com.ldtteam.structurize.api.util.Tuple;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResult.Success;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.level.Level;
 
-import java.util.Optional;
-import java.util.function.UnaryOperator;
+import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.FIRST_POS_STRING;
+import static com.ldtteam.structurize.api.util.constant.NbtTagConstants.SECOND_POS_STRING;
+
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -30,6 +28,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class AbstractItemWithPosSelector extends Item
 {
+    private static final String NBT_START_POS    = FIRST_POS_STRING;
+    private static final String NBT_END_POS      = SECOND_POS_STRING;
     private static final String START_POS_TKEY   = "item.possetter.firstpos";
     private static final String END_POS_TKEY     = "item.possetter.secondpos";
     private static final String MISSING_POS_TKEY = "item.possetter.missingpos";
@@ -41,7 +41,7 @@ public abstract class AbstractItemWithPosSelector extends Item
      */
     public AbstractItemWithPosSelector(final Properties properties)
     {
-        super(properties.component(ModDataComponents.POS_SELECTION, PosSelection.EMPTY));
+        super(properties);
     }
 
     /**
@@ -67,37 +67,37 @@ public abstract class AbstractItemWithPosSelector extends Item
      * {@inheritDoc}
      */
     @Override
-    public InteractionResultHolder<ItemStack> use(final Level worldIn, final Player playerIn, final InteractionHand handIn)
+    public InteractionResult use(final Level worldIn, final Player playerIn, final InteractionHand handIn)
     {
         final ItemStack itemstack = playerIn.getItemInHand(handIn);
-        final PosSelection compound = PosSelection.readFromItemStack(itemstack);
+        final CompoundTag compound = ItemStackNbtHelper.getOrCreateCustomTag(itemstack);
 
-        if (compound.startPos().isEmpty())
+        if (!compound.contains(NBT_START_POS))
         {
             if (worldIn.isClientSide())
             {
-                playerIn.displayClientMessage(Component.translatable(MISSING_POS_TKEY + "1"), false);
+                playerIn.sendSystemMessage(Component.translatable(MISSING_POS_TKEY + "1"));
             }
-            return InteractionResultHolder.fail(itemstack);
+            return InteractionResult.FAIL;
         }
 
-        if (compound.endPos().isEmpty())
+        if (!compound.contains(NBT_END_POS))
         {
             if (worldIn.isClientSide())
             {
-                playerIn.displayClientMessage(Component.translatable(MISSING_POS_TKEY + "2"), false);
+                playerIn.sendSystemMessage(Component.translatable(MISSING_POS_TKEY + "2"));
             }
-            return InteractionResultHolder.fail(itemstack);
+            return InteractionResult.FAIL;
         }
 
-        return new InteractionResultHolder<>(
+        final InteractionResult result =
             onAirRightClick(
-                compound.startPos().get(),
-                compound.endPos().get(),
+                BlockPosUtil.readFromNBT(compound, NBT_START_POS),
+                BlockPosUtil.readFromNBT(compound, NBT_END_POS),
                 worldIn,
                 playerIn,
-                itemstack),
-            itemstack);
+                itemstack);
+        return result instanceof final Success success ? success.heldItemTransformedTo(itemstack) : result;
     }
 
     /**
@@ -110,10 +110,10 @@ public abstract class AbstractItemWithPosSelector extends Item
         final BlockPos pos = context.getClickedPos();
         if (context.getLevel().isClientSide())
         {
-            context.getPlayer().displayClientMessage(Component.translatable(END_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()), false);
+            context.getPlayer().sendSystemMessage(Component.translatable(END_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()));
             Utils.playSuccessSound(context.getPlayer());
         }
-        PosSelection.updateItemStack(context.getItemInHand(), data -> data.setEndpos(pos));
+        BlockPosUtil.writeToNBT(ItemStackNbtHelper.getOrCreateCustomTag(context.getItemInHand()), NBT_END_POS, pos);
         return InteractionResult.SUCCESS;
     }
 
@@ -122,18 +122,27 @@ public abstract class AbstractItemWithPosSelector extends Item
      * {@inheritDoc}
      */
     @Override
-    public boolean canAttackBlock(final BlockState state, final Level worldIn, final BlockPos pos, final Player player)
+    public boolean canDestroyBlock(final ItemStack selectedStack,
+        final BlockState state,
+        final Level worldIn,
+        final BlockPos pos,
+        final LivingEntity entity)
     {
+        if (!(entity instanceof final Player player) || !player.isShiftKeyDown())
+        {
+            return super.canDestroyBlock(selectedStack, state, worldIn, pos, entity);
+        }
+
         ItemStack itemstack = player.getMainHandItem();
         if (!itemstack.getItem().equals(getRegisteredItemInstance()))
         {
             itemstack = player.getOffhandItem();
         }
-        PosSelection.updateItemStack(itemstack, data -> data.setStartPos(pos));
-        if (player.getCommandSenderWorld().isClientSide())
+        BlockPosUtil.writeToNBT(ItemStackNbtHelper.getOrCreateCustomTag(itemstack), NBT_START_POS, pos);
+        if (player.level().isClientSide())
         {
             Utils.playSuccessSound(player);
-            player.displayClientMessage(Component.translatable(START_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()), false);
+            player.sendSystemMessage(Component.translatable(START_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()));
         }
         return false;
     }
@@ -152,105 +161,26 @@ public abstract class AbstractItemWithPosSelector extends Item
      * @param tool The tool stack (assumed already been validated)
      * @param start The new start position
      * @param end The new end position
-     * @deprecated use datacomponents
      */
-    @Deprecated(forRemoval = true, since = "1.21")
     public static void setBounds(@NotNull final ItemStack tool,
                                  @NotNull final BlockPos start,
                                  @NotNull final BlockPos end)
     {
-        PosSelection.updateItemStack(tool, data -> data.setSelection(start, end));
+        final CompoundTag tag = ItemStackNbtHelper.getOrCreateCustomTag(tool);
+        BlockPosUtil.writeToNBT(tag, NBT_START_POS, start);
+        BlockPosUtil.writeToNBT(tag, NBT_END_POS, end);
     }
 
     /**
      * Loads the start/end coordinates from this stack.
      * @param tool The tool stack (assumed already been validated)
      * @return the start/end positions
-     * @deprecated use datacomponents
      */
-    @Deprecated(forRemoval = true, since = "1.21")
     public static Tuple<BlockPos, BlockPos> getBounds(@NotNull final ItemStack tool)
     {
-        final PosSelection tag = PosSelection.readFromItemStack(tool);
-        return new Tuple<>(tag.startPos().orElse(null), tag.endPos().orElse(null));
-    }
-
-    /**
-     * Data components for storing start and end pos
-     */
-    public record PosSelection(Optional<BlockPos> startPos, Optional<BlockPos> endPos)
-    { 
-        public static final PosSelection EMPTY = new PosSelection(Optional.empty(), Optional.empty());
-
-        public static final Codec<PosSelection> CODEC = RecordCodecBuilder.create(
-            builder -> builder
-                .group(BlockPos.CODEC.optionalFieldOf("start_pos").forGetter(PosSelection::startPos),
-                    BlockPos.CODEC.optionalFieldOf("end_pos").forGetter(PosSelection::endPos))
-                .apply(builder, PosSelection::new));
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, PosSelection> STREAM_CODEC =
-            StreamCodec.composite(ByteBufCodecs.optional(BlockPos.STREAM_CODEC),
-                PosSelection::startPos,
-                ByteBufCodecs.optional(BlockPos.STREAM_CODEC),
-                PosSelection::endPos,
-                PosSelection::new);
-
-        /**
-         * @return true if both start and end positions are set
-         */
-        public boolean hasSelection()
-        {
-            return startPos.isPresent() && endPos.isPresent();
-        }
-
-        /**
-         * For use with {@link ItemStack#update(DataComponentType, Object, UnaryOperator)}
-         */
-        public PosSelection setStartPos(final BlockPos pos)
-        {
-            return new PosSelection(Optional.ofNullable(pos), endPos);
-        }
-
-        /**
-         * For use with {@link ItemStack#update(DataComponentType, Object, UnaryOperator)}
-         */
-        public PosSelection setEndpos(final BlockPos pos)
-        {
-            return new PosSelection(startPos, Optional.ofNullable(pos));
-        }
-
-        /**
-         * For use with {@link ItemStack#update(DataComponentType, Object, UnaryOperator)}
-         */
-        public PosSelection setSelection(final BlockPos startPos, final BlockPos endPos)
-        {
-            return new PosSelection(Optional.ofNullable(startPos), Optional.ofNullable(endPos));
-        }
-
-        /**
-         * Writes this posSelection into given itemStack.
-         * 
-         * @see BlockEntity#saveToItem(ItemStack, net.minecraft.core.HolderLookup.Provider)
-         */
-        public void writeToItemStack(final ItemStack itemStack)
-        {
-            itemStack.set(ModDataComponents.POS_SELECTION, this);
-        }
-    
-        /**
-         * @return posSelection stored in given itemStack (or empty instance)
-         */
-        public static PosSelection readFromItemStack(final ItemStack itemStack)
-        {
-            return itemStack.getOrDefault(ModDataComponents.POS_SELECTION, PosSelection.EMPTY);
-        }
-    
-        /**
-         * Performs updating of posSelection in given itemStack
-         */
-        public static void updateItemStack(final ItemStack itemStack, final UnaryOperator<PosSelection> updater)
-        {
-            updater.apply(readFromItemStack(itemStack)).writeToItemStack(itemStack);
-        }
+        final CompoundTag tag = ItemStackNbtHelper.getOrCreateCustomTag(tool);
+        final BlockPos start = BlockPosUtil.readFromNBT(tag, NBT_START_POS);
+        final BlockPos end = BlockPosUtil.readFromNBT(tag, NBT_END_POS);
+        return new Tuple<>(start, end);
     }
 }

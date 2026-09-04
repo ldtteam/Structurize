@@ -1,8 +1,8 @@
 package com.ldtteam.structurize.placement;
 
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.ItemStackUtils;
-import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
@@ -15,17 +15,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnRequest;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.AirBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BucketPickup;
-import net.minecraft.world.level.block.DoublePlantBlock;
-import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -36,7 +33,6 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -173,7 +169,7 @@ public class StructurePlacer
                     requiredItems.addAll(result.getRequiredItems());
                     break;
                 case SPAWN_ENTITY:
-                    result = handleEntitySpawn(world, worldPos, localPos, storage, false);
+                    result = handleEntitySpawn(world, worldPos, localPos, storage);
                     break;
                 default:
                     result = handleBlockPlacement(world, worldPos, storage, new BlockInfo(localPos, localState, handler.getBluePrint().getTileEntityData(worldPos, localPos)));
@@ -243,11 +239,83 @@ public class StructurePlacer
             }
         }
 
-        // TODO 1.22: Remove from here and transition our AIs to entity placement.
-        final BlockPlacementResult entityResult = handleEntitySpawn(world, worldPos, localPos, storage, false);
-        if (!entityResult.getResult().equals(BlockPlacementResult.Result.SUCCESS))
+        // todo remove entity placement from here in the future.
+        for (final CompoundTag compound : this.iterator.getBluePrintPositionInfo(localPos).getEntities())
         {
-            return entityResult;
+            if (compound != null)
+            {
+                try
+                {
+                    final BlockPos pos = this.handler.getCenterPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
+
+                    final Entity entity = EntityType.loadEntityRecursive(
+                        compound,
+                        world,
+                        new EntitySpawnRequest(EntitySpawnReason.STRUCTURE, false),
+                        loaded -> loaded);
+
+                    if (entity != null)
+                    {
+                            entity.setUUID(UUID.randomUUID());
+                            Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
+                            if (entity instanceof HangingEntity hang)
+                            {
+                                posInWorld = posInWorld.subtract(Vec3.atLowerCornerOf(hang.blockPosition().subtract(hang.getPos())));
+                            }
+                            entity.setPos(posInWorld.x, posInWorld.y, posInWorld.z);
+                            entity.setYRot(entity.getYRot());
+                            entity.setXRot(entity.getXRot());
+
+                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
+                            boolean foundEntity = false;
+                            for (Entity worldEntity: list)
+                            {
+                                if (worldEntity.position().equals(posInWorld))
+                                {
+                                    foundEntity = true;
+                                    break;
+                                }
+                            }
+
+                            if (foundEntity || (entity instanceof Mob && !handler.isCreative()))
+                            {
+                                continue;
+                            }
+
+                            List<ItemStack> requiredItems = ItemStackUtils.getListOfStackForEntity(entity, pos);
+                            if (!handler.isCreative())
+                            {
+                                if (requiredItems == null)
+                                {
+                                    // Only handle entities we explicitly know how to handle.
+                                    continue;
+                                }
+
+                                if (!this.handler.hasRequiredItems(requiredItems))
+                                {
+                                    return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
+                                }
+                            }
+                            else if (requiredItems == null)
+                            {
+                                requiredItems = new ArrayList<>();
+                            }
+
+                            world.addFreshEntity(entity);
+                            if (storage != null)
+                            {
+                                storage.addToBeKilledEntity(entity);
+                            }
+                            
+                            this.handler.consume(requiredItems);
+                            this.handler.triggerEntitySuccess(localPos, requiredItems, true);
+                        }
+                }
+                catch (final RuntimeException e)
+                {
+                    Log.getLogger().info("Couldn't restore entity", e);
+                }
+            }
         }
 
         if (IPlacementHandler.doesWorldStateMatchBlueprintState(blockInfo, worldPos, this.handler))
@@ -322,8 +390,7 @@ public class StructurePlacer
       final Level world,
       final BlockPos worldPos,
       final BlockPos localPos,
-      final ChangeStorage storage,
-      final boolean simulate)
+      final ChangeStorage storage)
     {
         for (final CompoundTag compound : this.iterator.getBluePrintPositionInfo(localPos).getEntities())
         {
@@ -333,22 +400,24 @@ public class StructurePlacer
                 {
                     final BlockPos pos = this.handler.getCenterPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
 
-                    final Optional<EntityType<?>> type = EntityType.by(compound);
-                    if (type.isPresent())
-                    {
-                        final Entity entity = type.get().create(world);
-                        if (entity != null)
-                        {
-                            entity.load(compound);
+                    final Entity entity = EntityType.loadEntityRecursive(
+                        compound,
+                        world,
+                        new EntitySpawnRequest(EntitySpawnReason.STRUCTURE, false),
+                        loaded -> loaded);
 
+                    if (entity != null)
+                    {
                             entity.setUUID(UUID.randomUUID());
-                            final Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
-                            Vec3 moveToPos = posInWorld;
+                            Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
                             if (entity instanceof HangingEntity hang)
                             {
-                                moveToPos = posInWorld.subtract(Vec3.atLowerCornerOf(hang.blockPosition().subtract(hang.getPos())));
+                                posInWorld = posInWorld.subtract(Vec3.atLowerCornerOf(hang.blockPosition().subtract(hang.getPos())));
                             }
-                            entity.moveTo(moveToPos.x, moveToPos.y, moveToPos.z, entity.getYRot(), entity.getXRot());
+                            entity.setPos(posInWorld.x, posInWorld.y, posInWorld.z);
+                            entity.setYRot(entity.getYRot());
+                            entity.setXRot(entity.getXRot());
+
                             final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
                             boolean foundEntity = false;
                             for (Entity worldEntity: list)
@@ -370,8 +439,8 @@ public class StructurePlacer
                                 continue;
                             }
 
-                            List<ItemStack> requiredItems = ItemStackUtils.getListOfStackForEntity(entity);
-                            if (!handler.isCreative() || simulate)
+                            List<ItemStack> requiredItems = ItemStackUtils.getListOfStackForEntity(entity, pos);
+                            if (!handler.isCreative())
                             {
                                 if (requiredItems == null)
                                 {
@@ -379,7 +448,7 @@ public class StructurePlacer
                                     continue;
                                 }
 
-                                if (simulate || !this.handler.hasRequiredItems(requiredItems))
+                                if (!this.handler.hasRequiredItems(requiredItems))
                                 {
                                     return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
                                 }
@@ -389,18 +458,15 @@ public class StructurePlacer
                                 requiredItems = new ArrayList<>();
                             }
 
-                            if (!simulate)
-                            {
-                                world.addFreshEntity(entity);
-                                this.handler.consume(requiredItems);
-                                this.handler.triggerEntitySuccess(localPos, requiredItems, true);
-                            }
+                            world.addFreshEntity(entity);
                             if (storage != null)
                             {
                                 storage.addToBeKilledEntity(entity);
                             }
+
+                            this.handler.consume(requiredItems);
+                            this.handler.triggerEntitySuccess(localPos, requiredItems, true);
                         }
-                    }
                 }
                 catch (final RuntimeException e)
                 {
@@ -494,10 +560,47 @@ public class StructurePlacer
         }
 
         final List<ItemStack> requiredItems = new ArrayList<>();
-        final BlockPlacementResult result = handleEntitySpawn(world, worldPos, localPos, null, true);
-        if (result.getResult().equals(BlockPlacementResult.Result.MISSING_ITEMS))
+        for (final CompoundTag compound : iterator.getBluePrintPositionInfo(localPos).getEntities())
         {
-            requiredItems.addAll(result.getRequiredItems());
+            if (compound != null)
+            {
+                try
+                {
+                    final BlockPos pos = this.handler.getCenterPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
+
+                    final Entity entity = EntityType.loadEntityRecursive(
+                        compound,
+                        world,
+                        new EntitySpawnRequest(EntitySpawnReason.STRUCTURE, false),
+                        loaded -> loaded);
+
+                    if (entity != null)
+                    {
+                            final Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
+                            final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
+                            boolean foundEntity = false;
+                            for (Entity worldEntity: list)
+                            {
+                                if (worldEntity.position().equals(posInWorld))
+                                {
+                                    foundEntity = true;
+                                    break;
+                                }
+                            }
+
+                            if (foundEntity)
+                            {
+                                continue;
+                            }
+
+                            requiredItems.addAll(ItemStackUtils.getListOfStackForEntity(entity, pos));
+                        }
+                }
+                catch (final RuntimeException e)
+                {
+                    Log.getLogger().info("Couldn't restore entity", e);
+                }
+            }
         }
 
         if (IPlacementHandler.doesWorldStateMatchBlueprintState(new BlockInfo(localPos, localState, handler.getBluePrint().getTileEntityData(worldPos, localPos)), worldPos, this.handler))

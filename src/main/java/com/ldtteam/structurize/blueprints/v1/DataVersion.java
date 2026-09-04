@@ -12,16 +12,12 @@ public enum DataVersion
      * - successors match
      * - upcoming has data version = (latest data version + 1)
      */
-    UPCOMING(3955 + 1, null, null),
+    UPCOMING(4903 + 1, null, null),
 
-    v1_21_1(3955, "1.21.1", UPCOMING),
-    v1_21(3953, "1.21", v1_21_1),
-    v1_20_6(3839, "1.20.6", v1_21),
-    v1_20_5(3837, "1.20.5", v1_20_6),
-    v1_20_4(3700, "1.20.4", v1_20_5),
-    v1_20_3(3698, "1.20.3", v1_20_4),
-    v1_20_2(3578, "1.20.2", v1_20_3),
-    v1_20_1(3465, "1.20.1", v1_20_2),
+    v26_2(4903, "26.2", UPCOMING),
+    v1_21_1(3955, "1.21.1", v26_2),
+
+    v1_20_1(3465, "1.20.1", v1_21_1),
     v1_20(3463, "1.20", v1_20_1),
     v1_19_4(3328, "1.19.4", v1_20),
     v1_19_3(3218, "1.19.3", v1_19_4),
@@ -69,7 +65,7 @@ public enum DataVersion
     v1_9(169, "1.9", v1_9_1),
     DEFAULT(0, null, v1_9);
 
-    public static final DataVersion CURRENT = findFromDataVersion(SharedConstants.getCurrentVersion().getDataVersion().getVersion());
+    public static final DataVersion CURRENT = findFromDataVersion(SharedConstants.getCurrentVersion().dataVersion().version());
     private final int dataVersion;
     private final String mcVersion;
     private final DataVersion successor;

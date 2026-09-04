@@ -17,6 +17,7 @@
 # gradle
 /build
 /.gradle
+/runs
 
 # other
 /.vscode
@@ -24,7 +25,6 @@
 /run
 /runClient
 /runServer
-/runs/
 .cache
 /libs
 

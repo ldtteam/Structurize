@@ -1,68 +1,83 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.client.gui.WindowUndoRedo;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.ChangeStorage;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.network.FriendlyByteBuf;
+import com.ldtteam.structurize.api.util.Tuple;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class OperationHistoryMessage extends AbstractPlayMessage
+public class OperationHistoryMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forBothSides(Constants.MOD_ID, "operation_history", OperationHistoryMessage::new);
-
     /**
      * List of operations and their IDs
      */
-    private final List<Tuple<String, Integer>> operationIDs;
+    private List<Tuple<String, Integer>> operationIDs = new ArrayList<>();
 
     /**
      * Empty constructor used when registering the
      */
-    protected OperationHistoryMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public OperationHistoryMessage(final FriendlyByteBuf buf)
     {
-        super(buf, type);
-        operationIDs = buf.readList(b -> new Tuple<>(b.readUtf(), b.readInt()));
+        final int count = buf.readInt();
+        operationIDs = new ArrayList<>();
+        for (int i = 0; i < count; i++)
+        {
+            operationIDs.add(new Tuple<>(buf.readUtf(), buf.readInt()));
+        }
     }
 
     public OperationHistoryMessage()
     {
-        super(TYPE);
-        operationIDs = new ArrayList<>();
+
     }
 
     @Override
-    protected void toBytes(final RegistryFriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
-        buf.writeCollection(operationIDs, (b, operation) -> {
-            b.writeUtf(operation.getA());
-            b.writeInt(operation.getB());
-        });
-    }
-
-    @Override
-    protected void onClientExecute(final IPayloadContext context, final Player player)
-    {
-        WindowUndoRedo.lastOperations = operationIDs;
-    }
-
-    @Override
-    protected void onServerExecute(final IPayloadContext context, final ServerPlayer player)
-    {
-        final List<ChangeStorage> operations = Manager.getChangeStoragesForPlayer(player.getUUID());
-        for (final ChangeStorage storage : operations)
+        buf.writeInt(operationIDs.size());
+        for (final Tuple<String, Integer> operation : operationIDs)
         {
-            operationIDs.add(new Tuple<>(storage.getOperation().getString(), storage.getID()));
+            buf.writeUtf(operation.getA());
+            buf.writeInt(operation.getB());
         }
+    }
 
-        this.sendToPlayer(player);        
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return null;
+    }
+
+    @Override
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
+    {
+        if (isLogicalServer)
+        {
+            if (ctxIn.getSender() == null)
+            {
+                return;
+            }
+
+            final List<ChangeStorage> operations = Manager.getChangeStoragesForPlayer(ctxIn.getSender().getUUID());
+            operationIDs = new ArrayList<>();
+            for (final ChangeStorage storage : operations)
+            {
+                operationIDs.add(new Tuple<>(storage.getOperation().getString(), storage.getID()));
+            }
+
+            Network.getNetwork().sendToPlayer(this, ctxIn.getSender());
+        }
+        else
+        {
+            WindowUndoRedo.lastOperations = operationIDs;
+        }
     }
 }

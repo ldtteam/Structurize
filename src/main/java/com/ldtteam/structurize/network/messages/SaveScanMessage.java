@@ -1,49 +1,41 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractClientPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.Log;
-import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
 /**
  * Handles sendScanMessages.
  */
-public class SaveScanMessage extends AbstractClientPlayMessage
+public class SaveScanMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forClient(Constants.MOD_ID, "save_scan", SaveScanMessage::new);
-
     private static final String TAG_MILLIS    = "millies";
     public static final  String TAG_SCHEMATIC = "schematic";
 
-    private final CompoundTag compoundNBT;
-    private final String      fileName;
+    private CompoundTag compoundNBT;
+    private String      fileName;
 
     /**
      * Public standard constructor.
      */
-    protected SaveScanMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public SaveScanMessage(final FriendlyByteBuf buf)
     {
-        super(buf, type);
         final FriendlyByteBuf buffer = new FriendlyByteBuf(buf);
-        CompoundTag tag = null;
-        String name = null;
         try (ByteBufInputStream stream = new ByteBufInputStream(buffer))
         {
-            final CompoundTag wrapperCompound = NbtIo.read(stream, NbtAccounter.unlimitedHeap());
-            tag = wrapperCompound.getCompound(TAG_SCHEMATIC);
-            name = wrapperCompound.getString(TAG_MILLIS);
+            final CompoundTag wrapperCompound = NbtIo.readCompressed(stream, NbtAccounter.unlimitedHeap());
+            this.compoundNBT = wrapperCompound.getCompoundOrEmpty(TAG_SCHEMATIC);
+            this.fileName = wrapperCompound.getStringOr(TAG_MILLIS, "");
         }
         catch (final RuntimeException e)
         {
@@ -53,8 +45,6 @@ public class SaveScanMessage extends AbstractClientPlayMessage
         {
             Log.getLogger().info("Problem at retrieving structure on server.", e);
         }
-        this.compoundNBT = tag;
-        this.fileName = name;
     }
 
     /**
@@ -65,13 +55,12 @@ public class SaveScanMessage extends AbstractClientPlayMessage
      */
     public SaveScanMessage(final CompoundTag CompoundNBT, final String fileName)
     {
-        super(TYPE);
         this.fileName = fileName;
         this.compoundNBT = CompoundNBT;
     }
 
     @Override
-    protected void toBytes(final RegistryFriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         final CompoundTag wrapperCompound = new CompoundTag();
         wrapperCompound.putString(TAG_MILLIS, fileName);
@@ -80,7 +69,7 @@ public class SaveScanMessage extends AbstractClientPlayMessage
         final FriendlyByteBuf buffer = new FriendlyByteBuf(buf);
         try (ByteBufOutputStream stream = new ByteBufOutputStream(buffer))
         {
-            NbtIo.write(wrapperCompound, stream);
+            NbtIo.writeCompressed(wrapperCompound, stream);
         }
         catch (final IOException e)
         {
@@ -88,12 +77,19 @@ public class SaveScanMessage extends AbstractClientPlayMessage
         }
     }
 
+    @Nullable
     @Override
-    protected void onExecute(final IPayloadContext context, final Player player)
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.CLIENT;
+    }
+
+    @Override
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
     {
         if (compoundNBT != null)
         {
-            ClientStructurePackLoader.handleSaveScanMessage(compoundNBT, fileName, player.level().registryAccess());
+            ClientStructurePackLoader.handleSaveScanMessage(compoundNBT, fileName);
         }
     }
 }

@@ -1,21 +1,20 @@
 package com.ldtteam.structurize.client.gui;
 
 import com.google.gson.internal.LazilyParsedNumber;
+import com.ldtteam.blockui.Alignment;
+import com.ldtteam.blockui.Color;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.ButtonImage;
-import com.ldtteam.blockui.controls.Image;
-import com.ldtteam.blockui.controls.Text;
-import com.ldtteam.blockui.controls.TextFieldVanilla;
-import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.Structurize;
-import com.ldtteam.structurize.api.Utils;
-import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.api.util.Utils;
+import com.ldtteam.structurize.api.util.constant.TranslationConstants;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintTagUtils;
-import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.client.ModKeyMappings;
+import com.ldtteam.structurize.config.AbstractConfiguration;
 import com.ldtteam.structurize.network.messages.BuildToolPlacementMessage;
 import com.ldtteam.structurize.storage.ISurvivalBlueprintHandler;
 import com.ldtteam.structurize.storage.SurvivalBlueprintHandlers;
@@ -24,10 +23,12 @@ import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.util.Tuple;
+import net.minecraft.resources.Identifier;
+import com.ldtteam.structurize.api.util.Tuple;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
@@ -38,10 +39,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static com.ldtteam.structurize.api.constants.Constants.*;
-import static com.ldtteam.structurize.api.constants.GUIConstants.*;
-import static com.ldtteam.structurize.api.constants.WindowConstants.*;
+import static com.ldtteam.structurize.api.util.constant.Constants.*;
+import static com.ldtteam.structurize.api.util.constant.GUIConstants.*;
+import static com.ldtteam.structurize.api.util.constant.WindowConstants.*;
 import static com.ldtteam.structurize.client.gui.util.InputFilters.ONLY_NUMBERS;
 
 /**
@@ -115,7 +117,6 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         registerButton(BUTTON_ROTATE_RIGHT, this::rotateRightClicked);
         registerButton(BUTTON_ROTATE_LEFT, this::rotateLeftClicked);
         registerButton(BUTTON_SETTINGS, this::settingsClicked);
-        registerButton(BUTTON_CONTENTS, this::openContents);
 
         settingsList = findPaneOfTypeByID("settinglist", ScrollingList.class);
         placementOptionsList = findPaneOfTypeByID("placement", ScrollingList.class);
@@ -133,7 +134,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         if (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getPos() == null)
         {
             Utils.playErrorSound(Minecraft.getInstance().player);
-            Minecraft.getInstance().player.displayClientMessage(Component.translatable("structurize.gui.missing.pos"), false);
+            Minecraft.getInstance().player.sendSystemMessage(Component.translatable("structurize.gui.missing.pos"));
             cancelClicked();
         }
     }
@@ -153,13 +154,13 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         {
             if (!Minecraft.getInstance().player.isCreative())
             {
-                final List<ISurvivalBlueprintHandler> handlers = SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.getPos(), previewData.getRotationMirror());
+                final List<ISurvivalBlueprintHandler> handlers = SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.getPos(), previewData.getPlacementSettings());
                 if (handlers.isEmpty())
                 {
                     Utils.playErrorSound(Minecraft.getInstance().player);
                     if (SurvivalBlueprintHandlers.getHandlers().isEmpty())
                     {
-                        Minecraft.getInstance().player.displayClientMessage(Component.translatable("structurize.gui.no.survival.handler"), false);
+                        Minecraft.getInstance().player.sendSystemMessage(Component.translatable("structurize.gui.no.survival.handler"));
                     }
                     return;
                 }
@@ -220,7 +221,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId);
         if (previewData.getBlueprint() != null)
         {
-            for (final ISurvivalBlueprintHandler handler : SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.getPos(), previewData.getRotationMirror()))
+            for (final ISurvivalBlueprintHandler handler : SurvivalBlueprintHandlers.getMatchingHandlers(previewData.getBlueprint(), Minecraft.getInstance().level, Minecraft.getInstance().player, previewData.getPos(), previewData.getPlacementSettings()))
             {
                 categories.add(new Tuple<>(handler.getDisplayName(), () -> handlePlacement(BuildToolPlacementMessage.HandlerType.Survival, handler.getId())));
             }
@@ -243,12 +244,13 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
              * @param index the index of the row/list element.
              * @param rowPane the parent Pane for the row, containing the elements to update.
              */
+            @SuppressWarnings("resource")
             @Override
             public void updateElement(final int index, final Pane rowPane)
             {
                 final ButtonImage buttonImage = rowPane.findPaneOfTypeByID("type", ButtonImage.class);
                 buttonImage.setText(categories.get(index).getA());
-                buttonImage.setTextColor(ChatFormatting.BLACK.getColor());
+                buttonImage.setTextColor(0xFF000000);
                 buttonImage.setHandler(button -> categories.get(index).getB().run());
             }
         });
@@ -262,15 +264,14 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         {
             findPaneOfTypeByID("tip", Text.class).setVisible(false);
         }
-        findPaneByID(BUTTON_CONTENTS).setVisible(RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getBlueprint() != null);
     }
 
     @Override
-    public boolean onUnhandledKeyTyped(final int ch, final int key)
+    public boolean onUnhandledKeyTyped(final KeyEvent event)
     {
-        if (ch != 0 || getFocus() != null) return super.onUnhandledKeyTyped(ch, key);
+        if (getFocus() != null) return super.onUnhandledKeyTyped(event);
 
-        final InputConstants.Key inputKey = InputConstants.Type.KEYSYM.getOrCreate(key);
+        final InputConstants.Key inputKey = InputConstants.Type.KEYSYM.getOrCreate(event.key());
 
         if (ModKeyMappings.MOVE_FORWARD.get().isActiveAndMatches(inputKey))
         {
@@ -314,7 +315,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         }
         else
         {
-            return super.onUnhandledKeyTyped(ch, key);
+            return super.onUnhandledKeyTyped(event);
         }
         return true;
     }
@@ -341,9 +342,17 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
 
         settingsList.setDataProvider(settings::size, (index, rowPane) -> {
             final ConfigValue<?> setting = settings.get(index);
-            final ValueSpec settingSpec = setting.getSpec();
+            final Optional<ValueSpec> optional = Structurize.getConfig().getSpecFromValue(setting);
             final Text label = rowPane.findPaneOfTypeByID("label", Text.class);
 
+            if (optional.isEmpty())
+            {
+                // config resolution failed (crashes in dev already, display error in production)
+                label.setText(Component.translatable(TranslationConstants.NO_VALUE_SPEC));
+                return;
+            }
+
+            final ValueSpec settingSpec = optional.get();
             final String nameTKey = settingSpec.getTranslationKey();
 
             if (label.getText() != null && label.getText().getContents() instanceof final TranslatableContents tkey && tkey.getKey().equals(nameTKey))
@@ -353,7 +362,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
             }
 
             label.setText(Component.translatable(nameTKey));
-            PaneBuilders.singleLineTooltip(Component.literal(settingSpec.getComment()), rowPane);
+            PaneBuilders.singleLineTooltip(Component.translatable(nameTKey + AbstractConfiguration.COMMENT_SUFFIX), rowPane);
 
             final ButtonImage buttonImage = rowPane.findPaneOfTypeByID("switch", ButtonImage.class);
             final TextFieldVanilla inputField = rowPane.findPaneOfTypeByID("set_input", TextFieldVanilla.class);
@@ -373,7 +382,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                     buttonImage.setText(Component.translatable(newValue ? "options.on" : "options.off"));
                 });
             }
-            else if (setting.get() instanceof Number)
+            else if (setting.get() instanceof final Number value)
             {
                 final ConfigValue<Number> typedSetting = (ConfigValue<Number>) setting;
 
@@ -407,24 +416,67 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                         if (setting == rendererTransparency && rendererTransparency.get() < 0)
                         {
                             // TODO: move to standalone ui
-                            final BOWindow confirmDialog = new BOWindow(Constants.resLocStruct("gui/dialogconfirmtransparency.xml"));
+                            final View confirmDialog = new View();
+                            confirmDialog.setPosition(70, 0);
+                            confirmDialog.setSize(177, 150);
+                            confirmDialog.setAlignment(Alignment.MIDDLE);
 
-                            confirmDialog.findPaneOfTypeByID("confirm", ButtonImage.class).setHandler(b -> {
+                            final Gradient hidingLayer = new Gradient();
+                            hidingLayer.setGradientStart(0x10, 0x10, 0x10, 0xC0);
+                            hidingLayer.setGradientEnd(0x10, 0x10, 0x10, 0xD0);
+                            hidingLayer.setSize(getWindow().getWidth(), getWindow().getHeight());
+
+                            getWindow().addChild(hidingLayer);
+                            getWindow().addChild(confirmDialog);
+                            View.setFocus(null);
+
+                            final Image background = new Image();
+                            background.setSize(177, 150);
+                            background.setImage(Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/builderhut/builder_papper.png"), false);
+                            confirmDialog.addChild(background);
+
+                            final Text text = new Text();
+                            text.setPosition(10, 8);
+                            text.setSize(157, 105);
+                            text.setColors(Color.getByName("black"));
+                            text.setTextAlignment(Alignment.TOP_MIDDLE);
+                            text.setText(Component.translatable("structurize.config.transparency.warning"));
+                            confirmDialog.addChild(text);
+
+                            final ButtonImage confirm = new ButtonImage();
+                            confirm.setPosition(10, 123);
+                            confirm.setSize(64, 17);
+                            confirm.setImage(Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/builderhut/builder_button_small.png"));
+                            confirm.setColors(Color.getByName("black"));
+                            confirm.setTextAlignment(Alignment.MIDDLE);
+                            confirm.setTextRenderBox(64, 17);
+                            confirm.setText(Component.translatable("gui.yes"));
+                            confirm.setHandler(b -> {
                                 final double newVal = newValue.doubleValue();
                                 Structurize.getConfig().set(rendererTransparency, newVal < 0 ? 1 : newVal);
                                 if (newVal < 0)
                                 {
                                     inputField.setText("1.0");
                                 }
-                                confirmDialog.close();
+                                getWindow().removeChild(hidingLayer);
+                                getWindow().removeChild(confirmDialog);
                             });
+                            confirmDialog.addChild(confirm);
                             
-                            confirmDialog.findPaneOfTypeByID("cancel", ButtonImage.class).setHandler(b -> {
+                            final ButtonImage cancel = new ButtonImage();
+                            cancel.setPosition(103, 123);
+                            cancel.setSize(64, 17);
+                            cancel.setImage(Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/builderhut/builder_button_small.png"));
+                            cancel.setColors(Color.getByName("black"));
+                            cancel.setTextAlignment(Alignment.MIDDLE);
+                            cancel.setTextRenderBox(64, 17);
+                            cancel.setText(Component.translatable("gui.cancel"));
+                            cancel.setHandler(b -> {
                                 inputField.setText(Double.toString(rendererTransparency.get()));
-                                confirmDialog.close();
+                                getWindow().removeChild(hidingLayer);
+                                getWindow().removeChild(confirmDialog);
                             });
-
-                            confirmDialog.openAsLayer();
+                            confirmDialog.addChild(cancel);
                         }
                         else
                         {
@@ -533,12 +585,6 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         updateRotationState();
     }
 
-    private void openContents()
-    {
-        final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId);
-        new WindowBlockGetterContents(previewData.getBlueprint(), Minecraft.getInstance().level, BlueprintHandler.getInstance().getOptionalEntitiesForBlueprint(previewData)).openAsLayer();
-    }
-
     /*
      * ---------------- Miscellaneous ----------------
      */
@@ -548,7 +594,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
      */
     protected void updateRotationState()
     {
-        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(Constants.resLocStruct(String.format(RES_STRING, BUTTON_MIRROR + (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotationMirror().mirror().equals(Mirror.NONE) ? "" : GREEN_POS))));
+        findPaneOfTypeByID(BUTTON_MIRROR, ButtonImage.class).setImage(Identifier.fromNamespaceAndPath(MOD_ID, String.format(RES_STRING, BUTTON_MIRROR + (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotationMirror().mirror().equals(Mirror.NONE) ? "" : GREEN_POS))));
 
         final String rotation = switch (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getRotationMirror().rotation())
         {
@@ -557,7 +603,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
             case COUNTERCLOCKWISE_90 -> "left_green";
             case NONE -> "up_green";
         };
-        findPaneOfTypeByID(IMAGE_ROTATION, Image.class).setImage(Constants.resLocStruct(String.format(RES_STRING, rotation)), false);
+        findPaneOfTypeByID(IMAGE_ROTATION, Image.class).setImage(Identifier.fromNamespaceAndPath(MOD_ID, String.format(RES_STRING, rotation)), false);
     }
 
     /**

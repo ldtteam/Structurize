@@ -1,13 +1,10 @@
 package com.ldtteam.structurize.config;
 
-import com.ldtteam.common.config.AbstractConfiguration;
-import com.ldtteam.structurize.api.constants.Constants;
+import com.google.common.collect.Lists;
 import net.minecraft.core.Direction;
-import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
-import net.neoforged.neoforge.common.ModConfigSpec.Builder;
-import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
-import net.neoforged.neoforge.common.ModConfigSpec.EnumValue;
-import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
+import net.neoforged.neoforge.common.ModConfigSpec;
+
+import java.util.List;
 
 /**
  * Mod server configuration.
@@ -20,72 +17,79 @@ public class ServerConfiguration extends AbstractConfiguration
     /**
      * Should the default schematics be ignored (from the jar)?
      */
-    public final BooleanValue ignoreSchematicsFromJar;
+    public final ModConfigSpec.BooleanValue ignoreSchematicsFromJar;
 
     /**
      * Should player made schematics be allowed
      */
-    public final BooleanValue allowPlayerSchematics;
+    public final ModConfigSpec.BooleanValue allowPlayerSchematics;
 
     /**
      * Max world operations per tick (Max blocks to place, remove or replace)
      */
-    public final IntValue maxOperationsPerTick;
+    public final ModConfigSpec.IntValue maxOperationsPerTick;
 
     /**
      * Max amount of changes cached to be able to undo
      */
-    public final IntValue maxCachedChanges;
+    public final ModConfigSpec.IntValue maxCachedChanges;
 
     /**
      * Max amount of schematics to be cached on the server
      */
-    public final IntValue maxCachedSchematics;
+    public final ModConfigSpec.IntValue maxCachedSchematics;
 
     /**
      * Max amount of blocks checked by a possible worker.
      */
-    public final IntValue maxBlocksChecked;
+    public final ModConfigSpec.IntValue maxBlocksChecked;
 
     /**
      * Max amount of blocks checked by a possible worker.
      */
-    public final IntValue schematicBlockLimit;
+    public final ModConfigSpec.IntValue schematicBlockLimit;
 
-    public final ConfigValue<String> iteratorType;
+    public final ModConfigSpec.ConfigValue<String> iteratorType;
 
-    public final BooleanValue teleportAllowed;
-    public final EnumValue<Direction> teleportBuildDirection;
-    public final IntValue teleportBuildDistance;
-    public final BooleanValue teleportSafety;
+    public final ModConfigSpec.ConfigValue<List<Integer>> updateStartPos;
+
+    public final ModConfigSpec.ConfigValue<List<Integer>> updateEndPos;
+
+    public final ModConfigSpec.BooleanValue teleportAllowed;
+    public final ModConfigSpec.EnumValue<Direction> teleportBuildDirection;
+    public final ModConfigSpec.IntValue teleportBuildDistance;
+    public final ModConfigSpec.BooleanValue teleportSafety;
 
     /**
      * Builds server configuration.
      *
      * @param builder config builder
      */
-    public ServerConfiguration(final Builder builder)
+    protected ServerConfiguration(final ModConfigSpec.Builder builder)
     {
-        super(builder, Constants.MOD_ID);
+        createCategory(builder, "gameplay");
 
-        createCategory("gameplay");
+        ignoreSchematicsFromJar = defineBoolean(builder, "ignoreSchematicsFromJar", false);
+        allowPlayerSchematics = defineBoolean(builder, CONFIG_OPTION_ALLOW_PLAYER_SCHEMATICS, false);
+        maxOperationsPerTick = defineInteger(builder, "maxOperationsPerTick", 1000, 0, 100000);
+        maxCachedChanges = defineInteger(builder, "maxCachedChanges", 50, 0, 250);
+        maxCachedSchematics = defineInteger(builder, "maxCachedSchematics", 100, 0, 100000);
+        maxBlocksChecked = defineInteger(builder, "maxBlocksChecked", 1000, 0, 100000);
+        schematicBlockLimit = defineInteger(builder, "schematicBlockLimit", 100000, 1000, 1000000);
+        iteratorType = defineString(builder, "iteratorType", "default");
 
-        ignoreSchematicsFromJar = defineBoolean("ignoreSchematicsFromJar", false);
-        allowPlayerSchematics = defineBoolean(CONFIG_OPTION_ALLOW_PLAYER_SCHEMATICS, false);
-        maxOperationsPerTick = defineInteger("maxOperationsPerTick", 1000, 0, 100000);
-        maxCachedChanges = defineInteger("maxCachedChanges", 50, 0, 250);
-        maxCachedSchematics = defineInteger("maxCachedSchematics", 100, 0, 100000);
-        maxBlocksChecked = defineInteger("maxBlocksChecked", 1000, 0, 100000);
-        schematicBlockLimit = defineInteger("schematicBlockLimit", 100000, 1000, 1000000);
-        iteratorType = defineString("iteratorType", "default");
+        swapToCategory(builder, "teleport");
 
-        swapToCategory("teleport");
+        teleportAllowed = defineBoolean(builder, "teleportAllowed", true);
+        teleportBuildDirection = defineEnum(builder, "teleportBuildDirection", Direction.SOUTH);
+        teleportBuildDistance = defineInteger(builder, "teleportBuildDistance", 3, 1, 16);
+        teleportSafety = defineBoolean(builder, "teleportSafety", true);
 
-        teleportAllowed = defineBoolean("teleportAllowed", true);
-        teleportBuildDirection = defineEnum("teleportBuildDirection", Direction.SOUTH);
-        teleportBuildDistance = defineInteger("teleportBuildDistance", 3, 1, 16);
-        teleportSafety = defineBoolean("teleportSafety", true);
+        swapToCategory(builder, "update");
 
-        finishCategory();
+        updateStartPos = builder.define("start", Lists.newArrayList(-10,-10));
+        updateEndPos = builder.define("end", Lists.newArrayList(10,10));
+
+        finishCategory(builder);
     }
 }

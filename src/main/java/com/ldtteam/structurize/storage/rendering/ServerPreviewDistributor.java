@@ -1,13 +1,14 @@
 package com.ldtteam.structurize.storage.rendering;
 
+import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToClient;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 import java.util.UUID;
 
 /**
@@ -23,7 +24,7 @@ public class ServerPreviewDistributor
     @SubscribeEvent
     public static void onLogout(final PlayerEvent.PlayerLoggedOutEvent event)
     {
-        if (event.getEntity().level().isClientSide)
+        if (event.getEntity().level().isClientSide())
         {
             RenderingCache.clear();
             return;
@@ -37,14 +38,14 @@ public class ServerPreviewDistributor
      */
     public static void distribute(final BlueprintPreviewData renderingCache, final ServerPlayer sourcePlayer)
     {
-        for (final ServerPlayer player : sourcePlayer.getServer().getLevel(sourcePlayer.level().dimension()).players())
+        for (final ServerPlayer player : sourcePlayer.level().getServer().getLevel(sourcePlayer.level().dimension()).players())
         {
             if ((player.blockPosition().distSqr(renderingCache.getPos()) < 128 * 128 || renderingCache.getPos().equals(BlockPos.ZERO)) && // within sensible distance
                 !player.getUUID().equals(sourcePlayer.getUUID()) && // dont send to source
                 player.isAlive() && // dont send to dead
                 registeredPlayers.getBoolean(player.getUUID())) // only those who want to see previews
             {
-                new SyncPreviewCacheToClient(renderingCache, player.getUUID()).sendToPlayer(player);
+                Network.getNetwork().sendToPlayer(new SyncPreviewCacheToClient(renderingCache, player.getUUID()), player);
             }
         }
     }

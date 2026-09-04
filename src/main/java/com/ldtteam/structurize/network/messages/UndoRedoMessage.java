@@ -1,20 +1,16 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractServerPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.management.Manager;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.network.FriendlyByteBuf;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Message class which handles undoing a change to the world.
  */
-public class UndoRedoMessage extends AbstractServerPlayMessage
+public class UndoRedoMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forServer(Constants.MOD_ID, "undo_redo", UndoRedoMessage::new);
-
     private final int     id;
     private final boolean undo;
 
@@ -23,40 +19,45 @@ public class UndoRedoMessage extends AbstractServerPlayMessage
      */
     public UndoRedoMessage(final int id, final boolean undo)
     {
-        super(TYPE);
         this.undo = undo;
         this.id = id;
     }
 
-    protected UndoRedoMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public UndoRedoMessage(final FriendlyByteBuf buf)
     {
-        super(buf, type);
         this.id = buf.readInt();
         this.undo = buf.readBoolean();
     }
 
     @Override
-    protected void toBytes(final RegistryFriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeInt(id);
         buf.writeBoolean(undo);
     }
 
+    @Nullable
     @Override
-    protected void onExecute(final IPayloadContext context, final ServerPlayer player)
+    public LogicalSide getExecutionSide()
     {
-        if (!player.isCreative())
+        return LogicalSide.SERVER;
+    }
+
+    @Override
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
+    {
+        if (!ctxIn.getSender().isCreative())
         {
             return;
         }
 
         if (undo)
         {
-            Manager.undo(player, id);
+            Manager.undo(ctxIn.getSender(), id);
         }
         else
         {
-            Manager.redo(player, id);
+            Manager.redo(ctxIn.getSender(), id);
         }
     }
 }

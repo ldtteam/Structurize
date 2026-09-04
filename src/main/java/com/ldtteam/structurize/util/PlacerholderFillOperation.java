@@ -1,6 +1,7 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.operations.ITickedWorldOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -21,6 +22,11 @@ public class PlacerholderFillOperation implements ITickedWorldOperation
      * The current position to start iterating.
      */
     private BlockPos startPos;
+
+    /**
+     * The current position to start iterating.
+     */
+    private BlockPos currentPos;
 
     /**
      * The end position.
@@ -54,6 +60,7 @@ public class PlacerholderFillOperation implements ITickedWorldOperation
       final double yStretch, final double circleRadiusMult, final int heightOffset, final int minDistToBlocks)
     {
         this.startPos = new BlockPos(Math.min(startPos.getX(), endPos.getX()), Math.min(startPos.getY(), endPos.getY()), Math.min(startPos.getZ(), endPos.getZ()));
+        this.currentPos = new BlockPos(Math.min(startPos.getX(), endPos.getX()), Math.min(startPos.getY(), endPos.getY()), Math.min(startPos.getZ(), endPos.getZ()));
         this.yStretch = yStretch;
         this.circleRadiusMult = circleRadiusMult;
         this.heightOffset = heightOffset;

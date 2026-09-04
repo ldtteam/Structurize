@@ -1,13 +1,11 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractClientPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import com.ldtteam.structurize.storage.StructurePackMeta;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.network.FriendlyByteBuf;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,10 +14,8 @@ import java.util.Map;
 /**
  * Notify the client about the structure packs on the server side.
  */
-public class NotifyClientAboutStructurePacksMessage extends AbstractClientPlayMessage
+public class NotifyClientAboutStructurePacksMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forClient(Constants.MOD_ID, "notify_client_about_structure_packs", NotifyClientAboutStructurePacksMessage::new);
-
     /**
      * List of server structure packs.
      * Contains String Name, and Integer version.
@@ -29,9 +25,8 @@ public class NotifyClientAboutStructurePacksMessage extends AbstractClientPlayMe
     /**
      * Public standard constructor.
      */
-    protected NotifyClientAboutStructurePacksMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public NotifyClientAboutStructurePacksMessage(final FriendlyByteBuf buf)
     {
-        super(buf, type);
         final int length = buf.readInt();
         for (int i = 0; i < length; i++)
         {
@@ -45,7 +40,6 @@ public class NotifyClientAboutStructurePacksMessage extends AbstractClientPlayMe
      */
     public NotifyClientAboutStructurePacksMessage(final Collection<StructurePackMeta> clientStructurePacks)
     {
-        super(TYPE);
         for (final StructurePackMeta pack : clientStructurePacks)
         {
             this.serverStructurePacks.put(pack.getName(), pack.getVersion());
@@ -53,7 +47,7 @@ public class NotifyClientAboutStructurePacksMessage extends AbstractClientPlayMe
     }
 
     @Override
-    protected void toBytes(final RegistryFriendlyByteBuf buf)
+    public void toBytes(final FriendlyByteBuf buf)
     {
         buf.writeInt(this.serverStructurePacks.size());
         for (final Map.Entry<String, Double> packInfo : this.serverStructurePacks.entrySet())
@@ -63,9 +57,19 @@ public class NotifyClientAboutStructurePacksMessage extends AbstractClientPlayMe
         }
     }
 
+    @Nullable
     @Override
-    protected void onExecute(final IPayloadContext context, final Player player)
+    public LogicalSide getExecutionSide()
     {
-        ClientStructurePackLoader.onServerSyncAttempt(this.serverStructurePacks);
+        return LogicalSide.CLIENT;
+    }
+
+    @Override
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
+    {
+        if (!isLogicalServer)
+        {
+            ClientStructurePackLoader.onServerSyncAttempt(this.serverStructurePacks);
+        }
     }
 }

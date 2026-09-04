@@ -1,22 +1,22 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.common.network.AbstractClientPlayMessage;
-import com.ldtteam.common.network.PlayMessageType;
-import com.ldtteam.structurize.api.constants.Constants;
-import com.ldtteam.structurize.storage.rendering.RenderingCache;
-import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.structurize.client.rendertask.RenderTaskManager;
+import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewData;
+import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewRenderTask;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.neoforged.fml.LogicalSide;
+import com.ldtteam.structurize.network.NetworkContext;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Tells the client to update their scan render box.
  */
-public class ShowScanMessage extends AbstractClientPlayMessage
+public class ShowScanMessage implements IMessage
 {
-    public static final PlayMessageType<?> TYPE = PlayMessageType.forClient(Constants.MOD_ID, "show_scan", ShowScanMessage::new);
-
     private final BoxPreviewData box;
 
     /**
@@ -25,7 +25,6 @@ public class ShowScanMessage extends AbstractClientPlayMessage
      */
     public ShowScanMessage(@NotNull final BoxPreviewData box)
     {
-        super(TYPE);
         this.box = box;
     }
 
@@ -33,21 +32,41 @@ public class ShowScanMessage extends AbstractClientPlayMessage
      * Construct from network
      * @param buf the buffer
      */
-    protected ShowScanMessage(@NotNull final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
+    public ShowScanMessage(@NotNull final FriendlyByteBuf buf)
     {
-        super(buf, type);
-        this.box = BoxPreviewData.STREAM_CODEC.decode(buf);
+        final BlockPos from = buf.readBlockPos();
+        final BlockPos to = buf.readBlockPos();
+        final BlockPos anchor = buf.readBoolean() ? buf.readBlockPos() : null;
+
+        this.box = new BoxPreviewData(from, to, Optional.ofNullable(anchor));
     }
 
     @Override
-    protected void toBytes(@NotNull final RegistryFriendlyByteBuf buf)
+    public void toBytes(@NotNull final FriendlyByteBuf buf)
     {
-        BoxPreviewData.STREAM_CODEC.encode(buf, box);
+        buf.writeBlockPos(this.box.getPos1());
+        buf.writeBlockPos(this.box.getPos2());
+        if (this.box.getAnchor().isPresent())
+        {
+            buf.writeBoolean(true);
+            buf.writeBlockPos(this.box.getAnchor().get());
+        }
+        else
+        {
+            buf.writeBoolean(false);
+        }
+    }
+
+    @Nullable
+    @Override
+    public LogicalSide getExecutionSide()
+    {
+        return LogicalSide.CLIENT;
     }
 
     @Override
-    protected void onExecute(final IPayloadContext context, final Player player)
+    public void onExecute(@NotNull final NetworkContext ctxIn, final boolean isLogicalServer)
     {
-        RenderingCache.queue("scan", this.box);
+        RenderTaskManager.addRenderTask("scan", new BoxPreviewRenderTask("scan", this.box, 60 * 10));
     }
 }

@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.util.LanguageHandler;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -13,8 +15,7 @@ import com.mojang.brigadier.exceptions.CommandExceptionType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands.CommandSelection;
-import net.minecraft.network.chat.Component;
-import net.minecraft.util.Tuple;
+import com.ldtteam.structurize.api.util.Tuple;
 
 /**
  * Interface for all commands
@@ -72,7 +73,7 @@ public abstract class AbstractCommand
      */
     public static void throwSyntaxException(final String key) throws CommandSyntaxException
     {
-        throw new CommandSyntaxException(new StructurizeCommandExceptionType(), Component.translatable(key));
+        throw new CommandSyntaxException(new StructurizeCommandExceptionType(), new LiteralMessage(LanguageHandler.translateKey(key)));
     }
 
     /**
@@ -83,7 +84,8 @@ public abstract class AbstractCommand
      */
     public static void throwSyntaxException(final String key, final Object... format) throws CommandSyntaxException
     {
-        throw new CommandSyntaxException(new StructurizeCommandExceptionType(), Component.translatable(key, format));
+        throw new CommandSyntaxException(new StructurizeCommandExceptionType(),
+            new LiteralMessage(LanguageHandler.translateKeyWithFormat(key, format)));
     }
 
     /**
