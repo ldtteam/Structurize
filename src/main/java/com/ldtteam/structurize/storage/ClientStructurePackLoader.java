@@ -13,6 +13,7 @@ import com.ldtteam.structurize.util.IOPool;
 import com.ldtteam.structurize.util.JavaUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
+import net.minecraft.FileUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -22,9 +23,11 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforgespi.language.IModInfo;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Stream;
@@ -260,6 +263,11 @@ public class ClientStructurePackLoader
      */
     public static void onStructurePackTransfer(final String packName, final ByteBuf payload, final boolean eol)
     {
+        if (!isSafePackName(packName))
+        {
+            Log.getLogger().error("Received Structure pack with unsafe name from the Server: " + packName);
+            return;
+        }
         Log.getLogger().warn("Received Structure pack from the Server: " + packName);
         IOPool.execute(() ->
         {
@@ -336,6 +344,21 @@ public class ClientStructurePackLoader
         }
 
         return normalizePath;
+    }
+
+    private static boolean isSafePackName(final String packName)
+    {
+        if (packName == null || packName.isBlank() || packName.equals(".") || packName.equals(".."))
+        {
+            return false;
+        }
+        if (packName.contains("/") || packName.contains("\\"))
+        {
+            return false;
+        }
+
+        final Path candidate = Paths.get(packName);
+        return FileUtil.isPathNormalized(candidate) && FileUtil.isPathPortable(candidate);
     }
 
     /**
