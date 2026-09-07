@@ -13,7 +13,6 @@ import com.ldtteam.structurize.util.IOPool;
 import com.ldtteam.structurize.util.JavaUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import net.minecraft.FileUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -27,7 +26,6 @@ import net.neoforged.neoforgespi.language.IModInfo;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Stream;
@@ -347,7 +345,7 @@ public class ClientStructurePackLoader
 
         return normalizePath;
     }
-    
+
     /**
      * Handles the save message of scans.
      *
