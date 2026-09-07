@@ -255,12 +255,13 @@ public class ClientStructurePackLoader
     /**
      * On reception of a new structure pack.
      *
-     * @param packName the name of the structure pack.
+     * @param name the name of the structure pack.
      * @param payload the payload of the pack.
      * @param eol if last sync.
      */
-    public static void onStructurePackTransfer(final String packName, final ByteBuf payload, final boolean eol)
+    public static void onStructurePackTransfer(final String name, final ByteBuf payload, final boolean eol)
     {
+        final String packName = Utils.getSafePackName(name);
         Log.getLogger().warn("Received Structure pack from the Server: " + packName);
         IOPool.execute(() ->
         {
@@ -271,19 +272,19 @@ public class ClientStructurePackLoader
             }
 
             final Path structureFolder = Minecraft.getInstance().gameDirectory.toPath().resolve(BLUEPRINT_FOLDER).normalize();
-            final Path childPath = structureFolder.resolve(packName).normalize();
-
-            if (childPath.getParent() == null || !childPath.getParent().equals(structureFolder))
+            final Path childPath = structureFolder.resolve(packName);
+            if (Files.isSymbolicLink(childPath))
             {
-                Log.getLogger().error("Received Structure pack with unsafe name from the Server: " + packName);
                 return;
             }
+
+            JavaUtils.deleteDirectory(childPath);
 
             try (ZipInputStream zis = new ZipInputStream(new ByteBufInputStream(payload)))
             {
                 ZipEntry zipEntry = zis.getNextEntry();
 
-                final Path rootPath = Files.createDirectory(structureFolder.resolve(packName));
+                final Path rootPath = Files.createDirectory(childPath);
                 while (zipEntry != null)
                 {
                     boolean isDirectory = zipEntry.isDirectory();

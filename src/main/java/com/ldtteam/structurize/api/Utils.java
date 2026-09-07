@@ -90,6 +90,11 @@ public final class Utils
         s = s.replaceAll("[\\\\/:*?\"<>|]", "_");
         s = s.replaceAll("\\p{Cntrl}", "");
         s = s.trim();
+        if (s.isEmpty() || s.equals(".") || s.equals("..") || s.length() > 255)
+        {
+            return "";
+        }
+
         return s;
     }
 }
