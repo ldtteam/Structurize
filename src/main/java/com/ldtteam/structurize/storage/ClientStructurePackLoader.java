@@ -263,11 +263,6 @@ public class ClientStructurePackLoader
      */
     public static void onStructurePackTransfer(final String packName, final ByteBuf payload, final boolean eol)
     {
-        if (!isSafePackName(packName))
-        {
-            Log.getLogger().error("Received Structure pack with unsafe name from the Server: " + packName);
-            return;
-        }
         Log.getLogger().warn("Received Structure pack from the Server: " + packName);
         IOPool.execute(() ->
         {
@@ -277,13 +272,20 @@ public class ClientStructurePackLoader
                 Log.getLogger().warn("Error trying to delete pack: ");
             }
 
+            final Path structureFolder = Minecraft.getInstance().gameDirectory.toPath().resolve(BLUEPRINT_FOLDER).normalize();
+            final Path childPath = structureFolder.resolve(packName).normalize();
+
+            if (childPath.getParent() == null || !childPath.getParent().equals(structureFolder))
+            {
+                Log.getLogger().error("Received Structure pack with unsafe name from the Server: " + packName);
+                return;
+            }
+
             try (ZipInputStream zis = new ZipInputStream(new ByteBufInputStream(payload)))
             {
                 ZipEntry zipEntry = zis.getNextEntry();
-                final Path structureFolder = Minecraft.getInstance().gameDirectory.toPath().resolve(BLUEPRINT_FOLDER);
-                JavaUtils.deleteDirectory(structureFolder.resolve(packName));
-                final Path rootPath = Files.createDirectory(structureFolder.resolve(packName));
 
+                final Path rootPath = Files.createDirectory(structureFolder.resolve(packName));
                 while (zipEntry != null)
                 {
                     boolean isDirectory = zipEntry.isDirectory();
@@ -345,22 +347,7 @@ public class ClientStructurePackLoader
 
         return normalizePath;
     }
-
-    private static boolean isSafePackName(final String packName)
-    {
-        if (packName == null || packName.isBlank() || packName.equals(".") || packName.equals(".."))
-        {
-            return false;
-        }
-        if (packName.contains("/") || packName.contains("\\"))
-        {
-            return false;
-        }
-
-        final Path candidate = Paths.get(packName);
-        return FileUtil.isPathNormalized(candidate) && FileUtil.isPathPortable(candidate);
-    }
-
+    
     /**
      * Handles the save message of scans.
      *
