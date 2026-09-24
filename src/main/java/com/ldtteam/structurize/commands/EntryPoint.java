@@ -44,9 +44,11 @@ public class EntryPoint extends AbstractCommand
             .addNode(UpdateSchematicsCommand::build, () -> CommandSelection.INTEGRATED)
             .addNode(ScanCommand::build, AbstractCommand::getEnvironmentType)
             .addNode(PasteCommand::build, AbstractCommand::getEnvironmentType)
-          .addNode(PasteFolderCommand::build, AbstractCommand::getEnvironmentType)
+            .addNode(PasteFolderCommand::build, AbstractCommand::getEnvironmentType)
             .addNode(UpgradeCommand.ToDO::build, () -> CommandSelection.ALL)
-            .addNode(UpdateSchematicPackCommand::build, () -> CommandSelection.ALL);
+            .addNode(UpdateSchematicPackCommand::build, () -> CommandSelection.ALL)
+            // TODO: Remove before publication — debug command only
+            .addNode(PackIndexCommand::build, PackIndexCommand::getEnvironmentType);
 
         structurizeRoot.register(dispatcher, environment);
     }
