@@ -942,11 +942,6 @@ public final class PlacementHandlers
                 return ActionProcessingResult.SUCCESS;
             }
 
-            if (tileEntityData != null)
-            {
-                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror().getRotationMirror());
-            }
-
             return ActionProcessingResult.SUCCESS;
         }
 
