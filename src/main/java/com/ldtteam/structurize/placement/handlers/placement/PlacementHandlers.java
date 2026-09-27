@@ -926,7 +926,7 @@ public final class PlacementHandlers
             @Nullable final CompoundTag tileEntityData,
             final IPlacementContext placementContext)
         {
-            if (!handleBlockPlacement(world, pos, blockState))
+            if (!handleBlockPlacement(world, pos, blockState, placementContext.getRotationMirror().getRotationMirror(), tileEntityData))
             {
                 return ActionProcessingResult.DENY;
             }
