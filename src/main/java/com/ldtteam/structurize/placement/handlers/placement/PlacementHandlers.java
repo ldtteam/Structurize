@@ -350,22 +350,7 @@ public final class PlacementHandlers
 
             if (!BlockUtils.isAnySolid(world.getBlockState(pos.below())))
             {
-                BlockPos posBelow = pos;
-                BlockState supportBlockState = Blocks.DIRT instanceof Fallable ? Blocks.STONE.defaultBlockState() : Blocks.DIRT.defaultBlockState();
-                for (int i = 0; i < 10; i++) // try up to ten blocks below for solid worldgen
-                {
-                    posBelow = posBelow.below();
-                    final boolean isFirstTest = i == 0;
-                    final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, bp -> isFirstTest ? blockState : null);
-                    if (possibleSupport != null && BlockUtils.canBlockFloatInAir(possibleSupport) && !canHandle(world,
-                        posBelow,
-                        possibleSupport))
-                    {
-                        supportBlockState = possibleSupport;
-                        break;
-                    }
-                }
-
+                BlockState supportBlockState = placementContext.getSolidBlockForPos(pos, placementContext.getBluePrint().getRawBlockStateFunction());
                 if (canHandle(world, pos, supportBlockState))
                 {
                     Log.getLogger().warn("Unable to use: " + supportBlockState + " as support for a falling block, it is either a falling black itself or made fallable");
@@ -393,19 +378,7 @@ public final class PlacementHandlers
 
             if (!BlockUtils.isAnySolid(world.getBlockState(pos.below())))
             {
-                BlockPos posBelow = pos;
-                BlockState supportBlockState = Blocks.DIRT.defaultBlockState();
-                for (int i = 0; i < 10; i++) // try up to ten blocks below for solid worldgen
-                {
-                    posBelow = posBelow.below();
-                    final boolean isFirstTest = i == 0;
-                    final BlockState possibleSupport = BlockUtils.getWorldgenBlock(world, posBelow, bp -> isFirstTest ? blockState : null);
-                    if (possibleSupport != null && BlockUtils.canBlockFloatInAir(possibleSupport))
-                    {
-                        supportBlockState = possibleSupport;
-                        break;
-                    }
-                }
+                BlockState supportBlockState = placementContext.getSolidBlockForPos(pos, placementContext.getBluePrint().getRawBlockStateFunction());
                 handleBlockPlacement(world, pos.below(), supportBlockState);
             }
 
