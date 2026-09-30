@@ -19,7 +19,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 public class ClientLifecycleSubscriber
 {
@@ -29,28 +28,23 @@ public class ClientLifecycleSubscriber
      * @param event event
      */
     @SubscribeEvent
-    public static void onClientInit(final FMLClientSetupEvent event)
+    public static void onClientInit(final RegisterClientReloadListenersEvent event)
     {
-        final ResourceManager rm = Minecraft.getInstance().getResourceManager();
-        if (rm instanceof final ReloadableResourceManager resourceManager)
+        event.registerReloadListener(new SimplePreparableReloadListener<>()
         {
-            resourceManager.registerReloadListener(new SimplePreparableReloadListener<>()
+            @Override
+            protected Object prepare(final ResourceManager manager, final ProfilerFiller profiler)
             {
+                return new Object();
+            }
 
-                @Override
-                protected Object prepare(final ResourceManager manager, final ProfilerFiller profiler)
-                {
-                    return new Object();
-                }
-
-                @Override
-                protected void apply(final Object source, final ResourceManager manager, final ProfilerFiller profiler)
-                {
-                    Log.getLogger().debug("Clearing blueprint renderer cache.");
-                    BlueprintHandler.getInstance().clearCache();
-                }
-            });
-        }
+            @Override
+            protected void apply(final Object source, final ResourceManager manager, final ProfilerFiller profiler)
+            {
+                Log.getLogger().debug("Clearing blueprint renderer cache.");
+                BlueprintHandler.getInstance().clearCache();
+            }
+        });
     }
 
     @OnlyIn(Dist.CLIENT)
