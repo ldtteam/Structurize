@@ -899,11 +899,6 @@ public final class PlacementHandlers
           @Nullable final CompoundTag tileEntityData,
           final IPlacementContext placementContext)
         {
-            if (!handleBlockPlacement(world, pos, blockState))
-            {
-                return ActionProcessingResult.DENY;
-            }
-
             try
             {
                 // Try detecting inventory content.
@@ -911,13 +906,17 @@ public final class PlacementHandlers
             }
             catch (final Exception ex)
             {
-                // If we can't load the inventory content of the TE, return early, don't fill TE data.
+                // If we can't load the inventory content of the TE, don't fill TE data.
+                if (!handleBlockPlacement(world, pos, blockState))
+                {
+                    return ActionProcessingResult.DENY;
+                }
                 return ActionProcessingResult.SUCCESS;
             }
 
-            if (tileEntityData != null)
+            if (!handleBlockPlacement(world, pos, blockState, placementContext.getRotationMirror(), tileEntityData))
             {
-                handleTileEntityPlacement(tileEntityData, world, pos, placementContext.getRotationMirror());
+                return ActionProcessingResult.DENY;
             }
 
             return ActionProcessingResult.SUCCESS;

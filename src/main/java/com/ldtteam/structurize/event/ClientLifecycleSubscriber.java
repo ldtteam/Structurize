@@ -8,24 +8,17 @@ import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.client.model.OverlaidModelLoader;
 import com.ldtteam.structurize.items.ItemStackTooltip;
 import com.ldtteam.structurize.items.ModItems;
-import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers.ContainerPlacementHandler;
 import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import com.ldtteam.structurize.util.WorldRenderMacros;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
@@ -38,7 +31,7 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 public class ClientLifecycleSubscriber
 {
     @SubscribeEvent
-    public static void onClientInit(final FMLClientSetupEvent event)
+    public static void onClientInit(final RegisterClientReloadListenersEvent event)
     {
         ClientStructurePackLoader.onClientLoading();
     }
