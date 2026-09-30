@@ -573,35 +573,17 @@ public final class BlockUtils
         {
             world.removeBlock(here, false);
         }
-        else if (item instanceof BlockItem)
+        else if (item instanceof BlockItem blockItem)
         {
-            final Block targetBlock = ((BlockItem) item).getBlock();
-            BlockState newState = copyFirstCommonBlockStateProperties(targetBlock.defaultBlockState(), blockState);
-
-            if (newState == null)
-            {
-                fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, stackToPlace);
-                if (stackToPlace.is(ItemTags.BEDS) && blockState.hasProperty(HorizontalDirectionalBlock.FACING))
-                {
-                    fakePlayer.setYRot(blockState.getValue(HorizontalDirectionalBlock.FACING).get2DDataValue() * 90);
-                }
-
-                newState = targetBlock.getStateForPlacement(new BlockPlaceContext(new UseOnContext(fakePlayer,
-                    InteractionHand.MAIN_HAND,
-                    new BlockHitResult(new Vec3(0, 0, 0),
-                        itemStack.getItem() instanceof BedItem ? Direction.UP : Direction.NORTH,
-                        here,
-                        true))));
-
-                if (newState == null)
-                {
-                    return;
-                }
-            }
-
-            // place
-            world.setBlock(here, Blocks.COBBLESTONE.defaultBlockState(), Block.UPDATE_CLIENTS);
-            world.setBlock(here, newState, Constants.UPDATE_FLAG);
+            final Block targetBlock = blockItem.getBlock();
+            fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, stackToPlace);
+            final BlockPlaceContext ctx = new BlockPlaceContext(new UseOnContext(fakePlayer, InteractionHand.MAIN_HAND,
+                new BlockHitResult(new Vec3(0, 0, 0), Direction.NORTH, here, true)));
+            final BlockState placementState = targetBlock.getStateForPlacement(ctx);
+            BlockState newState = copyFirstCommonBlockStateProperties(placementState != null ? placementState : targetBlock.defaultBlockState(), blockState);
+            world.setBlock(here, newState, Block.UPDATE_ALL_IMMEDIATE);
+            newState = blockItem.updateBlockStateFromTag(here, world, stackToPlace, newState);
+            blockItem.updateCustomBlockEntityTag(here, world, fakePlayer, stackToPlace, newState);
             targetBlock.setPlacedBy(world, here, newState, fakePlayer, stackToPlace);
         }
         else if (item instanceof BucketItem)
