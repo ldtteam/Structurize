@@ -2,8 +2,12 @@ package com.ldtteam.structurize.client.gui;
 
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.common.util.BlockToItemHelper;
 import com.ldtteam.structurize.api.TagManager;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
@@ -11,16 +15,18 @@ import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.items.ItemTagTool.TagData;
 import com.ldtteam.structurize.network.messages.AddRemoveTagMessage;
 import com.ldtteam.structurize.network.messages.SetTagInTool;
-import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class WindowTagTool extends AbstractWindowSkeleton
 {
@@ -36,74 +42,128 @@ public class WindowTagTool extends AbstractWindowSkeleton
     private static final String TAG_SELECT         = "select";
 
     /**
-     * The current tag
-     */
-    private String currentTag = "";
-
-    /**
      * The current world
      */
-    private Level world;
+    @NotNull
+    private final Level world;
 
     /**
      * The anchor pos
      */
-    private BlockPos anchorPos = null;
+    @NotNull
+    private final BlockPos anchorPos;
 
     /**
      * The item
      */
-    private ItemStack stack;
+    @NotNull
+    private final ItemStack stack;
 
     /**
      * The tags list
      */
-    private ScrollingList tagList;
-
-    /**
-     * BLockpos list
-     */
-    private List<BlockPos> positionsList = Collections.emptyList();
+    @NotNull
+    private final ScrollingList tagList;
 
     /**
      * The tags list
      */
-    private ScrollingList tagOptionList;
+    @NotNull
+    private final ScrollingList tagOptionList;
+
+    /**
+     * The input field.
+     */
+    @NotNull
+    private final TextField inputField;
+
+    /**
+     * Positions list with tags
+     */
+    @NotNull
+    private List<PositionWithTags> positionsList = new ArrayList<>();
 
     /**
      * Tag options.
      */
-    private List<String> tagOptions = new ArrayList<>();
+    @NotNull
+    private final List<String> tagOptions = new ArrayList<>();
 
     /**
      * Constructor for the skeleton class of the windows.
      */
-    public WindowTagTool(String currentTag, BlockPos anchorPos, final Level world, final ItemStack stack)
+    public WindowTagTool(final @NotNull String currentTag, final @NotNull BlockPos anchorPos, final @NotNull Level world, final @NotNull ItemStack stack)
     {
         super(Constants.MOD_ID + WINDOW_TAG_TOOL);
         this.world = world;
-        this.currentTag = currentTag;
         this.anchorPos = anchorPos;
         this.stack = stack;
+        this.tagList = findPaneOfTypeByID(LIST_TAG_POS, ScrollingList.class);
+        this.tagOptionList = findPaneOfTypeByID(LIST_TAG_OPTION, ScrollingList.class);
+        this.inputField = findPaneOfTypeByID(INPUT_FIELD, TextField.class);
+        this.inputField.setText(currentTag);
 
         tagOptions.addAll(TagManager.getGlobalTagOptions());
-
-        if (anchorPos != null)
+        final Block block = world.getBlockState(anchorPos).getBlock();
+        if (block instanceof IAnchorBlock anchorBlock)
         {
-            final Block block = world.getBlockState(anchorPos).getBlock();
-            if (block instanceof IAnchorBlock anchorBlock)
-            {
-                tagOptions.addAll(TagManager.getMatchingTagOptions(anchorBlock));
-            }
+            tagOptions.addAll(TagManager.getMatchingTagOptions(anchorBlock));
         }
+
         registerButton(TAG_SELECT, this::tagOptionSelected);
+        registerButton(BUTTON_CANCEL, this::close);
+        registerButton(BUTTON_CLOSE, this::close);
+        registerButton(BUTTON_LIST_REMOVE, this::removeTag);
+
+        findPaneOfTypeByID(LIST_TAG_POS, ScrollingList.class).setDataProvider(new ScrollingList.DataProvider()
+        {
+            @Override
+            public int getElementCount()
+            {
+                return positionsList.size();
+            }
+
+            @Override
+            public void updateElement(final int index, final Pane rowPane)
+            {
+                final PositionWithTags positionWithTags = positionsList.get(index);
+
+                final BlockPos blockPosition = anchorPos.offset(positionWithTags.position);
+                final ItemStack displayStack =
+                    BlockToItemHelper.getItemStack(world.getBlockState(blockPosition), world.getBlockEntity(blockPosition), Minecraft.getInstance().player);
+                rowPane.findPaneOfTypeByID(LIST_BLOCK, ItemIcon.class).setItem(displayStack);
+                rowPane.findPaneOfTypeByID(TAG_TEXT, Text.class).setText(Component.literal(String.join(", ", positionWithTags.tags.toString())));
+            }
+        });
+
+        tagOptionList.setDataProvider(new ScrollingList.DataProvider()
+        {
+            @Override
+            public int getElementCount()
+            {
+                return tagOptions.size();
+            }
+
+            @Override
+            public void updateElement(final int index, final Pane rowPane)
+            {
+                final String tag = tagOptions.get(index);
+
+                final Text tagsText = rowPane.findPaneOfTypeByID(TAG_TEXT, Text.class);
+                tagsText.setText(Component.literal(tag));
+                PaneBuilders.tooltipBuilder().hoverPane(tagsText).build()
+                    .setText(Component.translatable("com.ldtteam.tag.tooltip." + tag));
+
+                rowPane.findPaneOfTypeByID(TAG_SELECT, Button.class).setEnabled(!tag.equals(inputField.getText()));
+            }
+        });
     }
 
     private void tagOptionSelected(final Button button)
     {
         final int row = tagOptionList.getListElementIndexByPane(button);
-        this.currentTag = tagOptions.get(row);
-        findPaneOfTypeByID(INPUT_FIELD, TextField.class).setText(currentTag);
+        inputField.setText(tagOptions.get(row));
+        tagOptionList.refreshElementPanes(true);
     }
 
     @Override
@@ -111,32 +171,23 @@ public class WindowTagTool extends AbstractWindowSkeleton
     {
         super.onOpened();
 
-        findPaneOfTypeByID(INPUT_FIELD, TextField.class).setText(currentTag);
-        tagList = findPaneOfTypeByID(LIST_TAG_POS, ScrollingList.class);
-        tagOptionList = findPaneOfTypeByID(LIST_TAG_OPTION, ScrollingList.class);
-
-        registerButton(BUTTON_CANCEL, this::onCancel);
-        registerButton(BUTTON_CLOSE, this::onCancel);
-        registerButton(BUTTON_LIST_REMOVE, this::removeTag);
         updateResourceList();
-        updateTagOptionList();
+        tagOptionList.refreshElementPanes(true);
     }
 
     @Override
     public void close()
     {
         super.close();
-        currentTag = findPaneOfTypeByID(INPUT_FIELD, TextField.class).getText();
-        TagData.updateItemStack(stack, tags -> tags.setCurrentTag(currentTag));
-        new SetTagInTool(currentTag, Minecraft.getInstance().player.getInventory().findSlotMatchingItem(stack)).sendToServer();
+        TagData.updateItemStack(stack, tags -> tags.setCurrentTag(inputField.getText()));
+        new SetTagInTool(inputField.getText(), Minecraft.getInstance().player.getInventory().findSlotMatchingItem(stack)).sendToServer();
     }
 
     @Override
     public boolean onKeyTyped(final char ch, final int key)
     {
-        final boolean returnValue = super.onKeyTyped(ch, key);;
-        updateTagOptionList();
-        currentTag = findPaneOfTypeByID(INPUT_FIELD, TextField.class).getText();
+        final boolean returnValue = super.onKeyTyped(ch, key);
+        tagOptionList.refreshElementPanes(true);
         return returnValue;
     }
 
@@ -147,14 +198,13 @@ public class WindowTagTool extends AbstractWindowSkeleton
      */
     private void removeTag(final Button button)
     {
-        int row = tagList.getListElementIndexByPane(button);
-        BlockPos toRemove = positionsList.get(row);
+        final int row = tagList.getListElementIndexByPane(button);
+        final BlockPos toRemove = positionsList.get(row).position;
 
-        BlockEntity te = world.getBlockEntity(anchorPos);
-        if (te instanceof IBlueprintDataProviderBE)
+        final BlockEntity te = world.getBlockEntity(anchorPos);
+        if (te instanceof final IBlueprintDataProviderBE dataTE)
         {
-            IBlueprintDataProviderBE dataTE = (IBlueprintDataProviderBE) te;
-            Map<BlockPos, List<String>> map = dataTE.getPositionedTags();
+            final Map<BlockPos, List<String>> map = dataTE.getPositionedTags();
             if (map.containsKey(toRemove) && !map.get(toRemove).isEmpty())
             {
                 String tag = map.get(toRemove).get(map.get(toRemove).size() - 1);
@@ -170,92 +220,30 @@ public class WindowTagTool extends AbstractWindowSkeleton
     }
 
     /**
-     * Closes current gui
-     */
-    private void onCancel()
-    {
-        close();
-    }
-
-    /**
      * Updates the current tag list
      */
     public void updateResourceList()
     {
-        tagList.enable();
-        tagList.show();
-
         BlockEntity te = world.getBlockEntity(anchorPos);
-        if (te instanceof IBlueprintDataProviderBE)
+        if (te instanceof final IBlueprintDataProviderBE dataTE)
         {
-            IBlueprintDataProviderBE dataTE = (IBlueprintDataProviderBE) te;
-            positionsList = new ArrayList<>(dataTE.getPositionedTags().keySet());
+            final ArrayList<PositionWithTags> positions = new ArrayList<>();
+            for (final Map.Entry<BlockPos, List<String>> entry : dataTE.getPositionedTags().entrySet())
+            {
+                positions.add(new PositionWithTags(entry.getKey(), entry.getValue()));
+            }
+            positionsList = positions;
+            tagList.refreshElementPanes(true);
         }
         else
         {
             close();
         }
-
-        tagList.setDataProvider(new ScrollingList.DataProvider()
-        {
-            @Override
-            public int getElementCount()
-            {
-                return positionsList.size();
-            }
-
-            @Override
-            public void updateElement(final int index, final Pane rowPane)
-            {
-                BlockEntity te = world.getBlockEntity(anchorPos);
-                if (te instanceof IBlueprintDataProviderBE)
-                {
-                    IBlueprintDataProviderBE dataTE = (IBlueprintDataProviderBE) te;
-                    positionsList = new ArrayList<>(dataTE.getPositionedTags().keySet());
-
-
-                    positionsList = new ArrayList<>(dataTE.getPositionedTags().keySet());
-                    final BlockPos pos = positionsList.get(index);
-                    final List<String> tags = dataTE.getPositionedTags().get(pos);
-
-                    final ItemStack displayStack = BlockUtils.getItemStackFromBlockState(world.getBlockState(dataTE.getRealWorldPos(pos)));
-                    rowPane.findPaneOfTypeByID(LIST_BLOCK, ItemIcon.class).setItem(displayStack);
-
-                    final Text tagsText = rowPane.findPaneOfTypeByID(TAG_TEXT, Text.class);
-                    tagsText.setText(Component.literal(tags.toString()));
-                }
-                else
-                {
-                    close();
-                }
-            }
-        });
     }
 
-    /**
-     * Updates the current tag list
-     */
-    public void updateTagOptionList()
+    private record PositionWithTags(
+        BlockPos position,
+        List<String> tags)
     {
-        tagOptionList.setDataProvider(new ScrollingList.DataProvider()
-        {
-            @Override
-            public int getElementCount()
-            {
-                return tagOptions.size();
-            }
-
-            @Override
-            public void updateElement(final int index, final Pane rowPane)
-            {
-                final Text tagsText = rowPane.findPaneOfTypeByID(TAG_TEXT, Text.class);
-                tagsText.setText(Component.literal(tagOptions.get(index)));
-                PaneBuilders.tooltipBuilder().hoverPane(tagsText).build()
-                    .setText(Component.translatable("com.ldtteam.tag.tooltip." + tagOptions.get(index)));
-
-                final Button button = rowPane.findPaneOfTypeByID(TAG_SELECT, Button.class);
-                button.setEnabled(!tagOptions.get(index).equals(currentTag));
-            }
-        });
     }
 }
