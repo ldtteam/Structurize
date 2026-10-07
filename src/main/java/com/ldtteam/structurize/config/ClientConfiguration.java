@@ -36,12 +36,12 @@ public class ClientConfiguration extends AbstractConfiguration
     {
         createCategory(builder, "blueprint.renderer");
         // if you add anything to this category, also add it #collectPreviewRendererSettings()
-        
-        renderPlaceholdersNice = defineBoolean(builder, "render_placeholders_nice", false);
+
+        renderPlaceholdersNice = defineBoolean(builder, "render_placeholders_nice", true);
         sharePreviews = defineBoolean(builder, "share_previews", false);
         displayShared = defineBoolean(builder, "see_shared_previews", false);
         rendererLightLevel = defineInteger(builder, "light_level", 15, -1, 15);
-        rendererTransparency = defineDouble(builder, "transparency", -1, -1, 1);
+        rendererTransparency = defineDouble(builder, "transparency", 1, 0.1, 1);
 
         addWatcher(BlueprintHandler.getInstance()::clearCache, renderPlaceholdersNice, rendererLightLevel);
         addWatcher(displayShared, (oldValue, isSharingEnabled) -> {
