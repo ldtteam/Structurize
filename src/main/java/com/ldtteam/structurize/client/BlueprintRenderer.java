@@ -420,7 +420,7 @@ public class BlueprintRenderer implements AutoCloseable
                     renderBufferSource,
                     mc.getEntityRenderDispatcher().getPackedLightCoords(entity, partialTicks));
             }
-            catch (final ClassCastException e)
+            catch (final Exception e)
             {
                 // Oops
                 suppressedExceptions.put(entity, e);
@@ -495,7 +495,15 @@ public class BlueprintRenderer implements AutoCloseable
             matrixStack.pushPose();
             matrixStack.translate(realRenderTePos.x, realRenderTePos.y, realRenderTePos.z);
 
-            mc.getBlockEntityRenderDispatcher().render(tileEntity, partialTicks, matrixStack, renderBufferSource);
+            try
+            {
+                mc.getBlockEntityRenderDispatcher().render(tileEntity, partialTicks, matrixStack, renderBufferSource);
+            }
+            catch (Exception e)
+            {
+                suppressedExceptions.put(tileEntity, e);
+            }
+
             matrixStack.popPose();
         }
 
