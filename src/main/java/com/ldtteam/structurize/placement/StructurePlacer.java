@@ -103,12 +103,35 @@ public class StructurePlacer
      * @return the result.
      */
     public StructurePhasePlacementResult executeStructureStep(
+            final Level world,
+            final ChangeStorage storage,
+            final BlockPos inputPos,
+            final Operation operation,
+            final Supplier<AbstractBlueprintIterator.Result> iterateFunction,
+            final boolean includeEntities)
+    {
+        return executeStructureStep(world, storage, inputPos, operation, iterateFunction, includeEntities, this.iterator);
+    }
+
+    /**
+     * Execute structure placement.
+     * @param world the world.
+     * @param storage the change storage.
+     * @param inputPos the pos to start from.
+     * @param operation the operation to execute.
+     * @param iterateFunction the function to iterate.
+     * @param includeEntities if entities should be included.
+     * @param iterator with a specific iterator type.
+     * @return the result.
+     */
+    public StructurePhasePlacementResult executeStructureStep(
       final Level world,
       final ChangeStorage storage,
       final BlockPos inputPos,
       final Operation operation,
       final Supplier<AbstractBlueprintIterator.Result> iterateFunction,
-      final boolean includeEntities)
+      final boolean includeEntities,
+      final AbstractBlueprintIterator iterator)
     {
         final List<ItemStack> requiredItems = new ArrayList<>();
 
