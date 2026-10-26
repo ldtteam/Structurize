@@ -10,7 +10,7 @@
         <box size="100% 17" linewidth="1">
             <itemicon id="posblock" size="17 17" pos="0 1"/>
             <text id="tagnames" size="190 25" pos="30 5" textalign="TOP_LEFT" color="white"/>
-            <buttonimage id="removeTag" pos="207 1" size="15 15" source="structurize:textures/gui/builderhut/button_x.png" textcolor="black"/>
+            <buttonimage id="removeTag" pos="207 1" size="15 15" source="structurize:textures/gui/builderhut/button_x.png" color="black"/>
         </box>
     </list>
 
@@ -18,13 +18,13 @@
     <list id="tagoptionlist" size="130 120" pos="0 80" childspacing="-1">
         <box size="100% 17" linewidth="1">
             <text id="tagnames" size="190 25" pos="5 5" textalign="TOP_LEFT" color="white"/>
-            <button id="select" pos="104 1" size="16 16" source="structurize:textures/gui/builderhut/checkbox_empty.png" textcolor="black"
+            <button id="select" pos="104 1" size="16 16" source="structurize:textures/gui/builderhut/checkbox_empty.png" color="black"
                     disabled="structurize:textures/gui/builderhut/checkbox_checked.png"/>
         </box>
     </list>
 
     <button label="$(com.ldtteam.structurize.gui.tagtool.close)" id="closeUI" pos="300 205" size="86 17"
-                 source="structurize:textures/gui/builderhut/builder_button_medium.png" textcolor="black"/>
+                 source="structurize:textures/gui/builderhut/builder_button_medium.png" color="black"/>
 
     <buttonimage id="cancel" source="structurize:textures/gui/builderhut/button_x.png" size="13 16" pos="325 5"/>
 </window>
