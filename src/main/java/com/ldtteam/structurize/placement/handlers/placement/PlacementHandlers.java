@@ -350,7 +350,9 @@ public final class PlacementHandlers
 
             if (!BlockUtils.isAnySolid(world.getBlockState(pos.below())))
             {
-                BlockState supportBlockState = placementContext.getSolidBlockForPos(pos, placementContext.getBluePrint().getRawBlockStateFunction());
+                final Blueprint blueprint = placementContext.getBluePrint();
+
+                BlockState supportBlockState = placementContext.getSolidBlockForPos(pos, blueprint == null ? ignored -> null : blueprint.getRawBlockStateFunction());
                 if (canHandle(world, pos, supportBlockState))
                 {
                     Log.getLogger().warn("Unable to use: " + supportBlockState + " as support for a falling block, it is either a falling black itself or made fallable");
