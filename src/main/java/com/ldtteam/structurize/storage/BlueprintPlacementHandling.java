@@ -25,7 +25,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,6 +84,11 @@ public class BlueprintPlacementHandling
             return;
         }
 
+        if (!message.player.isCreative())
+        {
+            return;
+        }
+
         Utils.playSuccessSound(message.player);
         final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
         blueprint.setRotationMirror(message.rotationMirror, message.world);
@@ -113,14 +120,26 @@ public class BlueprintPlacementHandling
     {
         ServerFutureProcessor.queueBlueprint(new ServerFutureProcessor.BlueprintProcessingData(IOPool.submit(() ->
         {
+            final String packName = Utils.getSafePackName(blueprintSyncMessage.structurePackId);
+            if (packName.isEmpty() || packName.startsWith("."))
+            {
+                return null;
+            }
+
             final Path blueprintParentPath = new File(".").toPath()
               .resolve(BLUEPRINT_FOLDER)
               .resolve(CLIENT_FOLDER)
               .resolve(player.getUUID().toString())
-              .resolve(blueprintSyncMessage.structurePackId);
+              .resolve(packName).normalize();
 
-            final Path blueprintPath = blueprintParentPath.resolve(blueprintSyncMessage.blueprintPath);
-            final String packId = player.getUUID() + blueprintSyncMessage.structurePackId;
+            final Path blueprintPath = blueprintParentPath.resolve(blueprintSyncMessage.blueprintPath).normalize();
+
+            if (Files.isSymbolicLink(blueprintPath) || !blueprintPath.startsWith(blueprintParentPath) || blueprintPath.equals(blueprintParentPath) || !blueprintPath.getFileName().toString().endsWith(".blueprint"))
+            {
+                return null;
+            }
+
+            final String packId = player.getUUID() + packName;
             blueprintSyncMessage.structurePackId = packId;
 
             try
@@ -139,7 +158,8 @@ public class BlueprintPlacementHandling
                 jsonObject.addProperty("name", packId);
                 jsonObject.addProperty("icon",  "");
 
-                Files.write(blueprintParentPath.resolve("pack.json"), jsonObject.toString().getBytes());
+                Files.write(blueprintParentPath.resolve("pack.json"), jsonObject.toString().getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING,
+                        StandardOpenOption.WRITE, LinkOption.NOFOLLOW_LINKS);
 
                 final List<String> modList = new ArrayList<>();
                 for (IModInfo mod : ModList.get().getMods())
