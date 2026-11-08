@@ -4,6 +4,7 @@ import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.api.constants.Constants;
+import com.ldtteam.structurize.blueprints.conversion.StructurePackImporter;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.util.IOPool;
@@ -14,7 +15,10 @@ import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -653,6 +657,10 @@ public class StructurePacks
                                 Log.getLogger().warn("Missing Mod: " + modId + " for Pack: " + pack.getName());
                                 return;
                             }
+                        }
+                        if (!immutable)
+                        {
+                            StructurePackImporter.importStructures(element);
                         }
                         if (clientPack)
                         {
