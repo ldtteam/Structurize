@@ -25,6 +25,9 @@ public final class ModItems
     public static final DeferredItem<ItemCaliper>  caliper;
     public static final DeferredItem<ItemTagSubstitution> blockTagSubstitution;
 
+    // TODO: Remove before publication — debug item only
+    public static final DeferredItem<ItemPackIndexDebug> packIndexDebug;
+
     static
     {
         buildTool = ITEMS.register("sceptergold", ItemBuildTool::new);
@@ -33,5 +36,7 @@ public final class ModItems
         tagTool   = ITEMS.register("sceptertag", (Supplier<ItemTagTool>) ItemTagTool::new);
         caliper   = ITEMS.register("caliper", ItemCaliper::new);
         blockTagSubstitution = ITEMS.register("blockTagSubstitution".toLowerCase(), ItemTagSubstitution::new);
+        // TODO: Remove before publication — debug item only
+        packIndexDebug = ITEMS.register("packindexdebug", ItemPackIndexDebug::new);
     }
 }
