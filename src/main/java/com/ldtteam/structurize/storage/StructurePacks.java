@@ -3,11 +3,13 @@ package com.ldtteam.structurize.storage;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.ldtteam.structurize.api.Log;
+import com.ldtteam.structurize.api.Utils;
 import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.util.IOPool;
 import com.ldtteam.structurize.util.ManualBarrier;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
@@ -16,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -456,17 +459,36 @@ public class StructurePacks
             return null;
         }
 
+        final String packName = Utils.getSafePackName(structurePackId);
+        if (packName.isEmpty())
+        {
+            return null;
+        }
         final StructurePackMeta packMeta = getStructurePack(structurePackId);
         if (packMeta == null)
         {
             return null;
         }
+        final Path packRoot = packMeta.getPath().toAbsolutePath().normalize();
+        final Path target;
+        try
+        {
+            target = packRoot.resolve(packMeta.getNormalizedSubPath(subPath)).normalize();
+        }
+        catch (final IllegalArgumentException e)
+        {
+            return null;
+        }
 
-        //todo, here similarly as in the other places we could query a remote server for this if we don't have it locally.
+        if (!target.startsWith(packRoot) || !target.getFileName().toString().endsWith(".blueprint"))
+        {
+            Log.getLogger().warn("Rejected blueprint request outside pack {}: {}", packMeta.getName(), subPath);
+            return null;
+        }
 
         try
         {
-            return Files.readAllBytes(packMeta.getPath().resolve(packMeta.getNormalizedSubPath(subPath)));
+            return Files.readAllBytes(target);
         }
         catch (final IOException e)
         {
