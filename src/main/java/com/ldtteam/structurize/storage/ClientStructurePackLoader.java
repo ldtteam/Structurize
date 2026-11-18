@@ -25,6 +25,7 @@ import net.minecraftforge.forgespi.language.IModInfo;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
@@ -265,6 +266,10 @@ public class ClientStructurePackLoader
     public static void onStructurePackTransfer(final String name, final ByteBuf payload, final boolean eol)
     {
         final String packName = Utils.getSafePackName(name);
+        if (packName.isEmpty())
+        {
+            return;
+        }
         Log.getLogger().warn("Received Structure pack from the Server: " + packName);
         IOPool.execute(() ->
         {
@@ -359,12 +364,33 @@ public class ClientStructurePackLoader
     public static void handleSaveScanMessage(final CompoundTag compound, final String fileName)
     {
         final String packName = Utils.getSafePackName(Minecraft.getInstance().getUser().getName());
+
+        final Path scansFolder = Minecraft.getInstance().gameDirectory.toPath()
+                .resolve(BLUEPRINT_FOLDER)
+                .resolve(packName.toLowerCase(Locale.US))
+                .resolve(SCANS_FOLDER)
+                .toAbsolutePath()
+                .normalize();
+
+        final Path targetPath;
+        try
+        {
+            targetPath = scansFolder.resolve(fileName).normalize();
+        }
+        catch (final InvalidPathException e)
+        {
+            return;
+        }
+
+        if (!targetPath.startsWith(scansFolder) || targetPath.equals(scansFolder))
+        {
+            Log.getLogger().warn("Rejected scan save request with unsafe file name: {}", fileName);
+            return;
+        }
+
         StructurePacks.switchSelectedPack(StructurePacks.getStructurePack(Utils.getSafePackName(Minecraft.getInstance().getUser().getName())));
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setBlueprintFuture(
-          StructurePacks.storeBlueprint(packName, compound, Minecraft.getInstance().gameDirectory.toPath()
-            .resolve(BLUEPRINT_FOLDER)
-            .resolve(packName.toLowerCase(Locale.US))
-            .resolve(SCANS_FOLDER).resolve(fileName)));
+        StructurePacks.storeBlueprint(packName, compound, targetPath));
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setPos(null);
         Minecraft.getInstance().player.displayClientMessage(Component.translatable("Scan successfully saved as %s", fileName), false);
     }
