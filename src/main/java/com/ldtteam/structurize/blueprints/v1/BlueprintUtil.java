@@ -4,35 +4,35 @@ import com.ldtteam.structurize.api.BlockPosUtil;
 import com.ldtteam.structurize.api.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.tag.ModTags;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.decoration.BlockAttachedEntity;
-import net.minecraft.nbt.*;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.SharedConstants;
-import net.minecraft.util.datafix.fixes.References;
-import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.level.Level;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.*;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix;
+import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.BlockAttachedEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.*;
-
 import static com.ldtteam.structurize.api.constants.Constants.MOD_ID;
+import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.*;
 
 /**
  * @see <a href="http://dark-roleplay.net/other/blueprint_format.php">Blueprint V1 Specification</a>
@@ -205,28 +205,13 @@ public class BlueprintUtil
      */
     public static CompoundTag writeBlueprintToNBT(final Blueprint schem)
     {
-        final CompoundTag tag = new CompoundTag();
-        // Set Blueprint Version
-        tag.putByte("version", (byte) 1);
-        // Set Blueprint Size
-        tag.putShort("size_x", (short) schem.getSizeX());
-        tag.putShort("size_y", schem.getSizeY());
-        tag.putShort("size_z", (short) schem.getSizeZ());
-
-        // Create Pallete
         final BlockState[] palette = schem.getPalette();
         final ListTag paletteTag = new ListTag();
         for (short i = 0; i < schem.getPalleteSize(); i++)
         {
             paletteTag.add(NbtUtils.writeBlockState(palette[i]));
         }
-        tag.put("palette", paletteTag);
 
-        // Adding blocks
-        final int[] blockInt = convertBlocksToSaveData(schem.getStructure(), schem.getSizeX(), schem.getSizeY(), schem.getSizeZ());
-        tag.putIntArray("blocks", blockInt);
-
-        // Adding Tile Entities
         final ListTag finishedTes = new ListTag();
         final CompoundTag[] tes = Arrays.stream(schem.getTileEntities())
                                     .flatMap(Arrays::stream)
@@ -234,26 +219,59 @@ public class BlueprintUtil
                                     .filter(Objects::nonNull)
                                     .toArray(CompoundTag[]::new);
         finishedTes.addAll(Arrays.asList(tes));
-        tag.put("tile_entities", finishedTes);
 
-        // Adding Entities
         final ListTag finishedEntities = new ListTag();
-        final CompoundTag[] entities = schem.getEntities();
-        finishedEntities.addAll(Arrays.asList(entities));
-        tag.put("entities", finishedEntities);
+        finishedEntities.addAll(Arrays.asList(schem.getEntities()));
 
-        // Adding Required Mods
-        final List<String> requiredMods = schem.getRequiredMods();
+        return writeBlueprintToNBT(
+            schem.getSizeX(), schem.getSizeY(), schem.getSizeZ(),
+            schem.getStructure(), paletteTag, finishedTes, finishedEntities, schem.getRequiredMods(),
+            schem.getName(), schem.getArchitects(), schem.getPrimaryBlockOffset());
+    }
+
+    /**
+     * Raw data blueprint data to write to NBT, allows writing without loading minecraft classes.
+     *
+     * @param sizeX
+     * @param sizeY
+     * @param sizeZ
+     * @param structure     block data in Y/Z/X order
+     * @param palette       blockstate palette.
+     * @param tileEntities  BE nbt
+     * @param entities      entity nbt
+     * @param requiredMods  required mod ids
+     * @param name          display name
+     * @param architects
+     * @param primaryOffset the anchor offset, null for default
+     * @return blueprint
+     */
+    public static CompoundTag writeBlueprintToNBT(
+        final int sizeX, final int sizeY, final int sizeZ,
+        final short[][][] structure,
+        final ListTag palette,
+        final ListTag tileEntities,
+        final ListTag entities,
+        final Collection<String> requiredMods,
+        @Nullable final String name,
+        @Nullable final String[] architects,
+        @Nullable final BlockPos primaryOffset)
+    {
+        final CompoundTag tag = new CompoundTag();
+        tag.putByte("version", (byte) 1);
+        tag.putShort("size_x", (short) sizeX);
+        tag.putShort("size_y", (short) sizeY);
+        tag.putShort("size_z", (short) sizeZ);
+        tag.put("palette", palette);
+        tag.putIntArray("blocks", convertBlocksToSaveData(structure, sizeX, sizeY, sizeZ));
+        tag.put("tile_entities", tileEntities);
+        tag.put("entities", entities);
+
         final ListTag modsList = new ListTag();
-        for (String requiredMod : requiredMods)
+        for (final String requiredMod : requiredMods)
         {
-            // modsList.set(i,);
             modsList.add(StringTag.valueOf(requiredMod));
         }
         tag.put("required_mods", modsList);
-
-        final String name = schem.getName();
-        final String[] architects = schem.getArchitects();
 
         if (name != null)
         {
@@ -271,13 +289,14 @@ public class BlueprintUtil
 
         tag.put("mcversion", IntTag.valueOf(SharedConstants.getCurrentVersion().getDataVersion().getVersion()));
 
-        final CompoundTag optionalTag = new CompoundTag();
-        final CompoundTag structurizeTag = new CompoundTag();
-
-        BlockPosUtil.writeToNBT(structurizeTag, "primary_offset", schem.getPrimaryBlockOffset());
-
-        optionalTag.put(MOD_ID, structurizeTag);
-        tag.put(NBT_OPTIONAL_DATA_TAG, optionalTag);
+        if (primaryOffset != null)
+        {
+            final CompoundTag optionalTag = new CompoundTag();
+            final CompoundTag structurizeTag = new CompoundTag();
+            BlockPosUtil.writeToNBT(structurizeTag, "primary_offset", primaryOffset);
+            optionalTag.put(MOD_ID, structurizeTag);
+            tag.put(NBT_OPTIONAL_DATA_TAG, optionalTag);
+        }
 
         return tag;
     }
